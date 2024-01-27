@@ -1,0 +1,25 @@
+{% extends "base.html" %} {% block title %} Portfolio {% endblock %} {% block
+content %}
+
+<h1 class="block text-center text-2xl text-slate-900">Hello, {{name}}</h1>
+
+<h1 class="block text-2xl text-slate-900">
+  Welcome to the Menu, choose the app:
+</h1>
+
+<div class="mt-6 flex justify-center space-x-12">
+  <a
+    class="font-bolt h-12 w-36 rounded-md bg-slate-900 p-3 text-center text-slate-300 underline shadow-lg shadow-slate-600 hover:text-indigo-300"
+    href="/overview"
+  >
+    Data Monitoring
+  </a>
+
+  <a
+    class="font-bolt h-12 w-36 rounded-md bg-slate-900 p-3 text-center text-slate-300 underline shadow-lg shadow-slate-600 hover:text-indigo-300"
+    href="/contacts/show?page_p=1"
+  >
+    Contacts app
+  </a>
+</div>
+{% endblock %}

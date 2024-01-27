@@ -1,0 +1,78 @@
+{% extends "base.html" %} {% block title %} Add a Contact {% endblock %} {%
+block content %}
+
+<form action="/contacts/new" method="post">
+  <legend class="w-full pb-3 text-center text-2xl font-bold text-slate-900">
+    Create a new contact
+  </legend>
+
+  <div class="flex justify-center space-x-2 p-1">
+    <label class="block min-w-24" for="first">First Name</label>
+    <input
+      class="rounded-md border border-slate-900 px-1"
+      name="first_p"
+      id="first"
+      type="text"
+      placeholder="First Name"
+      value="{{ first_t }}"
+    />
+    <div class="min-w-40 text-red-600">{{ errors_t.first_error }}</div>
+  </div>
+  <div class="flex justify-center space-x-2 p-1">
+    <label class="min-w-24" for="last">Last Name</label>
+    <input
+      class="rounded-md border border-slate-900 px-1"
+      name="last_p"
+      id="last"
+      type="text"
+      placeholder="Last Name"
+      value="{{ last_t }}"
+    />
+    <div class="min-w-40 text-red-600">{{ errors_t.last_error }}</div>
+  </div>
+  <div class="flex justify-center space-x-2 p-1">
+    <label class="min-w-24" for="new_email">Email</label>
+    <input
+      class="rounded-md border border-slate-900 px-1"
+      name="email_p"
+      id="new_email"
+      type="email"
+      placeholder="Email"
+      value="{{ email_t }}"
+      hx-get="/contacts/validate_email"
+      hx-include="#new_email"
+      hx-target="next div"
+      hx-trigger="change changed, keyup delay:300ms changed"
+    />
+    <div class="min-w-40 text-red-600">
+      {{ errors_t.email_error }}{{ errors_t.email_unique_error }}
+    </div>
+  </div>
+  <div class="flex justify-center space-x-2 p-1">
+    <label class="min-w-24" for="phone">Phone</label>
+    <input
+      class="rounded-md border border-slate-900 px-1"
+      name="phone_p"
+      id="phone"
+      type="tel"
+      placeholder="Phone"
+      value="{{ phone_t }}"
+    />
+    <div class="min-w-40 text-red-600">{{ errors_t.phone_error }}</div>
+  </div>
+  <div class="flex justify-evenly pt-3">
+    <button
+      class="rounded-md border border-indigo-600 px-1 text-center text-indigo-600 hover:bg-slate-400"
+      type="submit"
+    >
+      Save
+    </button>
+    <a
+      class="rounded-md border border-indigo-600 px-1 text-indigo-600 hover:bg-slate-400"
+      href="/contacts/show?page_p=1"
+      >Back</a
+    >
+  </div>
+</form>
+
+{% endblock %}

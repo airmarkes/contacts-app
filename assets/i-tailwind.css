@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ./tailwindcss -i assets/i-tailwind.css -o assets/o-tailwind.css --watch */
+/* ./tailwindcss -i assets/i-tailwind.css -o assets/o-tailwind.css --minify */
+
+tr.htmx-swapping {
+  opacity: 0;
+  color: red;
+  transition: all 1s ease-out;
+}

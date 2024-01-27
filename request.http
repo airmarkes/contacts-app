@@ -1,0 +1,32 @@
+@host = http://127.0.0.1:8080
+###
+GET {{host}}/
+###
+GET {{host}}/hello
+###
+GET {{host}}/hello?name=Johanna&salutation=Holla
+###
+POST {{host}}/hello
+Content-Type: application/json
+
+{
+    "salutation": "Hiho",
+    "name": "Penderro"
+}
+###
+GET {{host}}/hello2/Mike
+###
+GET {{host}}/rainer/iseven/51
+###
+GET {{host}}/rainer/multiresp
+###
+GET {{host}}/numbers
+###
+POST {{host}}/numbers
+Content-Type: application/json
+
+###
+GET {{host}}/poem
+
+###
+DELETE  {{host}}/contacts/show

@@ -1,0 +1,96 @@
+{% for contact in contacts_t %}
+
+<tr class="table-row">
+  <td class="table=cell px-2 py-1" id>
+    <input type="checkbox" name="ids_p" value="{{ contact.id }}" />
+  </td>
+  <td class="table-cell px-2 py-1">{{ contact.id}}</td>
+  <td class="table-cell px-2 py-1">{{ contact.first }}</td>
+  <td class="table-cell px-2 py-1">{{ contact.last }}</td>
+  <td class="table-cell px-2 py-1">{{ contact.phone }}</td>
+  <td class="table-cell px-2 py-1">{{ contact.email }}</td>
+  <td class="table-cell px-2 py-1">{{ contact.time_creation }}</td>
+  <td class="table-cell px-2 py-1">
+    <a
+      class="rounded-md border border-indigo-600 px-1 text-indigo-600 hover:bg-slate-400"
+      href="/contacts/view?id_p={{ contact.id }}"
+      >View</a
+    >
+  </td>
+  <td class="table-cell px-2 py-1">
+    <a
+      class="rounded-md border border-indigo-600 px-1 text-indigo-600 hover:bg-slate-400"
+      href="#"
+      hx-delete="/contacts/view?id_p={{contact.id}}"
+      hx-swap="outerHTML swap:1s"
+      hx-confirm="Are you sure you want do delete this contacts?"
+      hx-target="closest tr"
+      >Delete</a
+    >
+  </td>
+</tr>
+{% endfor %}
+
+<tr>
+  <td colspan="9" class="text-center">
+    <div class="flex justify-center space-x-3 py-3">
+      {% if page_t > 1 %}
+      <a
+        href="/contacts/show?page_p={{ page_t - 1 }}"
+        class="min-w-9 rounded-md border border-indigo-600 px-1 text-center font-bold text-indigo-600 hover:bg-slate-400"
+        hx-target="#tbody"
+        hx-select="tbody > tr"
+        hx-indicator="#full_spinner"
+      >
+        &lt</a
+      >
+      {% endif %}
+      <input
+        class="w-10 rounded-md pl-3"
+        name="page_p"
+        id="page_p"
+        value="{{ page_t }}"
+        type="text"
+        min="1"
+        max="{{max_page_t}}"
+        hx-get="/contacts/show"
+        hx-include="#page_p"
+        hx-target="#tbody"
+        hx-select="tbody > tr"
+        hx-push-url="true"
+        hx-trigger="change, keyup delay:300ms changed"
+        hx-indicator="#full_spinner"
+      />
+      <span> of </span>
+      <span>{{ max_page_t }}</span>
+      {% if length_t == 10 && page_t < max_page_t %}
+      <a
+        href="/contacts/show?page_p={{ page_t + 1 }}"
+        class="min-w-9 rounded-md border border-indigo-600 text-center font-bold text-indigo-600 hover:bg-slate-400"
+        hx-target="#tbody"
+        hx-select="tbody > tr"
+        hx-indicator="#full_spinner"
+      >
+        &gt</a
+      >
+      {% endif %}
+    </div>
+  </td>
+</tr>
+
+<!--<tr>
+  {% if length_t == 10 %}
+  <td colspan="7" class="text-center">
+    <div
+      class="animate-bounce font-bold text-indigo-600"
+      hx-get="/contacts/show?page_p={{ page_t + 1}}"
+      hx-trigger="revealed"
+      hx-target="closest tr"
+      hx-swap="outerHTML"
+      hx-select="tbody > tr"
+    >
+      Loading More...
+    </div>
+  </td>
+</tr> 
+{% endif %} -->
