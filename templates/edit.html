@@ -39,10 +39,11 @@
         type="email"
         placeholder="Email"
         value="{{ contact_t.email }}"
-        hx-get="/contacts/validate_email"
+        hx-get="/contacts/validate_email?id_p={{contact_t.id }}"
         hx-include="#email"
         hx-target="next div"
         hx-trigger="change, keyup delay:300ms changed"
+        hx-push-url="true"
       />
       <div class="min-w-40 text-red-600">
         {{ errors_t.email_error }}{{ errors_t.email_unique_error }}

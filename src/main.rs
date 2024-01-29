@@ -54,14 +54,14 @@ fn contacts_management() -> Router<AppStateType> {
         Query(params): Query<ShowParams>,
         headers: HeaderMap,
     ) -> impl IntoResponse {        
-        let search_bar = params.search_p.as_deref().unwrap_or("");
         let contacts_all = state.read().unwrap().contacts_state.clone();  
+        let search_bar = params.search_p.as_deref().unwrap_or("");
         let max_page = contacts_all.len().div_ceil(10);
         let flash = state.read().unwrap().flash_state.clone();  
         let mut page_set = params.page_p.unwrap();
         if page_set <= 0 { page_set = 1;} 
         else if page_set > max_page { page_set = max_page;};
-        let (contacts_set, length) = match_contacts(&search_bar, contacts_all, page_set);    
+        let (contacts_set, length) = contacts_all.match_contacts(&search_bar, page_set);    
         let rows_tmpl = RowsTemplate {
             contacts_t: contacts_set.clone(),
             length_t: length,
@@ -122,8 +122,8 @@ fn contacts_management() -> Router<AppStateType> {
         let last_set = params.last_p.unwrap();
         let phone_set = params.phone_p.unwrap();
         let email_set = params.email_p.unwrap();
-        let new_contact = create_contact(first_set, last_set, phone_set, email_set, &contacts_all);
-        let new_error = check_errors(&new_contact, &contacts_all);
+        let new_contact = contacts_all.create_contact(first_set, last_set, phone_set, email_set);
+        let new_error = contacts_all.check_errors(&new_contact);
         match new_error {
             None => {                                
                 let mut writable_state = state.write().unwrap();
@@ -146,8 +146,8 @@ fn contacts_management() -> Router<AppStateType> {
         State(state): State<AppStateType>,
         Query(params): Query<ViewContactParams>        
     ) -> impl IntoResponse {        
-        let id_set = params.id_p.unwrap();
         let contacts_all = state.read().unwrap().contacts_state.clone();
+        let id_set = params.id_p.unwrap();
         let contact_set = contacts_all.into_iter().filter(|x| x.id == id_set).collect::<ContactState>().swap_remove(0);              
         let view_contact_template = ViewContactTemplate { contact_t: contact_set };
         Html(view_contact_template.render().unwrap())
@@ -169,18 +169,15 @@ fn contacts_management() -> Router<AppStateType> {
         Query(params_query): Query<EditContactParams>,
         Form(params_form): Form<EditContactParams>
     ) -> Redirect {
-        let id_set = params_query.id_p.unwrap();
         let contacts_all = state.read().unwrap().contacts_state.clone();
-        let contact_position = contacts_all.clone().into_iter().position(|x| x.id == id_set).unwrap(); 
-        let contact_set = contacts_all.clone().into_iter().filter(|x| x.id == id_set ).collect::<ContactState>().swap_remove(0);                   
-        let contacts_all_but = contacts_all.clone().into_iter().filter(|x| x.id != id_set).collect::<ContactState>();        
+        let id_set = params_query.id_p.unwrap();
         let first_set = params_form.first_p.unwrap();
         let last_set = params_form.last_p.unwrap();
         let phone_set = params_form.phone_p.unwrap();
         let email_set = params_form.email_p.unwrap();
-        let time_creation_set = &contact_set.time_creation;
-        let edited_contact = edit_contact(contact_set.id, first_set, last_set, phone_set, email_set, contact_set.time_creation);
-        let new_error = check_errors(&edited_contact, &contacts_all_but);
+        let (edited_contact, contact_position) = contacts_all.edit_contact(id_set);
+        let contacts_all_but = contacts_all.clone().into_iter().filter(|x| x.id != id_set).collect::<ContactState>();        
+        let new_error = contacts_all_but.check_errors(&edited_contact);
         match new_error {
             None => { 
                 let mut writable_state = state.write().unwrap();
@@ -256,7 +253,17 @@ fn contacts_management() -> Router<AppStateType> {
     ) -> String {
         let contacts_all = state.read().unwrap().contacts_state.clone();
         let email_set = params_query.email_p.unwrap();
-        let email_validated = validate_email(&contacts_all, &email_set);        
+        let id_set_opt = params_query.id_p;
+        let mut contacts_all_but = Vec::new();
+        match id_set_opt {
+            Some(id_set) => {
+                contacts_all_but = contacts_all.clone().into_iter().filter(|x| x.id != id_set).collect::<ContactState>();        
+            },
+            None => {
+                contacts_all_but = contacts_all;
+            }
+        }
+        let email_validated = contacts_all_but.validate_email(&email_set);        
         email_validated        
     }
     async fn handler_contacts_count (
@@ -345,6 +352,7 @@ struct EditContactParams{
 #[derive(Debug, Deserialize)]
 struct ValidateEmailParams{
     email_p: Option<String>,
+    id_p: Option<usize>,
 }
 
 #[derive(Debug, Deserialize)]

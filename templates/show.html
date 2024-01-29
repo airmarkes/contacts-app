@@ -80,13 +80,13 @@ block content %}
       </tr>
     </thead>
     <tbody class="relative table-row-group" id="tbody">
+      {% include "show_rows.html" %}
       <div
         class="htmx-indicator absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
         id="full_spinner"
       >
         <img src="/assets/spinner.svg" class="h-12 w-12 animate-spin" />
       </div>
-      {% include "show_rows.html" %}
     </tbody>
   </table>
 </form>
