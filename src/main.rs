@@ -1,17 +1,21 @@
 #![allow(unused)]
-use std::{sync::{Arc, RwLock, RwLockWriteGuard}, fmt::write, thread, time::Duration};
-use serde::Deserialize;
+pub mod contacts_app;
+pub mod db;
+pub mod templates;
+
+use std::{sync::{Arc, RwLock, RwLockWriteGuard}, fmt::write, thread::{self, yield_now}, time::Duration};
 use tokio::{net::TcpListener, fs::File, io::AsyncReadExt};
 use axum::{Router, routing::{get, post, head}, response::{IntoResponse, Html, Redirect, Response}, extract::{Query, State, Path}, Json, Form, http::{HeaderMap, header}};
-use askama::Template;
 use tower_http::services::ServeDir;
 use axum_extra::extract::Form as ExtraForm;
-
-pub mod contacts_app;
+use askama::Template;
+use tokio::time::{sleep, Duration as TokioDuration};
+use tokio_util::io::ReaderStream;
+use tokio::sync::{RwLock as TokioRwLock, RwLockWriteGuard as TokioRwLockWriteGuard};
+use rand::prelude::*;
 use contacts_app::*;
-
-pub mod db;
 use db::*;
+use templates::*;
 
 #[tokio::main]
 async fn main() {
@@ -34,19 +38,11 @@ async fn handler_root() -> impl IntoResponse {
     let root_tmpl = RootTemplate { name: "Guest!"};
     Html(root_tmpl.render().unwrap())      
 }
-#[derive(Template)]
-#[template(path = "root.html")]
-struct RootTemplate<'a> {
-    name: &'a str,
-}
 
 async fn handler_overview() -> impl IntoResponse {
     let overview_tmpl = OverviewTemplate{};
     Html(overview_tmpl.render().unwrap())
 }
-#[derive(Template)]
-#[template(path = "overview.html")]
-struct OverviewTemplate {}
 
 fn contacts_management() -> Router<AppStateType> {
     async fn handler_get_showcontacts(
@@ -55,8 +51,10 @@ fn contacts_management() -> Router<AppStateType> {
         headers: HeaderMap,
     ) -> impl IntoResponse {        
         let contacts_all = state.read().unwrap().contacts_state.clone();  
+        let archiver = state.read().unwrap().archiver_state.clone();
         let search_bar = params.search_p.as_deref().unwrap_or("");
-        let max_page = contacts_all.len().div_ceil(10);
+        let mut max_page = contacts_all.len().div_ceil(10);
+        if max_page == 0 { max_page = 1; }
         let flash = state.read().unwrap().flash_state.clone();  
         let mut page_set = params.page_p.unwrap();
         if page_set <= 0 { page_set = 1;} 
@@ -74,6 +72,7 @@ fn contacts_management() -> Router<AppStateType> {
             length_t: length,
             page_t: page_set,
             max_page_t: max_page,
+            archive_t: archiver,
         }; 
             let mut writable_state = state.write().unwrap(); 
             writable_state.flash_state = FlashState::default();
@@ -142,6 +141,7 @@ fn contacts_management() -> Router<AppStateType> {
             },    
         }
     }   
+   
     async fn handler_get_viewcontact(
         State(state): State<AppStateType>,
         Query(params): Query<ViewContactParams>        
@@ -152,6 +152,7 @@ fn contacts_management() -> Router<AppStateType> {
         let view_contact_template = ViewContactTemplate { contact_t: contact_set };
         Html(view_contact_template.render().unwrap())
     }
+    
     async fn handler_get_editcontact (
         State(state): State<AppStateType>,
         Query(params): Query<EditContactParams>
@@ -164,6 +165,7 @@ fn contacts_management() -> Router<AppStateType> {
         Html(edit_contact_template.render().unwrap())
 
     }
+   
     async fn handler_post_editcontact (
         State(state): State<AppStateType>,
         Query(params_query): Query<EditContactParams>,
@@ -175,7 +177,7 @@ fn contacts_management() -> Router<AppStateType> {
         let last_set = params_form.last_p.unwrap();
         let phone_set = params_form.phone_p.unwrap();
         let email_set = params_form.email_p.unwrap();
-        let (edited_contact, contact_position) = contacts_all.edit_contact(id_set);
+        let (edited_contact, contact_position) = contacts_all.edit_contact(id_set, first_set, last_set,phone_set, email_set);
         let contacts_all_but = contacts_all.clone().into_iter().filter(|x| x.id != id_set).collect::<ContactState>();        
         let new_error = contacts_all_but.check_errors(&edited_contact);
         match new_error {
@@ -198,6 +200,7 @@ fn contacts_management() -> Router<AppStateType> {
          
   
     }
+    
     async fn handler_delete_contact (
         State(state): State<AppStateType>,
         Query(params_query): Query<ViewContactParams>,
@@ -222,6 +225,7 @@ fn contacts_management() -> Router<AppStateType> {
             }
         };
     }
+    
     async fn handler_delete_bulk (
         State(state): State<AppStateType>,
         ExtraForm (params_form): ExtraForm<DeleteBulkParams>        
@@ -247,6 +251,7 @@ fn contacts_management() -> Router<AppStateType> {
             }
         }
     }    
+    
     async fn handler_get_validate_email (
         State(state): State<AppStateType>,
         Query(params_query): Query<ValidateEmailParams>
@@ -266,8 +271,10 @@ fn contacts_management() -> Router<AppStateType> {
         let email_validated = contacts_all_but.validate_email(&email_set);        
         email_validated        
     }
+    
     async fn handler_contacts_count (
         State(state): State<AppStateType>
+        //State(state_contacts): State<ContactState>
     ) -> String {
         let contacts_all = state.read().unwrap().contacts_state.clone();
         let contacts_count = contacts_all.len();
@@ -275,6 +282,75 @@ fn contacts_management() -> Router<AppStateType> {
         thread::sleep(Duration::from_millis(900));
         span
     }
+    
+    async fn handler_post_archive (
+        State(state): State<AppStateType>
+        //State(state_archive): State<ArchiverState>
+    ) -> impl IntoResponse {
+        let archiver = state.read().unwrap().archiver_state.clone();
+        //let archiver = archiver_type.read().unwrap().clone();  
+        if archiver.archive_status == "Waiting".to_owned() {
+                let mut write = state.write().unwrap();
+                write.archiver_state.archive_status = "Running".to_owned();       
+                write.archiver_state.archive_progress = 0.0;
+                drop(write);
+                //let new_lock = Arc::new(TokioRwLock::new(archiver));
+                let clone = state.clone();
+                let handle = tokio::spawn(async move {
+                    run_thread(clone).await;
+                });
+                //tokio::join!(run_thread(clone),);
+                
+        //archiver.clone().run();
+        //let archiver_then = state.read().unwrap().archiver_state.clone();    
+        };
+        let archiver_then = state.read().unwrap().archiver_state.clone();
+        
+        let archive_ui = ArchiveUiTemplate {
+            archive_t: archiver_then,
+        };
+        Html(archive_ui.render().unwrap())
+    }
+    
+    async fn handler_get_archive (
+        State(state): State<AppStateType>
+    ) -> impl IntoResponse {
+        let archiver = state.read().unwrap().archiver_state.clone();
+        let archive_ui = ArchiveUiTemplate {
+            archive_t: archiver,
+        };
+        Html(archive_ui.render().unwrap())
+    }
+    
+    async fn handler_get_archive_file (
+        State(state): State<AppStateType>
+    ) -> impl IntoResponse {
+        let archiver = state.read().unwrap().archiver_state.clone();
+        let file = tokio::fs::File::open(archiver.archive_file()).await.unwrap();
+        let stream = ReaderStream::new(file);
+        let body = axum::body::Body::from_stream(stream);
+        let filename = "archive.json";
+        let headers = [
+            (header::CONTENT_TYPE, "text/html; charset=utf-8"),
+            (header::CONTENT_DISPOSITION, "attachment; filename=\"archive.json\""),
+            //&format!("attachment; filename=\"{:?}\"", filename)),
+        ];
+        (headers, body)
+    }
+    
+    async fn handler_delete_archive_file (
+        State(state): State<AppStateType>
+    ) -> impl IntoResponse {
+        let mut write = state.write().unwrap();
+        write.archiver_state.archive_status = "Waiting".to_owned();
+        drop(write);
+        let archiver = state.read().unwrap().archiver_state.clone();
+        let archive_ui = ArchiveUiTemplate {
+            archive_t: archiver
+        };
+        Html(archive_ui.render().unwrap())
+    }
+    
     Router::new()
     .route("/contacts/show", get(handler_get_showcontacts).delete(handler_delete_bulk))
     .route("/contacts/new", get(handler_get_newcontact).post(handler_post_newcontact)) 
@@ -282,85 +358,9 @@ fn contacts_management() -> Router<AppStateType> {
     .route("/contacts/edit", get(handler_get_editcontact).post(handler_post_editcontact))  
     .route("/contacts/validate_email", get(handler_get_validate_email))
     .route("/contacts/count", get(handler_contacts_count))
+    .route("/contacts/archive", post(handler_post_archive).get(handler_get_archive))
+    .route("/contacts/archive/file", get(handler_get_archive_file).delete(handler_delete_archive_file))
 }
-
-#[derive(Template)]
-#[template(path = "show.html")]
-struct ShowTemplate<'a> {
-    contacts_t: ContactState,
-    search_t: &'a str,
-    flash_t: FlashState,
-    length_t: usize,
-    page_t: usize,
-    max_page_t: usize,
-}
-#[derive(Debug, Deserialize)]
-struct ShowParams {
-    search_p: Option<String>,
-    page_p: Option<usize>    
-}
-#[derive(Template)]
-#[template(path = "show_rows.html")]
-struct RowsTemplate {
-    contacts_t: ContactState,
-    length_t: usize,
-    page_t: usize,
-    max_page_t: usize
-}
-#[derive(Template)]
-#[template(path = "new.html")]
-struct NewContactTemplate<'a> {    
-    errors_t: CreationErrorState,
-    first_t: &'a str,
-    last_t: &'a str,
-    phone_t: &'a str,
-    email_t: &'a str,
-}
-#[derive(Debug, Deserialize)]
-struct NewContactParams {
-    first_p: Option<String>, 
-    last_p: Option<String>,
-    phone_p: Option<String>,
-    email_p: Option<String>,     
-} 
-
-#[derive(Template)]
-#[template(path = "view.html")]
-struct ViewContactTemplate {
-    contact_t: Contact,
-}
-#[derive(Debug, Deserialize)]
-struct ViewContactParams{
-    id_p: Option<usize>
-}
-
-#[derive(Template)]
-#[template(path = "edit.html")]
-struct EditContactTemplate {
-    errors_t: CreationErrorState,
-    contact_t: Contact,
-}
-#[derive(Debug, Deserialize)]
-struct EditContactParams{
-    id_p: Option<usize>,
-    first_p: Option<String>, 
-    last_p: Option<String>,
-    phone_p: Option<String>,
-    email_p: Option<String>, 
-}
-
-#[derive(Debug, Deserialize)]
-struct ValidateEmailParams{
-    email_p: Option<String>,
-    id_p: Option<usize>,
-}
-
-#[derive(Debug, Deserialize)]
-struct DeleteBulkParams{
-    #[serde(rename = "ids_p")]
-    ids_p: Option<Vec<String>>,
-}
-
 
 enum TypeOr {
     Redir,
@@ -375,3 +375,4 @@ impl IntoResponse for TypeOr
         }
     }
 }
+

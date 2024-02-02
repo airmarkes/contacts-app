@@ -5,6 +5,7 @@
     <title>{% block title %} {{ title }} {% endblock %}</title>
     {% block head %}{% endblock %}
     <script src="/assets/htmx.min.js"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
   </head>
 
   <body class="relative min-h-screen bg-slate-300" hx-boost="true">
@@ -24,7 +25,7 @@
       id="content"
     >
       <!--<div class="border border-indigo-900 p-3 shadow-md shadow-indigo-600"> -->
-      <div>{% block content %}{% endblock %}</div>
+      <div class="min-w-36">{% block content %}{% endblock %}</div>
     </main>
 
     <footer

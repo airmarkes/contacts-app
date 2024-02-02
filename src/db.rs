@@ -32,7 +32,9 @@ pub async fn connect_db() -> Result<AppState, ContactError> {
     let app_state = AppState {
         contacts_state: contact_vec,
         error_state: CreationErrorState::default(),
-        flash_state: FlashState::default()
+        flash_state: FlashState::default(),
+        //archiver_state: Arc::new(RwLock::new(ArchiverState::default())),
+        archiver_state: ArchiverState::default(),
     };
     let app_state = Ok(app_state);
     app_state

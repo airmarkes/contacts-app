@@ -1,32 +1,43 @@
-use std::sync::{Arc, RwLock};
+use std::{default, sync::{Arc, RwLock}, thread, time::Duration};
 use axum::{extract::FromRef, response::IntoResponse};
 use serde::{Deserialize, Serialize};
 use chrono::prelude::*;
+use rand::prelude::*;
+use tokio::time::{sleep, Duration as TokioDuration};
+use tokio::sync::RwLock as TokioRwLock;
 
 use crate::TypeOr;
 
-#[derive(Default, Clone, Deserialize, Debug)]
+#[derive(Default, Clone)]
 pub struct AppState {
     pub contacts_state: ContactState, 
     pub error_state: CreationErrorState,
-    pub flash_state: FlashState,        
+    pub flash_state: FlashState,  
+    pub archiver_state: ArchiverState
+    //pub archiver_state: ArchiverStateType,  
 }
 pub type ContactState = Vec<Contact>;
 pub type AppStateType = Arc<RwLock<AppState>>;
+//pub type ArchiverStateType = Arc<RwLock<ArchiverState>>;
 
-/*impl FromRef<AppState> for ContactState {
+/*impl FromRef<AppState> for Arc<RwLock<ArchiverState>> {
+    fn from_ref(input: &AppState) -> Arc<RwLock<ArchiverState>> {
+        input.archiver_state.clone()
+    }
+}
+impl FromRef< Arc<RwLock<AppState>>> for ContactState {
     fn from_ref(input: &AppState) -> ContactState {
         input.contacts_state.clone()
     }
 }
-impl FromRef<AppState> for CreationErrorState {
+impl FromRef< Arc<RwLock<AppState>>> for CreationErrorState {
     fn from_ref(input: &AppState) -> CreationErrorState {
         input.error_state.clone()        
     }
 }
-impl FromRef<AppState> for TryState {
-    fn from_ref(input: &AppState) -> TryState {
-        input.try_state.clone()        
+impl FromRef< Arc<RwLock<AppState>>> for FlashState {
+    fn from_ref(input: &AppState) -> FlashState {
+        input.flash_state.clone()        
     }
 }*/
 
@@ -57,7 +68,7 @@ pub trait ContactStateExt {
     fn match_contacts(&self, search_bar: &str, page_set: usize) -> (Vec<Contact>, usize);
     fn check_errors(&self, new_contact: &Contact) -> Option<CreationErrorState>;
     fn create_contact(&self, first_set: String, last_set: String, phone_set: String, email_set: String) -> Contact;
-    fn edit_contact(&self, id_set: usize) -> (Contact, usize);
+    fn edit_contact(&self, id_set: usize, first_set: String, last_set: String, phone_set: String, email_set: String) -> (Contact, usize);
     fn validate_email(&self, email_set: &String) -> String;
 }
 
@@ -125,17 +136,17 @@ impl ContactStateExt for ContactState {
         };
         return new_contact;
     }
-    fn edit_contact(&self, id_set: usize)
+    fn edit_contact(&self, id_set: usize, first_set: String, last_set: String, phone_set: String, email_set: String)
     -> (Contact, usize) {
         let contact_position = self.iter().position(|x| x.id == id_set).unwrap(); 
         let contact_set = self.clone().into_iter().filter(|x| x.id == id_set ).collect::<ContactState>().swap_remove(0);                   
         let time_creation_set = &contact_set.time_creation;
         let edited_contact = Contact {
             id: contact_set.id,
-            first: contact_set.first,
-            last: contact_set.last,
-            phone: contact_set.phone,
-            email: contact_set.email,
+            first: first_set,
+            last: last_set,
+            phone: phone_set,
+            email: email_set,
             time_creation: contact_set.time_creation,
         };
         (edited_contact, contact_position)
@@ -150,3 +161,64 @@ impl ContactStateExt for ContactState {
             };
     }
 }
+
+#[derive(Clone, Deserialize)]
+pub struct ArchiverState {
+    pub archive_status: String,
+    pub archive_progress: f64,
+}
+impl Default for ArchiverState {
+    fn default() -> Self {
+        ArchiverState {
+        archive_status: "Waiting".to_owned(),
+        archive_progress: 0.0,
+        }    
+    }
+}
+impl ArchiverState {
+    pub fn status(&self) -> String {
+        self.archive_status.clone()
+    }
+    pub fn progress(&self) -> f64 {
+        self.archive_progress
+    }
+    /*pub fn run(self, rw: ArchiverStateType) -> () {
+        if self.archive_status == "Waiting".to_owned() {
+            let mut mutable_state = .write().unwrap();
+            mutable_state.archive_status = "Running".to_owned(); 
+            //mutable_state.archive_progress = 0;
+            //self.archive_status = "Running".to_owned();
+            //self.archive_progress = 0.0;
+            tokio::spawn(async move {
+                self.run_thread().await;
+            });
+        }
+    } 
+     
+    pub fn reset(&self) -> () {
+        self.archive_status = "Waiting".to_owned();
+    } */
+    pub fn archive_file(&self) -> &str {
+        return "D:/RustProjects/axum-3-htmx/assets/db.json"
+    }
+}
+
+pub async fn run_thread(state: /*Arc<TokioRwLock<ArchiverState>>*/ AppStateType) -> () {
+    //thread::sleep(Duration::from_millis(3000));
+    for i in (0..10) {
+        let random = rand::thread_rng().gen::<f64>();
+        //println!("{random}");
+        let sleep_time = (1000.0 * random) as u64;
+        sleep(TokioDuration::from_millis(sleep_time)).await;
+        //println!("{sleep_time}");
+        //thread::sleep(Duration::from_millis((3000.0 * rand::thread_rng().gen::<f64>()) as u64));
+        let mut write = state.write().unwrap();
+        write.archiver_state.archive_progress = ((i as f64) + 1.0) / 10.0;
+        drop(write);
+        //println!("Here... {}", state.read().unwrap().archiver_state.archive_progress);
+        if state.read().unwrap().archiver_state.archive_status != "Running" { return; } 
+
+    }
+    state.write().unwrap().archiver_state.archive_status = "Complete".to_owned();
+    return;
+}    
