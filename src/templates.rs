@@ -5,7 +5,7 @@ use serde::Deserialize;
 #[derive(Deserialize)]
 pub struct ShowParams {
     pub search_p: Option<String>,
-    pub page_p: Option<usize>    
+    pub page_p: Option<u32>    
 }
 
 #[derive(Deserialize)]
@@ -18,12 +18,12 @@ pub struct NewContactParams {
 
 #[derive(Deserialize)]
 pub struct ViewContactParams{
-    pub id_p: Option<usize>
+    pub id_p: Option<u32>
 }
 
 #[derive(Deserialize)]
 pub struct EditContactParams{
-    pub id_p: Option<usize>,
+    pub id_p: Option<u32>,
     pub first_p: Option<String>, 
     pub last_p: Option<String>,
     pub phone_p: Option<String>,
@@ -33,7 +33,7 @@ pub struct EditContactParams{
 #[derive(Deserialize)]
 pub struct ValidateEmailParams{
     pub email_p: Option<String>,
-    pub id_p: Option<usize>,
+    pub id_p: Option<u32>,
 }
 
 #[derive(Deserialize)]
@@ -57,22 +57,22 @@ pub struct OverviewTemplate {}
 #[derive(Template)]
 #[template(path = "show.html")]
 pub struct ShowTemplate<'a> {
-    pub contacts_t: ContactState,
+    pub contacts_t: Vec<Contact>,
     pub search_t: &'a str,
     pub flash_t: FlashState,
-    pub length_t: usize,
-    pub page_t: usize,
-    pub max_page_t: usize,
+    pub length_t: u32,
+    pub page_t: u32,
+    pub max_page_t: u32,
     pub archive_t: ArchiverState,
 }
 
 #[derive(Template)]
 #[template(path = "show_rows.html")]
 pub struct RowsTemplate {
-    pub contacts_t: ContactState,
-    pub length_t: usize,
-    pub page_t: usize,
-    pub max_page_t: usize
+    pub contacts_t: Vec<Contact>,
+    pub length_t: u32,
+    pub page_t: u32,
+    pub max_page_t: u32
 }
 
 #[derive(Template)]
