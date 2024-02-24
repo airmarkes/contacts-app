@@ -1,7 +1,8 @@
 #![allow(unused)]
-pub mod contacts_app;
-pub mod db;
+pub mod models;
+pub mod errors;
 pub mod templates;
+pub mod params;
 
 use core::num;
 use std::{sync::{Arc, RwLock, RwLockWriteGuard}, fmt::write, thread::{self, yield_now}, time::Duration};
@@ -9,26 +10,33 @@ use axum_macros::debug_handler;
 use chrono::prelude::*;
 use sqlx::{sqlite::SqliteRow, Row};
 use tokio::{net::TcpListener, fs::File, io::AsyncReadExt};
-//use tokio::sync::{RwLock, RwLockWriteGuard};
 use axum::{extract::{Path, Query, State}, http::{header, HeaderMap, StatusCode}, response::{Html, IntoResponse, Redirect, Response}, routing::{get, head, post}, Form, Json, Router};
 use tower_http::services::ServeDir;
 use axum_extra::extract::Form as ExtraForm;
 use askama::Template;
 use tokio::time::{sleep, Duration as TokioDuration};
 use tokio_util::io::ReaderStream;
-//use tokio::sync::{RwLock as TokioRwLock, RwLockWriteGuard as TokioRwLockWriteGuard};
 use rand::prelude::*;
+use sqlx::sqlite::SqlitePool;
+use std::env;
 
-
-use contacts_app::*;
-use db::*;
+use models::*;
+use errors::*;
 use templates::*;
+use params::*;
 
 #[tokio::main]
-async fn main() {
-    //let contact_state = Arc::new(RwLock::new(ContactState::default()));
-    let db: AppState = connect_db().await.unwrap();
-    let app_state = Arc::new(RwLock::new(db));    
+async fn main() -> Result<(), AppError> {
+    let path: &'static str = env!("DATABASE_URL");
+    let pool = SqlitePool::connect(path).await?;   
+    let app_state = AppState {
+        contacts_state: pool,
+        error_state: CreationErrorState::default(),
+        flash_state: FlashState::default(),
+        archiver_state: ArchiverState::default(),
+    };    
+    let app_state = Arc::new(RwLock::new(app_state));    
+
     let app = Router::new()
     .route("/", get(handler_root))    
     .route("/overview", get(handler_overview))   
@@ -39,6 +47,7 @@ async fn main() {
     let listener = TcpListener::bind(socket).await.unwrap();
     println!("Listening on {}\n", socket);
     axum::serve(listener, app).await.unwrap();
+    Ok(())
 }
 
 async fn handler_root() -> impl IntoResponse {    
@@ -139,7 +148,6 @@ fn contacts_management() -> Router<AppStateType> {
                 let id_inserted = create_contact(pool, first_set, last_set, phone_set, email_set).await?;
                 let mut writable_state = state.write().unwrap();
                 writable_state.flash_state = FlashState { flash: format!("Contact ID {} Created Successfully!", id_inserted).to_string(), flash_count: 1};
-                //writable_state.contacts_state.push(new_contact); 
                 writable_state.error_state = CreationErrorState::default(); 
                 Ok(Redirect::to("/contacts/show?page_p=1")) 
             }, 
@@ -168,16 +176,6 @@ fn contacts_management() -> Router<AppStateType> {
             WHERE id = ?
             "#, id_set
         ).fetch_one(&pool).await?; 
-        //let contact_set = contacts_all.into_iter().filter(|x| x.id == id_set).collect::<ContactState>().swap_remove(0);              
-/*         let contact_set = Contact{
-            id: row.get("id"),
-            first_name: row.get("first_name"),
-            last_name: row.get("last_name"),
-            phone: row.get("phone"),
-            email: row.get("email"),
-            time_creation: row.get("time_creation")
-        };
- */        
         let view_contact_template = ViewContactTemplate { contact_t: contact_set };
         Ok(Html(view_contact_template.render().unwrap()))
     }
@@ -198,7 +196,6 @@ fn contacts_management() -> Router<AppStateType> {
             "#, id_set
         )
         .fetch_one(&pool).await?; 
-        //let contact_set = contacts_all.into_iter().filter(|x| x.id == id_set ).collect::<ContactState>().swap_remove(0);        
         let edit_contact_template = EditContactTemplate { errors_t: errors_all, contact_t: contact_set};
         Ok(Html(edit_contact_template.render().unwrap()))
 
@@ -219,10 +216,6 @@ fn contacts_management() -> Router<AppStateType> {
 
         let errors_all = CreationErrorState::default();  
         let new_error = check_errors(&pool, &first_set, &last_set, &phone_set, &email_set, &id_set).await?;
-
-        //let (edited_contact, contact_position) = contacts_all.edit_contact(id_set, first_set, last_set,phone_set, email_set);
-        //let contacts_all_but = contacts_all.clone().into_iter().filter(|x| x.id != id_set).collect::<ContactState>();        
-        //let new_error = contacts_all_but.check_errors(&edited_contact);
         
         match new_error {
             None => {
@@ -235,8 +228,6 @@ fn contacts_management() -> Router<AppStateType> {
                     },
                     _ => println!("Updated Unsuccessfully"),
                 };
-                //writable_state.contacts_state.remove(contact_position);
-                //writable_state.contacts_state.insert(contact_position, edited_contact);
                 Ok(Redirect::to("/contacts/show?page_p=1"))
             },
             Some(new_error) => {
@@ -266,12 +257,10 @@ fn contacts_management() -> Router<AppStateType> {
             "#, id_set
         ).execute(&pool).await?.rows_affected();
         
-        //let contact_position = contacts_all.into_iter().position(|x| x.id == id_set).unwrap();        
-        let mut writable_state = state.write().unwrap();
-        //writable_state.contacts_state.remove(contact_position);
         match rows_affected {
             1 => {
                 println!("Deleted Successfully");
+                let mut writable_state = state.write().unwrap();
                 writable_state.flash_state = FlashState { flash: format!("Contact with ID {} deleted successfully!",id_set).to_string(), flash_count: 1};
             },
             _ => println!("Deleted Unsuccessfully"),
@@ -294,21 +283,11 @@ fn contacts_management() -> Router<AppStateType> {
         ExtraForm (params_form): ExtraForm<DeleteBulkParams>        
     ) -> Result<impl IntoResponse, AppError> {
         let ids_opt: Option<Vec<String>> = params_form.ids_p;
-        //let mut contact_position: usize;        
-        //let mut writable_state = state.write().unwrap();
-        //let ids_usize: Vec<usize>;
         let pool = state.read().unwrap().contacts_state.clone();
         let mut rows_affected_sum: u32 = 0;
         match (ids_opt) {
             Some(ids_set) => { 
-/*                 ids_usize = ids_set.into_iter().map(|u| {u.parse::<usize>().unwrap()}).collect::<Vec<usize>>();
-                for (index, id_in) in ids_usize.iter().enumerate() {
-                    contact_position = contacts_all.iter().position(|x| {&x.id == id_in}).unwrap();   
-                    contact_position = contact_position - index;
-                    writable_state.contacts_state.remove(contact_position);
-                               
-                };
- */             let ids_u32 = ids_set.into_iter().map(|u| {u.parse::<u32>().unwrap()}).collect::<Vec<u32>>();
+                let ids_u32 = ids_set.into_iter().map(|u| {u.parse::<u32>().unwrap()}).collect::<Vec<u32>>();
                 for id_set in ids_u32 {
                     let rows_affected = sqlx::query!(
                         r#"
@@ -319,9 +298,7 @@ fn contacts_management() -> Router<AppStateType> {
                     rows_affected_sum += 1; 
                 };
                 match rows_affected_sum {
-                    0 => {
-                        println!("Deleted UnSuccessfully");
-                    },
+                    0 => { println!("Deleted UnSuccessfully"); },
                     _ => println!("Deleted Successfully {} Contacts", rows_affected_sum),
                 };
                 return Ok(Redirect::to("/contacts/show?page_p=1"))
@@ -342,8 +319,6 @@ fn contacts_management() -> Router<AppStateType> {
         let pool = state.read().unwrap().contacts_state.clone();
         let email_validated = validate_email(&pool, &email_set, &id_set_opt).await?;
         Ok(email_validated)
-
-        //let email_validated = contacts_all_but.validate_email(&email_set);        
     }
     
     async fn handler_contacts_count (
@@ -359,8 +334,6 @@ fn contacts_management() -> Router<AppStateType> {
             "#
         ).fetch_one(&pool).await?;
         let contacts_count = rec.count;
-
-        //let contacts_count = contacts_all.len();
         let span = format!("({} total contacts)", contacts_count);
         thread::sleep(Duration::from_millis(900));
         Ok(span)
@@ -371,21 +344,15 @@ fn contacts_management() -> Router<AppStateType> {
         //State(state_archive): State<ArchiverState>
     ) -> impl IntoResponse {
         let archiver = state.read().unwrap().archiver_state.clone();
-        //let archiver = archiver_type.read().unwrap().clone();  
         if archiver.archive_status == "Waiting".to_owned() {
                 let mut write = state.write().unwrap();
                 write.archiver_state.archive_status = "Running".to_owned();       
                 write.archiver_state.archive_progress = 0.0;
                 drop(write);
-                //let new_lock = Arc::new(TokioRwLock::new(archiver));
                 let clone = state.clone();
                 let handle = tokio::spawn(async move {
                     run_thread(clone).await;
                 });
-                //tokio::join!(run_thread(clone),);
-                
-        //archiver.clone().run();
-        //let archiver_then = state.read().unwrap().archiver_state.clone();    
         };
         let archiver_then = state.read().unwrap().archiver_state.clone();
         
@@ -412,11 +379,9 @@ fn contacts_management() -> Router<AppStateType> {
         let file = tokio::fs::File::open(archiver.archive_file()).await.unwrap();
         let stream = ReaderStream::new(file);
         let body = axum::body::Body::from_stream(stream);
-        let filename = "archive.json";
         let headers = [
             (header::CONTENT_TYPE, "text/html; charset=utf-8"),
-            (header::CONTENT_DISPOSITION, "attachment; filename=\"archive.json\""),
-            //&format!("attachment; filename=\"{:?}\"", filename)),
+            (header::CONTENT_DISPOSITION, "attachment; filename=\"contacts.db\""),
         ];
         (headers, body)
     }
@@ -458,6 +423,7 @@ impl IntoResponse for TypeOr
         }
     }
 }
+#[derive(Debug)]
 struct AppError(anyhow::Error);
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
