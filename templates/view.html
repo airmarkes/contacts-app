@@ -10,19 +10,20 @@ content %}
   <div>ID: {{contact_t.id}}</div>
   <div>Email: {{contact_t.email}}</div>
   <div>Phone: {{contact_t.phone}}</div>
+  <div>Birth Date: {{contact_t.birth_date}}</div>
   <div>Created: {{contact_t.time_creation}}</div>
 </h2>
 <div class="flex justify-evenly pt-3">
   <a
-  class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
-  href="/contacts/edit?id_p={{contact_t.id}}"
+    class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
+    href="/contacts/edit?id_p={{contact_t.id}}"
   >
     Edit</a
   >
 
   <button
-  class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
-  id="delete_btn"
+    class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
+    id="delete_btn"
     hx-delete="/contacts/view?id_p={{contact_t.id}}"
     hx-target="body"
     hx-push-url="true"
@@ -32,8 +33,8 @@ content %}
   </button>
 
   <a
-  class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
-  href="/contacts/show?page_p=1"
+    class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
+    href="/contacts/show?page_p=1"
   >
     Back
   </a>

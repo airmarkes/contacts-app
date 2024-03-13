@@ -23,6 +23,7 @@ pub struct ShowTemplate<'a> {
     pub page_t: u32,
     pub max_page_t: u32,
     pub archive_t: ArchiverState,
+    pub time_t: String,
 }
 
 #[derive(Template)]
@@ -42,6 +43,7 @@ pub struct NewContactTemplate<'a> {
     pub last_t: &'a str,
     pub phone_t: &'a str,
     pub email_t: &'a str,
+    pub birth_t: &'a str,
 }
 
 #[derive(Template)]

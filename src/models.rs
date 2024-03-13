@@ -24,6 +24,7 @@ pub struct Contact {
     pub last_name: String,
     pub phone: String,
     pub email: String,
+    pub birth_date: String,
     pub time_creation: String,       
 }
 
@@ -34,6 +35,7 @@ pub struct CreationErrorState {
     pub phone_error: String,
     pub email_error: String,
     pub email_unique_error: String,
+    pub birth_error: String,
 }
 #[derive(Debug, Default, Clone, Deserialize)]
 pub struct FlashState {
@@ -56,18 +58,34 @@ pub async fn match_contacts(pool: Pool<Sqlite>, search_bar: &str, mut page_set: 
     if page_set <= 0 { page_set = 1;} 
     else if page_set > max_page { page_set = max_page;};
     let page_size: u32 = 10;
-    let offset = ((page_set - 1) * page_size) ;        
+    let offset = ((page_set - 1) * page_size) ;  
+    let this_month = get_time();      
     match search_bar {
         "" => {
             let contacts_set = sqlx::query_as!(Contact,
                 r#"
                 SELECT *
                 FROM contacts_table
-                ORDER BY id
+                ORDER BY birth_date
                 LIMIT ?1 OFFSET ?2
                 "#, page_size, offset
             ).fetch_all(&pool).await?;
             let length = contacts_set.len() as u32;
+            return Ok((contacts_set, length, page_set, max_page));  
+        },
+        "bday" => {
+            let contacts_set = sqlx::query_as!(Contact,
+                r#"
+                SELECT *
+                FROM contacts_table
+                WHERE SUBSTR(birth_date, 6) >= STRFTIME('%m-%d', DATE('now', 'localtime'))
+                AND SUBSTR(birth_date, 6) < STRFTIME('%m-%d', DATE('now', 'localtime', '+1 MONTH'))
+                ORDER BY STRFTIME('%m-%d', birth_date)
+                LIMIT ?1 OFFSET ?2
+                "#, page_size, offset
+            ).fetch_all(&pool).await?;
+            let length = contacts_set.len() as u32;
+
             return Ok((contacts_set, length, page_set, max_page));  
         },
         _ => {
@@ -89,7 +107,7 @@ pub async fn match_contacts(pool: Pool<Sqlite>, search_bar: &str, mut page_set: 
     }
 
 }
-pub async fn check_errors(pool: &Pool<Sqlite>, first: &String, last: &String, phone: &String, email: &String, id_set_opt: &Option<u32>)
+pub async fn check_errors(pool: &Pool<Sqlite>, first: &String, last: &String, phone: &String, email: &String, birth: &String, id_set_opt: &Option<u32>)
  -> anyhow::Result<Option<CreationErrorState>> {
     let new_error = CreationErrorState {
         first_error: if first == "" {"First Name Required".to_string()} else {"".to_string()},
@@ -97,35 +115,35 @@ pub async fn check_errors(pool: &Pool<Sqlite>, first: &String, last: &String, ph
         phone_error: if phone == "" {"Phone Required".to_string()} else {"".to_string()},
         email_error: if email == "" {"Email Required".to_string()} else {"".to_string()},
         email_unique_error: validate_email(pool, email, id_set_opt).await?,
+        birth_error: if birth == "" {"Birth Date Required".to_string()} else {"".to_string()},
     };
     if new_error.first_error == "" &&
         new_error.last_error == "" &&
         new_error.phone_error == "" &&
         new_error.email_error == "" &&
-        new_error.email_unique_error == "" {
+        new_error.email_unique_error == "" &&
+        new_error.birth_error == "" 
+        {
             return Ok(None); 
-    } else {
+    } 
     return Ok(Some(new_error));
-    }
+    
 }
-pub async fn create_contact(pool: Pool<Sqlite>, first_set: String, last_set: String, phone_set: String, email_set: String) 
+pub async fn create_contact(pool: Pool<Sqlite>, first_set: String, last_set: String, phone_set: String, email_set: String, birth_set: String) 
 -> anyhow::Result<u32> {
-    let time_stamp_now = std::time::SystemTime::now();
-    let datetime = DateTime::<Local>::from(time_stamp_now);
-    let timestamp_str = datetime.format("%Y-%m-%d %H:%M:%S").to_string(); 
-
+    let timestamp_str = get_time();
     let mut conn = pool.acquire().await?;
     let id_inserted = sqlx::query!(
         r#"
-        INSERT INTO contacts_table ( first_name, last_name, phone, email, time_creation)
-        VALUES (?1, ?2, ?3, ?4, ?5)
+        INSERT INTO contacts_table ( first_name, last_name, phone, email, birth_date, time_creation)
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6)
         "#,
-        first_set, last_set, phone_set, email_set, timestamp_str
+        first_set, last_set, phone_set, email_set, birth_set, timestamp_str
     ).execute(&mut *conn).await?.last_insert_rowid();                               
     return Ok(id_inserted as u32);
 
 }
-pub async fn edit_contact(pool: Pool<Sqlite>, first_set: String, last_set: String, phone_set: String, email_set: String, id_set: u32)
+pub async fn edit_contact(pool: Pool<Sqlite>, first_set: String, last_set: String, phone_set: String, email_set: String, birth_set: String, id_set: u32)
 -> anyhow::Result<u32> {
     let contact_set = sqlx::query_as!(Contact,
         r#"
@@ -142,9 +160,10 @@ pub async fn edit_contact(pool: Pool<Sqlite>, first_set: String, last_set: Strin
             last_name = ?2,
             phone = ?3,
             email = ?4,
-            time_creation = ?5
-        WHERE id = ?6                
-        "#, first_set, last_set, phone_set, email_set, contact_set.time_creation, id_set
+            birth_date = ?5,
+            time_creation = ?6
+        WHERE id = ?7                
+        "#, first_set, last_set, phone_set, email_set, birth_set, contact_set.time_creation, id_set
     ).execute(&pool).await?.rows_affected();
     return Ok(rows_affected as u32);
 }
@@ -217,3 +236,9 @@ pub async fn run_thread(state: AppStateType) -> () {
     state.write().unwrap().archiver_state.archive_status = "Complete".to_owned();
     return;
 }    
+pub fn get_time() -> String {
+    let time_stamp_now = std::time::SystemTime::now();
+    let datetime = DateTime::<Local>::from(time_stamp_now);
+    let timestamp_str = datetime.format("%Y-%m-%d").to_string(); //%H:%M:%S
+    timestamp_str
+}

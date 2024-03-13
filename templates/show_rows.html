@@ -7,18 +7,19 @@
   <td class="table-cell px-2 py-1">{{ contact.id}}</td>
   <td class="table-cell px-2 py-1">{{ contact.first_name }}</td>
   <td class="table-cell px-2 py-1">{{ contact.last_name }}</td>
-  <td class="table-cell px-2 py-1">{{ contact.phone }}</td>
-  <td class="table-cell px-2 py-1">{{ contact.email }}</td>
-  <td class="table-cell px-2 py-1">{{ contact.time_creation }}</td>
+  <td class="table-cell px-2 py-1">{{ contact.birth_date }}</td>
+  <!-- <td class="table-cell px-2 py-1">{{ contact.phone }}</td> 
+  <td class="table-cell px-2 py-1">{{ contact.email }}</td> 
+  <td class="table-cell px-2 py-1">{{ contact.time_creation }}</td>-->
   <td class="table-cell px-2 py-1">
     <a
-      class="rounded-md border bg-indigo-500 px-1  text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
+      class="rounded-md border bg-indigo-500 px-1 text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
       href="/contacts/view?id_p={{ contact.id }}"
       >View</a
     >
 
     <a
-      class="rounded-md border bg-indigo-500 px-1  text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
+      class="rounded-md border bg-indigo-500 px-1 text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
       href="#"
       hx-delete="/contacts/view?id_p={{contact.id}}"
       hx-swap="outerHTML swap:1s"

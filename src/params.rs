@@ -13,7 +13,8 @@ pub struct NewContactParams {
     pub first_p: Option<String>, 
     pub last_p: Option<String>,
     pub phone_p: Option<String>,
-    pub email_p: Option<String>,     
+    pub email_p: Option<String>,
+    pub birth_p: Option<String>,     
 } 
 
 #[derive(Deserialize)]
@@ -28,6 +29,7 @@ pub struct EditContactParams{
     pub last_p: Option<String>,
     pub phone_p: Option<String>,
     pub email_p: Option<String>, 
+    pub birth_p: Option<String>,  
 }
 
 #[derive(Deserialize)]
