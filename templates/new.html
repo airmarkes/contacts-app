@@ -42,7 +42,7 @@ block content %}
       hx-get="/contacts/validate_email"
       hx-include="#new_email"
       hx-target="next div"
-      hx-trigger="change changed, keyup delay:300ms changed"
+      hx-trigger="change changed, keyup delay:600ms changed"
     />
     <div class="min-w-40 text-red-600">
       {{ errors_t.email_error }}{{ errors_t.email_unique_error }}
@@ -60,16 +60,28 @@ block content %}
     />
     <div class="min-w-40 text-red-600">{{ errors_t.phone_error }}</div>
   </div>
+  <div class="flex justify-center space-x-2 p-1">
+    <label class="min-w-24" for="birth_date">Birth Date</label>
+    <input
+      class="rounded-md border border-slate-900 px-1"
+      name="birth_p"
+      id="birth_date"
+      type="date"
+      placeholder="Birth date"
+      value="{{ birth_t }}"
+    />
+    <div class="min-w-40 text-red-600">{{ errors_t.birth_error }}</div>
+  </div>
   <div class="flex justify-evenly pt-3">
     <button
-    class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
-    type="submit"
+      class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
+      type="submit"
     >
       Save
     </button>
     <a
-    class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
-    href="/contacts/show?page_p=1"
+      class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
+      href="/contacts/show?page_p=1"
       >Back</a
     >
   </div>

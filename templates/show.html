@@ -1,6 +1,8 @@
 <!-- .. -->
-{% extends "base.html" %} {% block title %} List of Contacts {% endblock %} {%
-block content %}
+{% extends "base.html" %} 
+{% block title %} List of Contacts {% endblock %} 
+{% block time %}  {{ time_t }} {% endblock %}
+{% block content %}
 
 <div
   id="fire_reload"
@@ -30,12 +32,12 @@ block content %}
     </div>
   </div>
   <div class="flex">
-    <input
+    <input     
       class="rounded-md border border-slate-600 p-1 shadow-lg shadow-indigo-900"
       id="search"
       type="search"
       name="search_p"
-      placeholder="Search"
+      placeholder="Search (or type bday)"
       value="{{ search_t }}"
       hx-get="/contacts/show?page_p=1"
       hx-include="#search"
@@ -44,6 +46,7 @@ block content %}
       hx-push-url="true"
       hx-indicator="#spinner"
     />
+   
     <div class="min-w-9 p-2">
       <img
         id="spinner"
@@ -70,15 +73,26 @@ block content %}
               X
             </button>
           </th>
-          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">ID</th>
-          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">First</th>
-          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">Last</th>
-          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">Phone</th>
-          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">Email</th>
+          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">
+            ID
+          </th>
+          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">
+            First Name
+          </th>
+          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">
+            Last Name
+          </th>
+          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">
+            Birth Date
+          </th>
+          <!--  <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">Phone</th>
+          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">Email</th> 
           <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">
             Creation Time
+          </th> -->
+          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">
+            Options
           </th>
-          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">Options</th>
         </tr>
       </thead>
       <tbody class="relative table-row-group" id="tbody">

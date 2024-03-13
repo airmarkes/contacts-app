@@ -27,6 +27,10 @@ use params::*;
 
 #[tokio::main]
 async fn main() -> Result<(), AppError> {
+    // cargo install sqlx-cli
+    // sqlx database create
+    // sqlx migrate add anyname
+    // sqlx migrate run 
     let path: &'static str = env!("DATABASE_URL");
     let pool = SqlitePool::connect(path).await?;   
     let app_state = AppState {
@@ -50,7 +54,8 @@ async fn main() -> Result<(), AppError> {
     Ok(())
 }
 
-async fn handler_root() -> impl IntoResponse {    
+async fn handler_root() -> impl IntoResponse {
+    println!("->> {} - HANDLER: handler_root", get_time()); 
     let root_tmpl = RootTemplate { name: "Guest!"};
     Html(root_tmpl.render().unwrap())      
 }
@@ -67,6 +72,7 @@ fn contacts_management() -> Router<AppStateType> {
         Query(params): Query<ShowParams>,
         headers: HeaderMap,
     ) -> Result<impl IntoResponse, AppError> { 
+        println!("->> {} - HANDLER: handler_get_showcontacts", get_time()); 
         let search_bar = params.search_p.as_deref().unwrap_or("");
         let mut page_set = params.page_p.unwrap();
 
@@ -76,6 +82,8 @@ fn contacts_management() -> Router<AppStateType> {
 
         let (contacts_set, length, page_set, max_page) = match_contacts(pool, search_bar, page_set).await?;
         
+        let time_now = get_time();
+
         let rows_tmpl = RowsTemplate {
             contacts_t: contacts_set.clone(),
             length_t: length,
@@ -89,6 +97,7 @@ fn contacts_management() -> Router<AppStateType> {
             page_t: page_set,
             max_page_t: max_page,
             archive_t: archiver,
+            time_t: time_now,
         }; 
             let mut writable_state = state.write().unwrap(); 
             writable_state.flash_state = FlashState::default();
@@ -115,17 +124,20 @@ fn contacts_management() -> Router<AppStateType> {
         State(state): State<AppStateType>,    
         Query(params): Query<NewContactParams>
     ) -> impl IntoResponse {
+        println!("->> {} - HANDLER: handler_get_newcontact", get_time()); 
         let errors_all = state.read().unwrap().error_state.clone();
         let first_bar = params.first_p.as_deref().unwrap_or("");
         let last_bar = params.last_p.as_deref().unwrap_or("");
         let phone_bar = params.phone_p.as_deref().unwrap_or("");
         let email_bar = params.email_p.as_deref().unwrap_or("");  
-
+        let birth_bar = params.birth_p.as_deref().unwrap_or(""); 
+        
         let mut writable_state = state.write().unwrap(); 
         writable_state.flash_state = FlashState::default();      
 
         let new_contact_templ = NewContactTemplate{ 
-            errors_t: errors_all, first_t: first_bar, last_t: last_bar, phone_t: phone_bar, email_t: email_bar};
+            errors_t: errors_all, first_t: first_bar, last_t: last_bar, 
+            phone_t: phone_bar, email_t: email_bar, birth_t: birth_bar};
         Html(new_contact_templ.render().unwrap())
     }
 
@@ -133,19 +145,22 @@ fn contacts_management() -> Router<AppStateType> {
         State(state): State<AppStateType>,
         Form(params): Form<NewContactParams>
     ) -> Result<Redirect, AppError> {  
+        println!("->> {} - HANDLER: handler_post_newcontact", get_time()); 
         let first_set = params.first_p.unwrap();
         let last_set = params.last_p.unwrap();
         let phone_set = params.phone_p.unwrap();
         let email_set = params.email_p.unwrap();
+        let birth_set = params.birth_p.unwrap();
+
         let id_set: Option<u32> = None;
         
         let pool = state.read().unwrap().contacts_state.clone(); 
 
         let errors_all = CreationErrorState::default();  
-        let new_error = check_errors(&pool, &first_set, &last_set, &phone_set, &email_set, &id_set).await?;
+        let new_error = check_errors(&pool, &first_set, &last_set, &phone_set, &email_set, &birth_set, &id_set).await?;
         match new_error {
             None => { 
-                let id_inserted = create_contact(pool, first_set, last_set, phone_set, email_set).await?;
+                let id_inserted = create_contact(pool, first_set, last_set, phone_set, email_set, birth_set).await?;
                 let mut writable_state = state.write().unwrap();
                 writable_state.flash_state = FlashState { flash: format!("Contact ID {} Created Successfully!", id_inserted).to_string(), flash_count: 1};
                 writable_state.error_state = CreationErrorState::default(); 
@@ -166,6 +181,7 @@ fn contacts_management() -> Router<AppStateType> {
         State(state): State<AppStateType>,
         Query(params): Query<ViewContactParams>        
     ) -> Result<impl IntoResponse, AppError> {    
+        println!("->> {} - HANDLER: handler_get_viewcontact", get_time()); 
         let id_set = params.id_p.unwrap();
     
         let pool = state.read().unwrap().contacts_state.clone();
@@ -184,6 +200,7 @@ fn contacts_management() -> Router<AppStateType> {
         State(state): State<AppStateType>,
         Query(params): Query<EditContactParams>
     ) -> Result<Html<String>, AppError> {
+        println!("->> {} - HANDLER: handler_get_editcontact", get_time()); 
         let errors_all = state.read().unwrap().error_state.clone();
         let id_set = params.id_p.unwrap();
 
@@ -206,20 +223,22 @@ fn contacts_management() -> Router<AppStateType> {
         Query(params_query): Query<EditContactParams>,
         Form(params_form): Form<EditContactParams>
     ) -> Result<Redirect, AppError> {
+        println!("->> {} - HANDLER: handler_post_editcontact", get_time()); 
         let id_set = params_query.id_p;
         let first_set = params_form.first_p.unwrap();
         let last_set = params_form.last_p.unwrap();
         let phone_set = params_form.phone_p.unwrap();
         let email_set = params_form.email_p.unwrap();
+        let birth_set = params_form.birth_p.unwrap();
 
         let pool = state.read().unwrap().contacts_state.clone();
 
         let errors_all = CreationErrorState::default();  
-        let new_error = check_errors(&pool, &first_set, &last_set, &phone_set, &email_set, &id_set).await?;
+        let new_error = check_errors(&pool, &first_set, &last_set, &phone_set, &email_set, &birth_set, &id_set).await?;
         
         match new_error {
             None => {
-                let (rows_affected) = edit_contact(pool, first_set, last_set, phone_set, email_set, id_set.unwrap()).await?;
+                let (rows_affected) = edit_contact(pool, first_set, last_set, phone_set, email_set, birth_set, id_set.unwrap()).await?;
                 match rows_affected {
                     1 => {
                         println!("Updated Successfully");
@@ -246,6 +265,7 @@ fn contacts_management() -> Router<AppStateType> {
         Query(params_query): Query<ViewContactParams>,
         headers: HeaderMap
     ) -> Result<impl IntoResponse, AppError> {
+        println!("->> {} - HANDLER: handler_delete_contact", get_time()); 
         let id_set = params_query.id_p.unwrap();
         let hx_header = headers.get("HX-trigger");
 
@@ -282,6 +302,7 @@ fn contacts_management() -> Router<AppStateType> {
         State(state): State<AppStateType>,
         ExtraForm (params_form): ExtraForm<DeleteBulkParams>        
     ) -> Result<impl IntoResponse, AppError> {
+        println!("->> {} - HANDLER: handler_delete_bulk", get_time()); 
         let ids_opt: Option<Vec<String>> = params_form.ids_p;
         let pool = state.read().unwrap().contacts_state.clone();
         let mut rows_affected_sum: u32 = 0;
@@ -313,6 +334,7 @@ fn contacts_management() -> Router<AppStateType> {
         State(state): State<AppStateType>,
         Query(params_query): Query<ValidateEmailParams>
     ) -> Result<String, AppError> {
+        println!("->> {} - HANDLER: handler_get_validate_email", get_time()); 
         let email_set = params_query.email_p.unwrap();
         let id_set_opt = params_query.id_p;
 
@@ -325,6 +347,7 @@ fn contacts_management() -> Router<AppStateType> {
         State(state): State<AppStateType>
         //State(state_contacts): State<ContactState>
     ) -> Result<String, AppError> {
+        println!("->> {} - HANDLER: handler_contacts_count", get_time()); 
         let pool = state.read().unwrap().contacts_state.clone();
 
         let rec = sqlx::query!(
@@ -343,6 +366,7 @@ fn contacts_management() -> Router<AppStateType> {
         State(state): State<AppStateType>
         //State(state_archive): State<ArchiverState>
     ) -> impl IntoResponse {
+        println!("->> {} - HANDLER: handler_post_archive", get_time()); 
         let archiver = state.read().unwrap().archiver_state.clone();
         if archiver.archive_status == "Waiting".to_owned() {
                 let mut write = state.write().unwrap();
@@ -365,6 +389,7 @@ fn contacts_management() -> Router<AppStateType> {
     async fn handler_get_archive (
         State(state): State<AppStateType>
     ) -> impl IntoResponse {
+        println!("->> {} - HANDLER: handler_get_archive", get_time()); 
         let archiver = state.read().unwrap().archiver_state.clone();
         let archive_ui = ArchiveUiTemplate {
             archive_t: archiver,
@@ -375,6 +400,7 @@ fn contacts_management() -> Router<AppStateType> {
     async fn handler_get_archive_file (
         State(state): State<AppStateType>
     ) -> impl IntoResponse {
+        println!("->> {} - HANDLER: handler_get_archive_file", get_time()); 
         let archiver = state.read().unwrap().archiver_state.clone();
         let file = tokio::fs::File::open(archiver.archive_file()).await.unwrap();
         let stream = ReaderStream::new(file);
@@ -389,6 +415,7 @@ fn contacts_management() -> Router<AppStateType> {
     async fn handler_delete_archive_file (
         State(state): State<AppStateType>
     ) -> impl IntoResponse {
+        println!("->> {} - HANDLER: handler_delete_archive_file", get_time()); 
         let mut write = state.write().unwrap();
         write.archiver_state.archive_status = "Waiting".to_owned();
         drop(write);

@@ -7,7 +7,7 @@
       Edit contact with ID {{ contact_t.id }}
     </legend>
     <div class="flex justify-center space-x-2 p-1">
-      <label class="min-w-24" for="first" for="first">First Name</label>
+      <label class="min-w-24" for="first">First Name</label>
       <input
         class="rounded-md border border-slate-900 px-1"
         name="first_p"
@@ -19,7 +19,7 @@
       <div class="min-w-40 text-red-600">{{ errors_t.first_error }}</div>
     </div>
     <div class="flex justify-center space-x-2 p-1">
-      <label class="min-w-24" for="first" for="last">Last Name</label>
+      <label class="min-w-24" for="last">Last Name</label>
       <input
         class="rounded-md border border-slate-900 px-1"
         name="last_p"
@@ -31,7 +31,7 @@
       <div class="min-w-40 text-red-600">{{ errors_t.last_error }}</div>
     </div>
     <div class="flex justify-center space-x-2 p-1">
-      <label class="min-w-24" for="first" for="email">Email</label>
+      <label class="min-w-24" for="email">Email</label>
       <input
         class="rounded-md border border-slate-900 px-1"
         name="email_p"
@@ -42,7 +42,7 @@
         hx-get="/contacts/validate_email?id_p={{contact_t.id }}"
         hx-include="#email"
         hx-target="next div"
-        hx-trigger="change, keyup delay:300ms changed"
+        hx-trigger="change, keyup delay:600ms changed"
         hx-push-url="true"
       />
       <div class="min-w-40 text-red-600">
@@ -50,7 +50,7 @@
       </div>
     </div>
     <div class="flex justify-center space-x-2 p-1">
-      <label class="min-w-24" for="first" for="phone">Phone</label>
+      <label class="min-w-24" for="phone">Phone</label>
       <input
         class="rounded-md border border-slate-900 px-1"
         name="phone_p"
@@ -61,15 +61,27 @@
       />
       <div class="min-w-40 text-red-600">{{ errors_t.phone_error }}</div>
     </div>
+    <div class="flex justify-center space-x-2 p-1">
+      <label class="min-w-24" for="birth">Birth Date</label>
+      <input
+        class="rounded-md border border-slate-900 px-1"
+        name="birth_p"
+        id="birth"
+        type="date"
+        placeholder="Birth Date"
+        value="{{ contact_t.birth_date }}"
+      />
+      <div class="min-w-40 text-red-600">{{ errors_t.birth_error }}</div>
+    </div>
     <div class="flex justify-evenly pt-3">
       <button
-      class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
+        class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
         type="submit"
       >
         Save
       </button>
       <a
-      class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
+        class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
         href="/contacts/view?id_p={{contact_t.id}}"
         >Back</a
       >
