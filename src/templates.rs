@@ -1,5 +1,5 @@
-use askama::Template;
 use crate::models::*;
+use askama::Template;
 
 //TEMPLATES FOR ASKAMA
 
@@ -32,12 +32,12 @@ pub struct RowsTemplate {
     pub contacts_t: Vec<Contact>,
     pub length_t: u32,
     pub page_t: u32,
-    pub max_page_t: u32
+    pub max_page_t: u32,
 }
 
 #[derive(Template)]
 #[template(path = "new.html")]
-pub struct NewContactTemplate<'a> {    
+pub struct NewContactTemplate<'a> {
     pub errors_t: CreationErrorState,
     pub first_t: &'a str,
     pub last_t: &'a str,
