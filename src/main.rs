@@ -37,7 +37,7 @@ use params::*;
 use templates::*;
 
 #[tokio::main]
-async fn main() -> Result<(), AppError> {
+async fn main() -> anyhow::Result<()> {
     // cargo install sqlx-cli
     // sqlx database create
     // sqlx migrate add anyname
@@ -86,7 +86,7 @@ fn contacts_management() -> Router<AppStateType> {
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_get_showcontacts", get_time());
         let search_bar = params.search_p.as_deref().unwrap_or("");
-        let mut page_set = params.page_p.unwrap();
+        let mut page_set = params.page_p.unwrap_or(1);
 
         let archiver = state.read().unwrap().archiver_state.clone();
         let flash = state.read().unwrap().flash_state.clone();
@@ -560,24 +560,5 @@ impl IntoResponse for TypeOr {
                 return Redirect::to("/contacts/show?page_p=1").into_response();
             }
         }
-    }
-}
-#[derive(Debug)]
-struct AppError(anyhow::Error);
-impl IntoResponse for AppError {
-    fn into_response(self) -> Response {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Something went wrong {}", self.0),
-        )
-            .into_response()
-    }
-}
-impl<E> From<E> for AppError
-where
-    E: Into<anyhow::Error>,
-{
-    fn from(err: E) -> Self {
-        Self(err.into())
     }
 }
