@@ -4,7 +4,7 @@ use askama::Template;
 //TEMPLATES FOR ASKAMA
 
 #[derive(Template)]
-#[template(path = "root.html")]
+#[template(path = "index.html")]
 pub struct RootTemplate<'a> {
     pub name: &'a str,
 }
