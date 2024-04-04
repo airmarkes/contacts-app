@@ -42,8 +42,9 @@ async fn main() -> Result<(), AppError> {
     // sqlx database create
     // sqlx migrate add anyname
     // sqlx migrate run
-    let path: &'static str = env!("DATABASE_URL");
-    let pool = SqlitePool::connect(path).await?;
+    //let path: &'static str = env!("DATABASE_URL");
+    //let pool = SqlitePool::connect(path).await?;
+    let pool = SqlitePool::connect("sqlite:contacts.db").await?;
     let app_state = AppState {
         contacts_state: pool,
         error_state: CreationErrorState::default(),
