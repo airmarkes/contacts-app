@@ -17,7 +17,7 @@ use axum_macros::debug_handler;
 use chrono::prelude::*;
 use core::num;
 use rand::prelude::*;
-use sqlx::sqlite::SqlitePool;
+use sqlx::{migrate::MigrateDatabase, sqlite::SqlitePool, Pool, Sqlite};
 use sqlx::{sqlite::SqliteRow, Row};
 use std::env;
 use std::{
@@ -42,9 +42,28 @@ async fn main() -> anyhow::Result<()> {
     // sqlx database create
     // sqlx migrate add anyname
     // sqlx migrate run
-    //let path: &'static str = env!("DATABASE_URL");
+    //let db_url: &'static str = env!("DATABASE_URL");
+
     //let pool = SqlitePool::connect(path).await?;
-    let pool = SqlitePool::connect("sqlite:contacts.db").await?;
+    let db_url = "sqlite:app/db/contacts.db";
+    let pool: Pool<Sqlite> = SqlitePool::connect(db_url).await?;
+    /*if !Sqlite::database_exists(db_url).await.unwrap_or(false) {
+        println!("Creating database {}", db_url);
+        Sqlite::create_database(db_url).await?;
+        println!("Database created successfully");
+        pool = SqlitePool::connect(db_url).await?;
+        sqlx::migrate!("db/migrations")
+                .run(&pool)
+                .await?;
+        println!("Database connected and migrated successfully");
+
+    } else {
+        println!("Database already exists");
+        pool = SqlitePool::connect(db_url).await?;
+        println!("Database connected");
+    }
+    */
+
     let app_state = AppState {
         contacts_state: pool,
         error_state: CreationErrorState::default(),
@@ -59,7 +78,8 @@ async fn main() -> anyhow::Result<()> {
         .merge(contacts_management().with_state(app_state))
         .nest_service("/assets", ServeDir::new("assets"));
 
-    let socket = "127.0.0.1:8080";
+    //let socket = "127.0.0.1:8080";
+    let socket = "0.0.0.0:8080";
     let listener = TcpListener::bind(socket).await.unwrap();
     println!("Listening on {}\n", socket);
     axum::serve(listener, app).await.unwrap();

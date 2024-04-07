@@ -1,0 +1,56 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        SELECT *\n        FROM contacts_table\n        WHERE id = ?\n        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "first_name",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "last_name",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "phone",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "email",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "birth_date",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "time_creation",
+        "ordinal": 6,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "d5cc19b3d6043d21e69c3bcc5c4e0e8f10a49de7db684562859ff5129fb0be3e"
+}
