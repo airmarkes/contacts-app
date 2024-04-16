@@ -30,6 +30,7 @@ use tokio::time::{sleep, Duration as TokioDuration};
 use tokio::{fs::File, io::AsyncReadExt, net::TcpListener};
 use tokio_util::io::ReaderStream;
 use tower_http::services::ServeDir;
+use dotenv::dotenv;
 
 use errors::*;
 use models::*;
@@ -42,11 +43,12 @@ async fn main() -> anyhow::Result<()> {
     // sqlx database create
     // sqlx migrate add anyname
     // sqlx migrate run
+    dotenv().ok();
     //let db_url: &'static str = env!("DATABASE_URL");
-
+    let db_url: String = std::env::var("DATABASE_URL").unwrap();
     //let pool = SqlitePool::connect(path).await?;
-    let db_url = "sqlite:db/contacts.db";
-    let pool: Pool<Sqlite> = SqlitePool::connect(db_url).await?;
+    //let db_url = "sqlite:db/contacts.db";
+    let pool: Pool<Sqlite> = SqlitePool::connect(&db_url).await?;
     /*if !Sqlite::database_exists(db_url).await.unwrap_or(false) {
         println!("Creating database {}", db_url);
         Sqlite::create_database(db_url).await?;
