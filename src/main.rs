@@ -45,7 +45,7 @@ async fn main() -> anyhow::Result<()> {
     //let db_url: &'static str = env!("DATABASE_URL");
 
     //let pool = SqlitePool::connect(path).await?;
-    let db_url = "sqlite:app/db/contacts.db";
+    let db_url = "sqlite:db/contacts.db";
     let pool: Pool<Sqlite> = SqlitePool::connect(db_url).await?;
     /*if !Sqlite::database_exists(db_url).await.unwrap_or(false) {
         println!("Creating database {}", db_url);

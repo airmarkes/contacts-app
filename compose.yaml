@@ -13,7 +13,8 @@ services:
       context: .
       target: final
     volumes:
-        - ./app/db:/app/db
+        - ./db:/db  
+        - ./assets:/assets 
     ports:
       - 8080:8080
 
