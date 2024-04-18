@@ -32,8 +32,6 @@ RUN --mount=type=bind,source=src,target=src \
     --mount=type=bind,source=templates,target=templates \
     --mount=type=bind,source=migrations,target=migrations \
     --mount=type=bind,source=.sqlx,target=.sqlx \
-    --mount=type=bind,source=assets,target=assets \
-    --mount=type=bind,source=db,target=db \
     --mount=type=bind,source=Cargo.toml,target=Cargo.toml \
     --mount=type=bind,source=Cargo.lock,target=Cargo.lock \
     --mount=type=cache,target=/app/target/ \
