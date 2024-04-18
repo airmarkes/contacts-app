@@ -9,6 +9,7 @@
 # https://github.com/docker/awesome-compose
 services:
   server:
+    image: airmarkes/contacts-app-img-repo
     #env_file: .env #works as well
     environment:
       DATABASE_URL: 'sqlite:db/contacts.db'
@@ -21,13 +22,13 @@ services:
       - ./assets:/assets 
     ports:
       - 8080:8080
-    develop:
-      watch:
-        - action: rebuild
-          path: .
-          ignore:
-            - target/
-            - db/
+    #develop:
+    #  watch:
+    #    - action: rebuild
+    #      path: .
+    #      ignore:
+    #        - target/
+    #        - db/
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to
 # start the database before your application. The `db-data` volume persists the
