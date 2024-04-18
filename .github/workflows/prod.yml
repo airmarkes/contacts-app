@@ -1,0 +1,28 @@
+name: Build, Test and Deploy to Prod
+
+on: 
+  push:
+    branches:
+      - master
+
+env:
+  SQLX_OFFLINE: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+          profile: minimal
+          toolchain: stable
+
+    - name: Build and test code
+      run: |
+        cargo build --verbose
+        cargo test --verbose

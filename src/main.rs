@@ -16,6 +16,7 @@ use axum_extra::extract::Form as ExtraForm;
 use axum_macros::debug_handler;
 use chrono::prelude::*;
 use core::num;
+use dotenv::dotenv;
 use rand::prelude::*;
 use sqlx::{migrate::MigrateDatabase, sqlite::SqlitePool, Pool, Sqlite};
 use sqlx::{sqlite::SqliteRow, Row};
@@ -30,7 +31,6 @@ use tokio::time::{sleep, Duration as TokioDuration};
 use tokio::{fs::File, io::AsyncReadExt, net::TcpListener};
 use tokio_util::io::ReaderStream;
 use tower_http::services::ServeDir;
-use dotenv::dotenv;
 
 use errors::*;
 use models::*;
@@ -45,10 +45,10 @@ async fn main() -> anyhow::Result<()> {
     // sqlx migrate run
     dotenv().ok();
     //let db_url: &'static str = env!("DATABASE_URL");
-    //let db_url: String = std::env::var("DATABASE_URL").unwrap();
+    let db_url: String = std::env::var("DATABASE_URL").unwrap();
     //let pool = SqlitePool::connect(path).await?;
-    let db_url = "sqlite:db/contacts.db";
-    let pool: Pool<Sqlite> = SqlitePool::connect(db_url).await?;
+    //let db_url = "sqlite:db/contacts.db";
+    let pool: Pool<Sqlite> = SqlitePool::connect(&db_url).await?;
     sqlx::migrate!("./migrations").run(&pool).await?;
     /*if !Sqlite::database_exists(db_url).await.unwrap_or(false) {
         println!("Creating database {}", db_url);
