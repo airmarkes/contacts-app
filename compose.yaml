@@ -19,7 +19,7 @@ services:
       target: final
     volumes:
       - ./db:/db  
-      - ./assets:/assets 
+      #- ./assets:/assets 
     ports:
       - 8080:8080
     #develop:
