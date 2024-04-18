@@ -74,7 +74,9 @@ jobs:
         username: root
         password: ${{ secrets.DROPLET_PASSWORD }}
         script: |
-          cd ~
+          cd /
+          chmod 777 /root/db/ -R
+          cd ~          
           docker-compose down
           docker-compose pull
           docker-compose up -d
