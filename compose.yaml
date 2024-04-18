@@ -11,8 +11,8 @@ services:
   server:
     #env_file: .env #works as well
     environment:
-      #DATABASE_URL: 'sqlite:db/contacts.db'
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: 'sqlite:db/contacts.db'
+      #DATABASE_URL: ${DATABASE_URL}
     build:
       context: .
       target: final
