@@ -14,6 +14,7 @@ ARG APP_NAME=axum-3-htmx
 
 FROM rust:${RUST_VERSION}-alpine AS build
 ARG APP_NAME
+ENV SQLX_OFFLINE=true
 WORKDIR /app
 
 # Install host build dependencies.
@@ -29,6 +30,7 @@ RUN apk add --no-cache clang lld musl-dev git
 # output directory before the cache mounted /app/target is unmounted.
 RUN --mount=type=bind,source=src,target=src \
     --mount=type=bind,source=templates,target=templates \
+    --mount=type=bind,source=migrations,target=migrations \
     --mount=type=bind,source=.sqlx,target=.sqlx \
     --mount=type=bind,source=Cargo.toml,target=Cargo.toml \
     --mount=type=bind,source=Cargo.lock,target=Cargo.lock \
