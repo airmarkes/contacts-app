@@ -1,25 +1,25 @@
 {% for contact in contacts_t %}
 
-<tr class="table-row">
-  <td class="table-cell px-2 py-1" id>
+<tr>
+  <td>
     <input type="checkbox" name="ids_p" value="{{ contact.id }}" />
   </td>
-  <td class="table-cell px-2 py-1">{{ contact.id}}</td>
-  <td class="table-cell px-2 py-1">{{ contact.first_name }}</td>
-  <td class="table-cell px-2 py-1">{{ contact.last_name }}</td>
-  <td class="table-cell px-2 py-1">{{ contact.birth_date }}</td>
+  <td>{{ contact.id}}</td>
+  <td>{{ contact.first_name }}</td>
+  <td>{{ contact.last_name }}</td>
+  <td>{{ contact.birth_date }}</td>
   <!-- <td class="table-cell px-2 py-1">{{ contact.phone }}</td> 
   <td class="table-cell px-2 py-1">{{ contact.email }}</td> 
   <td class="table-cell px-2 py-1">{{ contact.time_creation }}</td>-->
-  <td class="table-cell px-2 py-1">
+  <td>
     <a
-      class="rounded-md border bg-indigo-500 px-1 text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
+      class="btn btn-secondary btn-xs"
       href="/contacts/view?id_p={{ contact.id }}"
       >View</a
     >
 
     <a
-      class="rounded-md border bg-indigo-500 px-1 text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
+      class="btn btn-secondary btn-xs"
       href="#"
       hx-delete="/contacts/view?id_p={{contact.id}}"
       hx-swap="outerHTML swap:1s"
@@ -37,7 +37,7 @@
       {% if page_t > 1 %}
       <a
         href="/contacts/show?page_p={{ page_t - 1 }}"
-        class="min-w-9 rounded-md border border-indigo-600 px-1 text-center font-bold text-indigo-600 hover:bg-slate-400"
+        class="min-w-9 rounded-md  text-center font-bold btn btn-secondary btn-xs"
         hx-target="#tbody"
         hx-select="#tbody > tr"
         hx-indicator="#full_spinner"
@@ -66,7 +66,7 @@
       {% if length_t == 10 && page_t < max_page_t %}
       <a
         href="/contacts/show?page_p={{ page_t + 1 }}"
-        class="min-w-9 rounded-md border border-indigo-600 text-center font-bold text-indigo-600 hover:bg-slate-400"
+        class="min-w-9 rounded-md  text-center font-bold btn btn-secondary btn-xs"
         hx-target="#tbody"
         hx-select="#tbody > tr"
         hx-indicator="#full_spinner"

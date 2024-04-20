@@ -11,13 +11,13 @@
   hx-target="#contacts_count"
 ></div>
 
-<p class="flex justify-center bg-green-300">
-  <span> {{ flash_t.flash }} </span>
+<p class="flex justify-center bg-success">
+  <span class="text-neutral"> {{ flash_t.flash }} </span>
 </p>
-<div class="flex min-w-full justify-between p-3 pb-6">
+<div class="flex min-w-full justify-between py-9">
   <div class="flex">
     <a
-      class="rounded-lg border bg-indigo-500 p-2 px-3 font-bold text-slate-100 shadow-md shadow-indigo-900 transition delay-150 ease-in-out hover:scale-110 hover:bg-indigo-700"
+      class="btn btn-secondary btn-md rounded-lg border px-3 font-bold text-lg"
       href="/contacts/new"
     >
       Add Contact +</a
@@ -32,8 +32,9 @@
     </div>
   </div>
   <div class="flex">
+    <!-- <input class="rounded-md border border-slate-600 px-1 shadow-lg shadow-indigo-900"-->
     <input     
-      class="rounded-md border border-slate-600 p-1 shadow-lg shadow-indigo-900"
+      class="input input-bordered input-primary"
       id="search"
       type="search"
       name="search_p"
@@ -59,13 +60,15 @@
   <div class="min-w-48">{% include "archive_ui.html" %}</div>
 </div>
 <div class="flex justify-center">
+
   <form enctype="application/x-www-form-urlencoded">
-    <table class="table">
-      <thead class="table-header-group">
-        <tr class="table-row">
-          <th class="table-cell rounded-md bg-indigo-300 py-1 text-left">
+
+    <table class="table-md">
+      <thead>
+        <tr>
+          <th >
             <button
-              class="min-w-9 rounded-md border bg-indigo-500 px-1 font-bold text-red-600 shadow-md hover:bg-indigo-900"
+              class="btn btn-outline btn-accent btn-xs"
               hx-delete="/contacts/show"
               hx-confirm="Are you sure you want to delete these contacts?"
               hx-target="body"
@@ -73,16 +76,16 @@
               X
             </button>
           </th>
-          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">
+          <th >
             ID
           </th>
-          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">
+          <th >
             First Name
           </th>
-          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">
+          <th >
             Last Name
           </th>
-          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">
+          <th >
             Birth Date
           </th>
           <!--  <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">Phone</th>
@@ -90,12 +93,12 @@
           <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">
             Creation Time
           </th> -->
-          <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">
+          <th>
             Actions
           </th>
         </tr>
       </thead>
-      <tbody class="relative table-row-group" id="tbody">
+      <tbody class="relative" id="tbody">
         {% include "show_rows.html" %}
         <div
           class="htmx-indicator absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"

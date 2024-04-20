@@ -6,7 +6,7 @@
 >
   {% if archive_t.status() == "Waiting" %}
   <button
-    class="flex rounded-lg border bg-indigo-500 font-semibold text-slate-100 shadow-md shadow-indigo-900 transition delay-150 ease-in-out hover:scale-110 hover:bg-indigo-700"
+    class="btn btn-secondary btn-md rounded-lg border px-3 font-bold text-lg"
     hx-post="/contacts/archive"
   >
     <img src="/assets/save.svg" class="h-9 w-9 pt-2" />
@@ -14,7 +14,7 @@
   </button>
   {% else if archive_t.status() == "Running" %}
   <div
-    class="text-slate-900"
+    class="text-neutral"
     hx-get="/contacts/archive"
     hx-trigger="load delay:500ms"
   >

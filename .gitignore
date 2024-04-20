@@ -2,3 +2,4 @@
 .env
 contacts.db-shm
 contacts.db-wal
+/node_modules

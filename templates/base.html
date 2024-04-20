@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="night">
   <head>
     <link rel="stylesheet" href="../assets/o-tailwind.css" />
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
@@ -9,33 +9,62 @@
     <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
   </head>
 
-  <body class="relative min-h-screen bg-slate-300" hx-boost="true">
-    <header
+  <body class="h-screen flex flex-col" hx-boost="true">
+    
+    <header class="navbar bg-base-300">
+      <div class="flex-none">
+        <button class="btn btn-square btn-ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+      </div>
+      <div class="flex-1">
+        
+        <a class="btn btn-ghost text-xl font-extrabold"
+        href="/contacts/show?page_p=1"
+        >
+        <img src="/assets/favicon.ico" class="h-6 w-6">
+        Bday Contacts
+        </a>
+      </div>
+      <div class="flex-none text-lg font-bold">
+      {% block time %}{% endblock %}
+      </div>
+      <div class="flex-none">
+        <button class="btn btn-square btn-ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path></svg>
+        </button>
+      </div>
+    </header>
+
+     <!--
+      <header
       class="fixed left-0 top-0 flex h-24 w-full items-center justify-between bg-slate-900 px-3"
     >
       <a
         href="/contacts/show?page_p=1"
-        class="text-2xl font-bold text-slate-300"
+        class="text-2xl font-bold text-seconday"
         >Contacts.APP</a
       >
-      <div class="text-xl font-bold text-slate-300">
+      <div class="text-xl font-bold text-secondary">
         {% block time %}{% endblock %}
       </div>
-      <h2 class="text-xl text-slate-300">A Demo Contacts' Birthdays Sorter App</h2>
+      <h2 class="text-xl text-primary">A Demo Contacts' Birthdays Sorter App</h2>
     </header>
-
+    -->
     <main
-      class="flex w-full items-start justify-center pb-14 pt-28"
+      class="flex w-full items-start justify-center mb-auto"
       id="content"
-    >
+    > 
       <!--<div class="border border-indigo-900 p-3 shadow-md shadow-indigo-600"> -->
-      <div class="min-w-36">{% block content %}{% endblock %}</div>
+      <div class="min-w-36 bg-base-100">{% block content %}{% endblock %}</div>
     </main>
 
     <footer
-      class="absolute bottom-0 left-0 flex h-12 w-full items-center justify-center bg-slate-900 px-3"
+      class="footer footer-center bg-base-300 h-16 p-3 text-base-content"
     >
-      <h3 class="text-md text-slate-300">Created By AirMarkes</h3>
+    <aside>
+      <p>Copyright © 2024 - All right reserved by Air Markes Softwares Ltda.</p>
+    </aside> 
     </footer>
   </body>
 </html>
