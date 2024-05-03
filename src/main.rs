@@ -15,6 +15,7 @@ use axum::{
 use axum_extra::extract::Form as ExtraForm;
 use axum_macros::debug_handler;
 use chrono::prelude::*;
+use tower_sessions_sqlx_store::SqliteStore;
 use core::num;
 use dotenv::dotenv;
 use rand::prelude::*;
@@ -47,8 +48,11 @@ async fn main() -> anyhow::Result<()> {
     let pool: Pool<Sqlite> = SqlitePool::connect(&db_url).await?;
     sqlx::migrate!("./migrations").run(&pool).await?;
     
-    let session_store = MemoryStore::default();
-    let session_layer = SessionManagerLayer::new(session_store).with_secure(false);
+    //let session_store = MemoryStore::default();
+    let session_store = SqliteStore::new(pool.clone());
+    session_store.migrate().await?;
+    let session_layer = SessionManagerLayer::new(session_store)
+    .with_secure(false);
 
     let app_state = AppState {
         contacts_state: pool,
@@ -369,7 +373,6 @@ fn contacts_management() -> Router<AppStateType> {
         match rows_affected {
             1 => {
                 println!("Deleted Successfully");
-                let mut writable_state = state.write().unwrap();
                 
                 messages
                 .info(format!("Contact ID {} Deleted Successfully!", id_set).to_string());
