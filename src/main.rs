@@ -15,7 +15,6 @@ use axum::{
 use axum_extra::extract::Form as ExtraForm;
 use axum_macros::debug_handler;
 use chrono::prelude::*;
-use tower_sessions_sqlx_store::SqliteStore;
 use core::num;
 use dotenv::dotenv;
 use rand::prelude::*;
@@ -28,12 +27,13 @@ use std::{
     thread::{self, yield_now},
     time::Duration,
 };
-use tokio::time::{sleep, Duration as TokioDuration};
+use tokio::{signal, task::AbortHandle, time::{sleep, Duration as TokioDuration}};
 use tokio::{fs::File, io::AsyncReadExt, net::TcpListener};
 use tokio_util::io::ReaderStream;
 use tower_http::services::ServeDir;
 use axum_messages::{Messages, MessagesManagerLayer};
-use tower_sessions::{MemoryStore, SessionManagerLayer};
+use tower_sessions::{session_store::ExpiredDeletion, Expiry, MemoryStore, SessionManagerLayer};
+use tower_sessions_sqlx_store::SqliteStore;
 
 use errors::*;
 use models::*;
@@ -51,8 +51,16 @@ async fn main() -> anyhow::Result<()> {
     //let session_store = MemoryStore::default();
     let session_store = SqliteStore::new(pool.clone());
     session_store.migrate().await?;
+
+    let deletion_task = tokio::task::spawn(
+        session_store
+            .clone()
+            .continuously_delete_expired(tokio::time::Duration::from_secs(60)),
+    );
+
     let session_layer = SessionManagerLayer::new(session_store)
-    .with_secure(false);
+    .with_secure(false)
+    .with_expiry(Expiry::OnInactivity(time::Duration::seconds(10)));
 
     let app_state = AppState {
         contacts_state: pool,
@@ -576,5 +584,29 @@ impl IntoResponse for TypeOr {
                 return Redirect::to("/contacts/show?page_p=1").into_response();
             }
         }
+    }
+}
+
+async fn shutdown_signal(deletion_task_abort_handle: AbortHandle) {
+    let ctrl_c = async {
+        signal::ctrl_c()
+            .await
+            .expect("failed to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("failed to install signal handler")
+            .recv()
+            .await;
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        _ = ctrl_c => { deletion_task_abort_handle.abort() },
+        _ = terminate => { deletion_task_abort_handle.abort() },
     }
 }

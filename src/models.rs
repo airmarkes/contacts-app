@@ -315,8 +315,8 @@ impl ArchiverState {
         self.archive_progress
     }
     pub fn archive_file(&self) -> &str {
-        return "/db/contacts.db";
-        //return "D:/RustProjects/axum-3-htmx/db/contacts.db";
+        //return "/db/contacts.db";
+        return "D:/RustProjects/axum-3-htmx/db/contacts.db";
     }
 }
 
