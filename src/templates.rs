@@ -18,7 +18,7 @@ pub struct OverviewTemplate {}
 pub struct ShowTemplate<'a> {
     pub contacts_t: Vec<Contact>,
     pub search_t: &'a str,
-    pub flash_t: FlashState,
+    pub messages_t: String,
     pub length_t: u32,
     pub page_t: u32,
     pub max_page_t: u32,

@@ -17,7 +17,6 @@ use crate::TypeOr;
 pub struct AppState {
     pub contacts_state: Pool<Sqlite>,
     pub error_state: CreationErrorState,
-    pub flash_state: FlashState,
     pub archiver_state: ArchiverState,
 }
 pub type AppStateType = Arc<RwLock<AppState>>;
@@ -41,11 +40,6 @@ pub struct CreationErrorState {
     pub email_error: String,
     pub email_unique_error: String,
     pub birth_error: String,
-}
-#[derive(Debug, Default, Clone, Deserialize)]
-pub struct FlashState {
-    pub flash: String,
-    pub flash_count: u8,
 }
 
 pub async fn match_contacts(
