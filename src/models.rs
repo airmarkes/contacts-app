@@ -1,17 +1,9 @@
-use axum::{extract::FromRef, response::IntoResponse};
 use chrono::prelude::*;
 use rand::prelude::*;
-use serde::{Deserialize, Serialize};
-use sqlx::{prelude::FromRow, sqlite::SqliteRow, Pool, Sqlite};
-use std::{
-    default,
-    sync::{Arc, RwLock},
-    thread,
-    time::Duration,
-};
+use serde::Deserialize;
+use sqlx::{prelude::FromRow, Pool, Sqlite};
+use std::sync::{Arc, RwLock};
 use tokio::time::{sleep, Duration as TokioDuration};
-
-use crate::TypeOr;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -67,8 +59,7 @@ pub async fn match_contacts(
         page_set = max_page;
     };
     let page_size: u32 = 10;
-    let offset = ((page_set - 1) * page_size);
-    let this_month = get_time();
+    let offset = (page_set - 1) * page_size;
     match search_bar {
         "" => {
             let contacts_set = sqlx::query_as!(
@@ -256,7 +247,7 @@ pub async fn validate_email(
     email_set: &String,
     id_set_opt: &Option<u32>,
 ) -> anyhow::Result<String> {
-    let mut email_equal = 0;
+    let email_equal;
     match id_set_opt {
         Some(id_set) => {
             let rec = sqlx::query!(
@@ -321,7 +312,7 @@ impl ArchiverState {
 }
 
 pub async fn run_thread(state: AppStateType) -> () {
-    for i in (0..10) {
+    for i in 0..10 {
         let random = rand::thread_rng().gen::<f64>();
         let sleep_time = (1000.0 * random) as u64;
         sleep(TokioDuration::from_millis(sleep_time)).await;

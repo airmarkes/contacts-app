@@ -1,6 +1,6 @@
-use axum::{http::StatusCode, response::IntoResponse, Json};
+use axum::{http::StatusCode, response::IntoResponse};
 
-use crate::{get_time, models};
+use crate::get_time;
 
 #[derive(thiserror::Error, Debug)]
 pub enum AppError {
@@ -29,22 +29,19 @@ impl IntoResponse for AppError {
             AppError::AnyHow(e) => {
                 println!("->> {} - ERROR: {}", get_time(), e);
                 StatusCode::INTERNAL_SERVER_ERROR
-            },
+            }
             AppError::Sqlx(e) => {
                 println!("->> {} - ERROR: {}", get_time(), e);
                 StatusCode::INTERNAL_SERVER_ERROR
-            },
+            }
             AppError::Askama(e) => {
                 println!("->> {} - ERROR: {}", get_time(), e);
                 StatusCode::INTERNAL_SERVER_ERROR
-            },
+            }
             AppError::StdIo(e) => {
                 println!("->> {} - ERROR: {}", get_time(), e);
                 StatusCode::INTERNAL_SERVER_ERROR
-            },
-           
-            
-
+            }
         };
         //let body = Json(error_message);
         status.into_response()
