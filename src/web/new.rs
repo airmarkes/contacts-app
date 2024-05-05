@@ -9,6 +9,7 @@ use serde::Deserialize;
 
 use crate::errors::AppError;
 use crate::models::*;
+use crate::functions::*;
 
 #[derive(Template)]
 #[template(path = "new.html")]
@@ -45,20 +46,15 @@ mod get {
         Query(params): Query<NewContactParams>,
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_get_newcontact", get_time());
-        let errors_all = state.read().unwrap().error_state.clone();
-        let first_bar = params.first_p.as_deref().unwrap_or("");
-        let last_bar = params.last_p.as_deref().unwrap_or("");
-        let phone_bar = params.phone_p.as_deref().unwrap_or("");
-        let email_bar = params.email_p.as_deref().unwrap_or("");
-        let birth_bar = params.birth_p.as_deref().unwrap_or("");
+        let errors_all = state.read().await.error_state.clone();
 
         let new_contact_templ = NewContactTemplate {
             errors_t: errors_all,
-            first_t: first_bar,
-            last_t: last_bar,
-            phone_t: phone_bar,
-            email_t: email_bar,
-            birth_t: birth_bar,
+            first_t: params.first_p.as_deref().unwrap_or(""),
+            last_t: params.last_p.as_deref().unwrap_or(""),
+            phone_t: params.phone_p.as_deref().unwrap_or(""),
+            email_t: params.email_p.as_deref().unwrap_or(""),
+            birth_t: params.birth_p.as_deref().unwrap_or(""),
         };
         Ok(Html(new_contact_templ.render()?))
     }
@@ -73,15 +69,14 @@ mod post {
         Form(params): Form<NewContactParams>,
     ) -> Result<Redirect, AppError> {
         println!("->> {} - HANDLER: handler_post_newcontact", get_time());
-        let first_set = params.first_p.unwrap();
-        let last_set = params.last_p.unwrap();
-        let phone_set = params.phone_p.unwrap();
-        let email_set = params.email_p.unwrap();
-        let birth_set = params.birth_p.unwrap();
-
+        let first_set = params.first_p.expect("Obligatory field, missing validation");
+        let last_set = params.last_p.expect("Obligatory field, missing validation");
+        let phone_set = params.phone_p.expect("Obligatory field, missing validation");
+        let email_set = params.email_p.expect("Obligatory field, missing validation");
+        let birth_set = params.birth_p.expect("Obligatory field, missing validation");
         let id_set: Option<u32> = None;
 
-        let pool = state.read().unwrap().contacts_state.clone();
+        let pool = state.read().await.contacts_state.clone();
 
         let new_error = check_errors(
             &pool, &first_set, &last_set, &phone_set, &email_set, &birth_set, &id_set,
@@ -96,12 +91,12 @@ mod post {
                 messages
                     .info(format!("Contact ID {} Created Successfully!", id_inserted).to_string());
 
-                let mut writable_state = state.write().unwrap();
+                let mut writable_state = state.write().await;
                 writable_state.error_state = CreationErrorState::default();
                 Ok(Redirect::to("/contacts/show?page_p=1"))
             }
             Some(new_error) => {
-                let mut writable_state = state.write().unwrap();
+                let mut writable_state = state.write().await;
                 writable_state.error_state = new_error;
                 let uri = format!(
                     "/contacts/new?first_p={}&last_p={}&phone_p={}&email_p={}",

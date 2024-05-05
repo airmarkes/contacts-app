@@ -1,13 +1,16 @@
-#![allow(unused)]
+//#![allow(unused)]
 pub mod errors;
 pub mod models;
+pub mod functions;
 pub mod web;
 
 use axum::Router;
 use axum_messages::MessagesManagerLayer;
 use dotenv::dotenv;
 use sqlx::{sqlite::SqlitePool, Pool, Sqlite};
-use std::sync::{Arc, RwLock};
+//use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+use tokio::sync::RwLock;
 use tokio::net::TcpListener;
 use tokio::{signal, task::AbortHandle};
 use tower_http::services::ServeDir;
@@ -20,7 +23,7 @@ use crate::web::edit::*;
 use crate::web::index::*;
 use crate::web::new::*;
 use crate::web::show::*;
-use crate::web::utils::*;
+use crate::web::base::*;
 use crate::web::view::*;
 
 #[tokio::main]
@@ -73,7 +76,7 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn shutdown_signal(deletion_task_abort_handle: AbortHandle) {
+async fn _shutdown_signal(deletion_task_abort_handle: AbortHandle) {
     let ctrl_c = async {
         signal::ctrl_c()
             .await

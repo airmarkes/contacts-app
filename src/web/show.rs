@@ -12,6 +12,7 @@ use std::time::Duration;
 
 use crate::errors::AppError;
 use crate::models::*;
+use crate::functions::*;
 
 #[derive(Template)]
 #[template(path = "show.html")]
@@ -38,7 +39,7 @@ pub struct RowsTemplate {
 #[derive(Deserialize)]
 pub struct ShowParams {
     pub search_p: Option<String>,
-    pub page_p: Option<u32>,
+    pub page_p: u32,
 }
 
 #[derive(Deserialize)]
@@ -64,10 +65,11 @@ mod get {
         messages: Messages,
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_get_showcontacts", get_time());
+        
         let search_bar = params.search_p.as_deref().unwrap_or("");
-        let page_set = params.page_p.unwrap_or(1);
+        let page_set = params.page_p;
 
-        let archiver = state.read().unwrap().archiver_state.clone();
+        let archiver = state.read().await.archiver_state.clone();
 
         let messages = messages
             .into_iter()
@@ -75,7 +77,7 @@ mod get {
             .collect::<Vec<_>>()
             .join(", ");
 
-        let pool = state.read().unwrap().contacts_state.clone();
+        let pool = state.read().await.contacts_state.clone();
 
         let (contacts_set, length, page_set, max_page) =
             match_contacts(pool, search_bar, page_set).await?;
@@ -98,7 +100,7 @@ mod get {
             archive_t: archiver,
             time_t: time_now,
         };
-        let mut writable_state = state.write().unwrap();
+        let mut writable_state = state.write().await;
         writable_state.error_state = CreationErrorState::default();
         thread::sleep(Duration::from_millis(300));
 
@@ -136,13 +138,13 @@ mod delete {
     ) -> anyhow::Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_delete_bulk", get_time());
         let ids_opt: Option<Vec<String>> = params_form.ids_p;
-        let pool = state.read().unwrap().contacts_state.clone();
+        let pool = state.read().await.contacts_state.clone();
         let mut rows_affected_sum: u32 = 0;
         match ids_opt {
             Some(ids_set) => {
                 let ids_u32 = ids_set
                     .into_iter()
-                    .map(|u| u.parse::<u32>().unwrap())
+                    .map(|u| u.parse::<u32>().expect("failed to parse ids"))
                     .collect::<Vec<u32>>();
                 for id_set in ids_u32 {
                     let rows_affected = sqlx::query!(

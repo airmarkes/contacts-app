@@ -2,7 +2,7 @@
 block content %}
 
 <form action="/contacts/new" method="post">
-  <legend class="w-full pb-3 text-center text-2xl font-bold">
+  <legend class="w-full pb-3 text-center text-2xl font-bold text-primary">
     Create a new contact
   </legend>
 
@@ -74,13 +74,13 @@ block content %}
   </div>
   <div class="flex justify-evenly pt-3">
     <button
-      class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
+      class="btn btn-secondary btn-sm font-bold"
       type="submit"
     >
       Save
     </button>
     <a
-      class="rounded-md border bg-indigo-500 px-1 font-semibold text-slate-100 shadow-md shadow-indigo-900 hover:bg-indigo-900"
+      class="btn btn-secondary btn-sm font-bold"
       href="/contacts/show?page_p=1"
       >Back</a
     >

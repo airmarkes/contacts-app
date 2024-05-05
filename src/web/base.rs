@@ -6,10 +6,11 @@ use std::{thread, time::Duration};
 
 use crate::errors::AppError;
 use crate::models::*;
+use crate::functions::*;
 
 #[derive(Deserialize)]
 pub struct ValidateEmailParams {
-    pub email_p: Option<String>,
+    pub email_p: String,
     pub id_p: Option<u32>,
 }
 
@@ -30,10 +31,10 @@ mod get {
         Query(params_query): Query<ValidateEmailParams>,
     ) -> Result<String, AppError> {
         println!("->> {} - HANDLER: handler_get_validate_email", get_time());
-        let email_set = params_query.email_p.unwrap();
+        let email_set = params_query.email_p;
         let id_set_opt = params_query.id_p;
 
-        let pool = state.read().unwrap().contacts_state.clone();
+        let pool = state.read().await.contacts_state.clone();
         let email_validated = validate_email(&pool, &email_set, &id_set_opt).await?;
         Ok(email_validated)
     }
@@ -42,7 +43,7 @@ mod get {
         State(state): State<AppStateType>, //State(state_contacts): State<ContactState>
     ) -> Result<String, AppError> {
         println!("->> {} - HANDLER: handler_contacts_count", get_time());
-        let pool = state.read().unwrap().contacts_state.clone();
+        let pool = state.read().await.contacts_state.clone();
 
         let rec = sqlx::query!(
             r#"
@@ -53,7 +54,7 @@ mod get {
         .fetch_one(&pool)
         .await?;
         let contacts_count = rec.count;
-        let span = format!("({} total contacts)", contacts_count);
+        let span = format!("({} total)", contacts_count);
         thread::sleep(Duration::from_millis(900));
         Ok(span)
     }

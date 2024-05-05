@@ -25,8 +25,9 @@
         <img src="/assets/favicon.ico" class="h-6 w-6">
         Bday Contacts
         </a>
+        
       </div>
-      <div class="flex-1 text-lg font-bold">
+      <div class="text-lg font-bold">
       {% block time %}{% endblock %}
       </div>
       <div class="flex-none">
@@ -52,11 +53,11 @@
     </header>
     -->
     <main
-      class="flex w-full items-start justify-center mb-auto"
+      class="mb-auto"
       id="content"
     > 
       <!--<div class="border border-indigo-900 p-3 shadow-md shadow-indigo-600"> -->
-      <div class="min-w-36 bg-base-100">{% block content %}{% endblock %}</div>
+      <div class="w-full bg-base-100">{% block content %}{% endblock %}</div>
     </main>
 
     <footer

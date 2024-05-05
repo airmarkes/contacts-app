@@ -9,6 +9,7 @@ use serde::Deserialize;
 
 use crate::errors::AppError;
 use crate::models::*;
+use crate::functions::*;
 
 #[derive(Template)]
 #[template(path = "view.html")]
@@ -18,7 +19,7 @@ pub struct ViewContactTemplate {
 
 #[derive(Deserialize)]
 pub struct ViewContactParams {
-    pub id_p: Option<u32>,
+    pub id_p: u32,
 }
 
 pub fn view_router() -> Router<AppStateType> {
@@ -36,9 +37,9 @@ mod get {
         Query(params): Query<ViewContactParams>,
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_get_viewcontact", get_time());
-        let id_set = params.id_p.unwrap();
+        let id_set = params.id_p;
 
-        let pool = state.read().unwrap().contacts_state.clone();
+        let pool = state.read().await.contacts_state.clone();
         let contact_set = sqlx::query_as!(
             Contact,
             r#"
@@ -66,11 +67,11 @@ mod delete {
         headers: HeaderMap,
         messages: Messages,
     ) -> Result<impl IntoResponse, AppError> {
-        println!("->> {} - HANDLER: handler_delete_contact", get_time());
-        let id_set = params_query.id_p.unwrap();
-        let hx_header = headers.get("HX-trigger");
+        println!("->> {} - HANDLER: handler_delete_contact - MOD: view.rs", get_time());
+        let id_set = params_query.id_p;
+        let header_hx_trigger = headers.get("HX-trigger");
 
-        let pool = state.read().unwrap().contacts_state.clone();
+        let pool = state.read().await.contacts_state.clone();
         let rows_affected = sqlx::query!(
             r#"
             DELETE FROM contacts_table
@@ -90,30 +91,30 @@ mod delete {
             }
             _ => println!("Deleted Unsuccessfully"),
         };
-        match hx_header {
-            Some(header_value) => match header_value.to_str().unwrap() {
+        match header_hx_trigger {
+            Some(header_value) => match header_value.to_str()? {
                 "delete_btn" => {
                     return Ok(TypeOr::Redir);
                 }
                 _ => {
-                    return Ok(TypeOr::EmptyStr);
+                    return Ok(TypeOr::Reload);
                 }
             },
             None => {
-                return Ok(TypeOr::EmptyStr);
+                return Ok(TypeOr::Reload);
             }
         };
     }
 
     enum TypeOr {
         Redir,
-        EmptyStr,
+        Reload,
     }
     impl IntoResponse for TypeOr {
         fn into_response(self) -> Response {
             match self {
-                TypeOr::EmptyStr => {
-                    return ([("HX-Trigger", "fire_reload")], "").into_response();
+                TypeOr::Reload => {
+                    return ([("HX-Trigger", "fire_reload")]).into_response();
                 }
                 TypeOr::Redir => {
                     return Redirect::to("/contacts/show?page_p=1").into_response();

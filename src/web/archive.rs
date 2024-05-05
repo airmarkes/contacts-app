@@ -1,5 +1,6 @@
 use crate::errors::AppError;
 use crate::models::*;
+use crate::functions::*;
 use askama::Template;
 use axum::response::Html;
 use axum::routing::get;
@@ -33,7 +34,7 @@ mod get {
         State(state): State<AppStateType>,
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_get_archive", get_time());
-        let archiver = state.read().unwrap().archiver_state.clone();
+        let archiver = state.read().await.archiver_state.clone();
         let archive_ui = ArchiveUiTemplate {
             archive_t: archiver,
         };
@@ -44,7 +45,7 @@ mod get {
         State(state): State<AppStateType>,
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_get_archive_file", get_time());
-        let archiver = state.read().unwrap().archiver_state.clone();
+        let archiver = state.read().await.archiver_state.clone();
         let file = tokio::fs::File::open(archiver.archive_file()).await?;
         let stream = ReaderStream::new(file);
         let body = axum::body::Body::from_stream(stream);
@@ -66,9 +67,9 @@ mod post {
         State(state): State<AppStateType>, //State(state_archive): State<ArchiverState>
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_post_archive", get_time());
-        let archiver = state.read().unwrap().archiver_state.clone();
+        let archiver = state.read().await.archiver_state.clone();
         if archiver.archive_status == "Waiting".to_owned() {
-            let mut write = state.write().unwrap();
+            let mut write = state.write().await;
             write.archiver_state.archive_status = "Running".to_owned();
             write.archiver_state.archive_progress = 0.0;
             drop(write);
@@ -77,7 +78,7 @@ mod post {
                 run_thread(clone).await;
             });
         };
-        let archiver_then = state.read().unwrap().archiver_state.clone();
+        let archiver_then = state.read().await.archiver_state.clone();
 
         let archive_ui = ArchiveUiTemplate {
             archive_t: archiver_then,
@@ -93,13 +94,15 @@ mod delete {
         State(state): State<AppStateType>,
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_delete_archive_file", get_time());
-        let mut write = state.write().unwrap();
+        let mut write = state.write().await;
         write.archiver_state.archive_status = "Waiting".to_owned();
         drop(write);
-        let archiver = state.read().unwrap().archiver_state.clone();
+        let archiver = state.read().await.archiver_state.clone();
         let archive_ui = ArchiveUiTemplate {
             archive_t: archiver,
         };
         Ok(Html(archive_ui.render()?))
     }
 }
+
+

@@ -42,7 +42,7 @@
         hx-select="#tbody > tr"
         hx-indicator="#full_spinner"
       >
-        &lt-</a
+        &lt</a
       >
       {% endif %}
       <input
@@ -63,7 +63,7 @@
       />
       <span> of </span>
       <span>{{ max_page_t }}</span>
-      {% if length_t == 10 && page_t < max_page_t %}
+      {% if length_t == 8 && page_t < max_page_t %}
       <a
         href="/contacts/show?page_p={{ page_t + 1 }}"
         class="btn btn-secondary btn-xs font-extrabold"
@@ -71,7 +71,7 @@
         hx-select="#tbody > tr"
         hx-indicator="#full_spinner"
       >
-        -&gt</a
+        &gt</a
       >
       {% endif %}
     </div>

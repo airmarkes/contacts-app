@@ -5,6 +5,7 @@ use axum::Router;
 
 use crate::errors::AppError;
 use crate::models::*;
+use crate::functions::*;
 
 #[derive(Template)]
 #[template(path = "index.html")]
