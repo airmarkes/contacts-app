@@ -105,7 +105,7 @@ mod get {
         let header_hx = headers.get("HX-Trigger");
         match header_hx {
             Some(header_value) => {
-                match header_value.to_str().unwrap() {
+                match header_value.to_str()? {
                     "search" => {
                         return Ok(([(header::VARY, "HX-Trigger")], Html(rows_tmpl.render()?)));
                     }
@@ -133,7 +133,7 @@ mod delete {
     pub async fn handler_delete_bulk(
         State(state): State<AppStateType>,
         ExtraForm(params_form): ExtraForm<DeleteBulkParams>,
-    ) -> Result<impl IntoResponse, AppError> {
+    ) -> anyhow::Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_delete_bulk", get_time());
         let ids_opt: Option<Vec<String>> = params_form.ids_p;
         let pool = state.read().unwrap().contacts_state.clone();

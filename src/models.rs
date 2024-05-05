@@ -3,6 +3,8 @@ use rand::prelude::*;
 use serde::Deserialize;
 use sqlx::{prelude::FromRow, Pool, Sqlite};
 use std::sync::{Arc, RwLock};
+//use std::sync::Arc;
+//use tokio::sync::RwLock;
 use tokio::time::{sleep, Duration as TokioDuration};
 
 #[derive(Clone)]
@@ -47,7 +49,6 @@ pub async fn match_contacts(
     )
     .fetch_one(&pool)
     .await?;
-
     let num_of_rows = num_of_rows.count as u32;
     let mut max_page = num_of_rows.div_ceil(10);
     if max_page == 0 {

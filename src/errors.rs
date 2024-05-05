@@ -1,6 +1,7 @@
 use axum::{http::StatusCode, response::IntoResponse};
 
-use crate::get_time;
+
+/* use crate::get_time;
 
 #[derive(thiserror::Error, Debug)]
 pub enum AppError {
@@ -16,7 +17,9 @@ pub enum AppError {
     Askama(#[from] askama::Error),
     #[error("from std io")]
     StdIo(#[from] std::io::Error),
-}
+} 
+
+
 impl IntoResponse for AppError {
     fn into_response(self) -> axum::response::Response {
         let status = match self {
@@ -46,9 +49,9 @@ impl IntoResponse for AppError {
         //let body = Json(error_message);
         status.into_response()
     }
-}
+} */
 
-/*
+
 
 #[derive(Debug)]
 pub struct AppError(anyhow::Error);
@@ -71,4 +74,4 @@ where
         Self(err.into())
     }
 }
- */
+ 
