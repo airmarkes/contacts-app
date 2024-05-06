@@ -11,8 +11,8 @@ use std::thread;
 use std::time::Duration;
 
 use crate::errors::AppError;
-use crate::models::*;
 use crate::functions::*;
+use crate::models::*;
 
 #[derive(Template)]
 #[template(path = "show.html")]
@@ -65,7 +65,7 @@ mod get {
         messages: Messages,
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_get_showcontacts", get_time());
-        
+
         let search_bar = params.search_p.as_deref().unwrap_or("");
         let page_set = params.page_p;
 
@@ -106,26 +106,18 @@ mod get {
 
         let header_hx = headers.get("HX-Trigger");
         match header_hx {
-            Some(header_value) => {
-                match header_value.to_str()? {
-                    "search" => {
-                        return Ok(([(header::VARY, "HX-Trigger")], Html(rows_tmpl.render()?)));
-                    }
-                    _ => {
-                        return Ok((
-                            [(header::VARY, "HX-Trigger")],
-                            Html(contacts_tmpl.render()?),
-                        ));
-                    }
-                };
-            }
-            None => {
-                return Ok((
+            Some(header_value) => match header_value.to_str()? {
+                "search" => Ok(([(header::VARY, "HX-Trigger")], Html(rows_tmpl.render()?))),
+                _ => Ok((
                     [(header::VARY, "HX-Trigger")],
                     Html(contacts_tmpl.render()?),
-                ));
-            }
-        };
+                )),
+            },
+            None => Ok((
+                [(header::VARY, "HX-Trigger")],
+                Html(contacts_tmpl.render()?),
+            )),
+        }
     }
 }
 
@@ -165,9 +157,9 @@ mod delete {
                     }
                     _ => println!("Deleted Successfully {} Contacts", rows_affected_sum),
                 };
-                return Ok(Redirect::to("/contacts/show?page_p=1"));
+                Ok(Redirect::to("/contacts/show?page_p=1"))
             }
-            None => return Ok(Redirect::to("/contacts/show?page_p=1")),
+            None => Ok(Redirect::to("/contacts/show?page_p=1")),
         }
     }
 }

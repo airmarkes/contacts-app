@@ -1,6 +1,6 @@
 use crate::errors::AppError;
-use crate::models::*;
 use crate::functions::*;
+use crate::models::*;
 use askama::Template;
 use axum::response::Html;
 use axum::routing::get;
@@ -68,7 +68,7 @@ mod post {
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_post_archive", get_time());
         let archiver = state.read().await.archiver_state.clone();
-        if archiver.archive_status == "Waiting".to_owned() {
+        if archiver.archive_status == "Waiting" {
             let mut write = state.write().await;
             write.archiver_state.archive_status = "Running".to_owned();
             write.archiver_state.archive_progress = 0.0;
@@ -104,5 +104,3 @@ mod delete {
         Ok(Html(archive_ui.render()?))
     }
 }
-
-

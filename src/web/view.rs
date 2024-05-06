@@ -8,8 +8,8 @@ use axum_messages::Messages;
 use serde::Deserialize;
 
 use crate::errors::AppError;
-use crate::models::*;
 use crate::functions::*;
+use crate::models::*;
 
 #[derive(Template)]
 #[template(path = "view.html")]
@@ -67,7 +67,10 @@ mod delete {
         headers: HeaderMap,
         messages: Messages,
     ) -> Result<impl IntoResponse, AppError> {
-        println!("->> {} - HANDLER: handler_delete_contact - MOD: view.rs", get_time());
+        println!(
+            "->> {} - HANDLER: handler_delete_contact - MOD: view.rs",
+            get_time()
+        );
         let id_set = params_query.id_p;
         let header_hx_trigger = headers.get("HX-trigger");
 
@@ -93,17 +96,11 @@ mod delete {
         };
         match header_hx_trigger {
             Some(header_value) => match header_value.to_str()? {
-                "delete_btn" => {
-                    return Ok(TypeOr::Redir);
-                }
-                _ => {
-                    return Ok(TypeOr::Reload);
-                }
+                "delete_btn" => Ok(TypeOr::Redir),
+                _ => Ok(TypeOr::Reload),
             },
-            None => {
-                return Ok(TypeOr::Reload);
-            }
-        };
+            None => Ok(TypeOr::Reload),
+        }
     }
 
     enum TypeOr {
@@ -113,12 +110,8 @@ mod delete {
     impl IntoResponse for TypeOr {
         fn into_response(self) -> Response {
             match self {
-                TypeOr::Reload => {
-                    return ([("HX-Trigger", "fire_reload")]).into_response();
-                }
-                TypeOr::Redir => {
-                    return Redirect::to("/contacts/show?page_p=1").into_response();
-                }
+                TypeOr::Reload => ([("HX-Trigger", "fire_reload")]).into_response(),
+                TypeOr::Redir => Redirect::to("/contacts/show?page_p=1").into_response(),
             }
         }
     }

@@ -25,7 +25,7 @@ pub async fn match_contacts(
     if max_page == 0 {
         max_page = 1;
     }
-    if page_set <= 0 {
+    if page_set == 0 {
         page_set = 1;
     } else if page_set > max_page {
         page_set = max_page;
@@ -47,7 +47,7 @@ pub async fn match_contacts(
             .fetch_all(&pool)
             .await?;
             let length = contacts_set.len() as u32;
-            return Ok((contacts_set, length, page_set, max_page));
+            Ok((contacts_set, length, page_set, max_page))
         }
         "bday" => {
             let contacts_set = sqlx::query_as!(
@@ -67,7 +67,7 @@ pub async fn match_contacts(
             .await?;
             let length = contacts_set.len() as u32;
 
-            return Ok((contacts_set, length, page_set, max_page));
+            Ok((contacts_set, length, page_set, max_page))
         }
         _ => {
             let contacts_set = sqlx::query_as!(
@@ -89,57 +89,58 @@ pub async fn match_contacts(
             .fetch_all(&pool)
             .await?;
             let length = contacts_set.len() as u32;
-            return Ok((contacts_set, length, page_set, max_page));
+            Ok((contacts_set, length, page_set, max_page))
         }
     }
 }
 pub async fn check_errors(
     pool: &Pool<Sqlite>,
-    first: &String,
-    last: &String,
-    phone: &String,
-    email: &String,
-    birth: &String,
+    first: &str,
+    last: &str,
+    phone: &str,
+    email: &str,
+    birth: &str,
     id_set_opt: &Option<u32>,
 ) -> anyhow::Result<Option<CreationErrorState>> {
     let new_error = CreationErrorState {
-        first_error: if first == "" {
+        first_error: if first.is_empty() {
             "First Name Required".to_string()
         } else {
             "".to_string()
         },
-        last_error: if last == "" {
+        last_error: if last.is_empty() {
             "Last Name Required".to_string()
         } else {
             "".to_string()
         },
-        phone_error: if phone == "" {
+        phone_error: if phone.is_empty() {
             "Phone Required".to_string()
         } else {
             "".to_string()
         },
-        email_error: if email == "" {
+        email_error: if email.is_empty() {
             "Email Required".to_string()
         } else {
             "".to_string()
         },
-        email_unique_error: validate_email(pool, &email, &id_set_opt).await?,
-        birth_error: if birth == "" {
+        email_unique_error: validate_email(pool, email, id_set_opt).await?,
+        birth_error: if birth.is_empty() {
             "Birth Date Required".to_string()
         } else {
             "".to_string()
         },
     };
-    if new_error.first_error == ""
-        && new_error.last_error == ""
-        && new_error.phone_error == ""
-        && new_error.email_error == ""
-        && new_error.email_unique_error == ""
-        && new_error.birth_error == ""
+    if new_error.first_error.is_empty()
+        && new_error.last_error.is_empty()
+        && new_error.phone_error.is_empty()
+        && new_error.email_error.is_empty()
+        && new_error.email_unique_error.is_empty()
+        && new_error.birth_error.is_empty()
     {
-        return Ok(None);
+        Ok(None)
+    } else {
+        Ok(Some(new_error))
     }
-    return Ok(Some(new_error));
 }
 pub async fn create_contact(
     pool: Pool<Sqlite>,
@@ -166,7 +167,7 @@ pub async fn create_contact(
     .execute(&mut *conn)
     .await?
     .last_insert_rowid();
-    return Ok(id_inserted as u32);
+    Ok(id_inserted as u32)
 }
 pub async fn edit_contact(
     pool: Pool<Sqlite>,
@@ -211,11 +212,11 @@ pub async fn edit_contact(
     .execute(&pool)
     .await?
     .rows_affected();
-    return Ok(rows_affected as u32);
+    Ok(rows_affected as u32)
 }
 pub async fn validate_email(
     pool: &Pool<Sqlite>,
-    email_set: &String,
+    email_set: &str,
     id_set_opt: &Option<u32>,
 ) -> anyhow::Result<String> {
     let email_equal;
@@ -247,16 +248,12 @@ pub async fn validate_email(
         }
     }
     match email_equal {
-        0 => {
-            return Ok("".to_string());
-        }
-        _ => {
-            return Ok("Email must be unique".to_string());
-        }
-    };
+        0 => Ok("".to_string()),
+        _ => Ok("Email must be unique".to_string()),
+    }
 }
 
-pub async fn run_thread(state: AppStateType) -> () {
+pub async fn run_thread(state: AppStateType) {
     for i in 0..10 {
         let random = rand::thread_rng().gen::<f64>();
         let sleep_time = (1000.0 * random) as u64;
@@ -264,12 +261,11 @@ pub async fn run_thread(state: AppStateType) -> () {
         let mut write = state.write().await;
         write.archiver_state.archive_progress = ((i as f64) + 1.0) / 10.0;
         drop(write);
-        if state.read().await.archiver_state.archive_status != "Running" {
-            return;
-        }
+        //if state.read().await.archiver_state.archive_status != "Running" {
+        //    return;
+        //}
     }
     state.write().await.archiver_state.archive_status = "Complete".to_owned();
-    return;
 }
 pub fn get_time() -> String {
     let time_stamp_now = std::time::SystemTime::now();

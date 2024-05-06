@@ -1,25 +1,19 @@
 use axum::{http::StatusCode, response::IntoResponse};
 
-
-/* use crate::get_time;
+// use crate::get_time;
+// bail!(MyError::CustomError);
 
 #[derive(thiserror::Error, Debug)]
-pub enum AppError {
+pub enum MyError {
     //#[error("error accessing file")]
     //FileAccess(#[from] tokio::io::Error),
     //#[error("error parsing json")]
     //JsonParse(#[from] serde_json::Error),
-    #[error("from anyhow")]
-    AnyHow(#[from] anyhow::Error),
-    #[error("from sqlx")]
-    Sqlx(#[from] sqlx::Error),
-    #[error("from askama")]
-    Askama(#[from] askama::Error),
-    #[error("from std io")]
-    StdIo(#[from] std::io::Error),
+    #[error("test custom error")]
+    CustomError,    
 } 
 
-
+/*
 impl IntoResponse for AppError {
     fn into_response(self) -> axum::response::Response {
         let status = match self {
