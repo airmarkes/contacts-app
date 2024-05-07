@@ -3,91 +3,91 @@
 
 <form action="/contacts/edit?id_p={{contact_t.id}}" method="post">
 
-  <legend class="w-full pb-3 text-center text-2xl font-bold text-primary">
-    Edit contact with ID {{ contact_t.id }}
+  <legend class="w-full py-3 text-center text-2xl font-bold text-secondary">
+    Edit contact (ID {{ contact_t.id }})!
   </legend>
   
-  <div class="flex justify-center space-x-2 p-1">
-    <label class="min-w-24" for="first">
-    First Name
-    </label>
-    <input
-      class="rounded-md border border-slate-900 px-1"
-      name="first_p"
-      id="first"
-      type="text"
-      placeholder="First Name"
-      value="{{ contact_t.first_name }}"
+  <label class="form-control w-full max-w-xs mx-auto">
+    <div class="label">
+      <span class="label-text text-primary">First name</span>
+      <span class="label-text-alt">Eg. Elvis</span>
+    </div>
+    <input type="text" placeholder="Type here" name="first_p" id="first"
+      class="input input-bordered  w-full max-w-xs" value="{{ contact_t.first_name }}"
     />
-  <div class="min-w-40 text-error">{{ errors_t.first_error }}</div>
-  </div>
-  <div class="flex justify-center space-x-2 p-1">
-    <label class="min-w-24" for="last">Last Name</label>
-    <input
-      class="rounded-md border border-slate-900 px-1"
-      name="last_p"
-      id="last"
-      type="text"
-      placeholder="Last Name"
-      value="{{ contact_t.last_name }}"
+    <div class="label">
+      <span class="label-text-alt text-error">{{ errors_t.first_error }}</span>
+    </div>
+  </label>
+
+  <label class="form-control w-full max-w-xs mx-auto">
+    <div class="label">
+      <span class="label-text text-primary">Last name</span>
+      <span class="label-text-alt">Eg. Presley da Silva</span>
+    </div>
+    <input type="text" placeholder="Type here" name="last_p" id="last"
+      class="input input-bordered  w-full max-w-xs" value="{{ contact_t.last_name }}"
     />
-    <div class="min-w-40 text-error">{{ errors_t.last_error }}</div>
-  </div>
-  <div class="flex justify-center space-x-2 p-1">
-    <label class="min-w-24" for="email">Email</label>
-    <input
-      class="rounded-md border border-slate-900 px-1"
-      name="email_p"
-      id="email"
-      type="email"
-      placeholder="Email"
-      value="{{ contact_t.email }}"
+    <div class="label">
+      <span class="label-text-alt text-error">{{ errors_t.last_error }}</span>
+    </div>
+  </label>
+
+  <label class="form-control w-full max-w-xs mx-auto">
+    <div class="label">
+      <span class="label-text text-primary">Email</span>
+      <span class="label-text-alt">Eg. elvis123@gmail.com</span>
+    </div>
+    <input type="email" placeholder="Type here" name="email_p" id="email"
+      class="input input-bordered  w-full max-w-xs" value="{{ contact_t.email }}"
       hx-get="/contacts/validate_email?id_p={{contact_t.id }}"
       hx-include="#email"
-      hx-target="next div"
+      hx-target="next span"
       hx-trigger="change, keyup delay:600ms changed"
       hx-push-url="true"
     />
-    <div class="min-w-40 text-error">
-      {{ errors_t.email_error }}{{ errors_t.email_unique_error }}
+    <div class="label">
+      <span class="label-text-alt text-error">{{ errors_t.email_error }}
+        {{ errors_t.email_unique_error }}
+      </span>
     </div>
-  </div>
-  <div class="flex justify-center space-x-2 p-1">
-    <label class="min-w-24" for="phone">Phone</label>
-    <input
-      class="rounded-md border border-slate-900 px-1"
-      name="phone_p"
-      id="phone"
-      type="tel"
-      placeholder="Phone"
-      value="{{ contact_t.phone }}"
+  </label>
+  
+  <label class="form-control w-full max-w-xs mx-auto">
+    <div class="label">
+      <span class="label-text text-primary">Phone</span>
+      <span class="label-text-alt">Eg. 981960771</span>
+    </div>
+    <input type="tel" placeholder="Type here" name="phone_p" id="phone"
+      class="input input-bordered  w-full max-w-xs" value="{{ contact_t.phone }}"
     />
-    <div class="min-w-40 text-error">{{ errors_t.phone_error }}</div>
-  </div>
-  <div class="flex justify-center space-x-2 p-1">
-    <label class="min-w-24" for="birth">Birth Date</label>
-    <input
-      class="rounded-md border border-slate-900 px-1"
-      name="birth_p"
-      id="birth"
-      type="date"
-      placeholder="Birth Date"
-      value="{{ contact_t.birth_date }}"
+    <div class="label">
+      <span class="label-text-alt text-error">{{ errors_t.phone_error }}</span>
+    </div>
+  </label>
+
+  <label class="form-control w-full max-w-xs mx-auto">
+    <div class="label">
+      <span class="label-text text-primary">Birthday</span>
+      <span class="label-text-alt">Eg. dd/mm/aaaa</span>
+    </div>
+    <input type="date" placeholder="Type here" name="birth_p" id="birth"
+      class="input input-bordered  w-full max-w-xs" value="{{ contact_t.birth_date }}"
     />
-    <div class="min-w-40 text-error">{{ errors_t.birth_error }}</div>
-  </div>
-  <div class="flex justify-center space-x-6 pt-3">
-    <button
-      class="btn btn-secondary btn-sm font-bold"
-      type="submit"
-    >
+    <div class="label">
+      <span class="label-text-alt text-error">{{ errors_t.birth_error }}</span>
+    </div>
+  </label>
+
+  <div class="flex justify-center space-x-6">
+    <button class="btn btn-secondary btn-sm font-bold" type="submit">
       Save
     </button>
-    <a
-      class="btn btn-primary btn-sm font-bold"
-      href="/contacts/view?id_p={{contact_t.id}}"
-      >Back</a
+    <a class="btn btn-primary btn-sm font-bold"
+    href="/contacts/view?id_p={{contact_t.id}}"
     >
+      Back
+    </a>
   </div>
 </form>
 

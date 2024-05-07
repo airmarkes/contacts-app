@@ -13,13 +13,48 @@
     
     <header class="navbar bg-base-300">
       <div class="flex-none">
+        <label for="my-drawer-2" class="btn btn-ghost drawer-button lg:hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </label>
+                
+        <!--
         <button class="btn btn-square btn-ghost">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
+        -->
+        <!--
+        <div class="drawer lg:drawer-open">
+          <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+          <div class="drawer-content">
+            
+            <label for="my-drawer" class="btn btn-ghost drawer-button">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </label>
+          </div> 
+          
+          
+          <div class="drawer-side z-10">
+            <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label> 
+            <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+              <li>
+                <a href="/contacts/new">Add Contact +
+                  <span id="contacts_count"
+                  hx-get="/contacts/count"
+                  hx-trigger="load delay:3000ms">
+                    <span class="loading loading-spinner loading-xs text-primary"></span>
+                  </span>
+                </a>
+              </li>
+              <li><a>Download</a></li>
+              
+            </ul>
+          
+          </div> 
+        </div> -->
       </div>
       <div class="flex-none">
         
-        <a class="btn btn-ghost text-xl font-extrabold"
+        <a class="btn btn-ghost text-xl font-bold"
         href="/contacts/show?page_p=1"
         >
         <img src="/assets/favicon.ico" class="h-6 w-6">
@@ -57,13 +92,37 @@
       <h2 class="text-xl text-primary">A Demo Contacts' Birthdays Sorter App</h2>
     </header>
     -->
-    <main
-      class="mb-auto"
-      id="content"
-    > 
-      <!--<div class="border border-indigo-900 p-3 shadow-md shadow-indigo-600"> -->
-      <div class="w-full bg-base-100">{% block content %}{% endblock %}</div>
-    </main>
+    <div class="drawer lg:drawer-open">
+      <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
+      <div class="drawer-content flex flex-col items-center justify-center">
+        <!-- Page content here -->
+        <main
+          class="mb-auto"
+          id="content"
+        > 
+          <!--<div class="border border-indigo-900 p-3 shadow-md shadow-indigo-600"> -->
+          <div class="w-full bg-base-100">{% block content %}{% endblock %}</div>
+        </main>
+        <!-- Page endscontent here -->
+      </div> 
+  
+      <div class="drawer-side z-10">
+        <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label> 
+        <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+          <li>
+            <a href="/contacts/new">Add Contact +
+              <span id="contacts_count"
+              hx-get="/contacts/count"
+              hx-trigger="load delay:3000ms">
+                <span class="loading loading-spinner loading-xs text-primary"></span>
+              </span>
+            </a>
+          </li>
+          <li><a>Download Contacts Lists</a></li>
+          
+        </ul>
+      </div>
+    </div> 
 
     <footer
       class="footer footer-center bg-base-300 h-16 p-3 text-base-content"

@@ -13,13 +13,9 @@ use crate::{get_time, AppStateType};
 
 #[derive(Template)]
 #[template(path = "new.html")]
-pub struct NewContactTemplate<'a> {
+pub struct NewContactTemplate {
     pub errors_t: CreationErrorState,
-    pub first_t: &'a str,
-    pub last_t: &'a str,
-    pub phone_t: &'a str,
-    pub email_t: &'a str,
-    pub birth_t: &'a str,
+    pub contact_t: Contact,
 }
 
 #[derive(Deserialize)]
@@ -47,14 +43,18 @@ mod get {
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_get_newcontact", get_time());
         let errors_all = state.read().await.error_state.clone();
-
+        let contact = Contact {
+            id: 0,
+            first_name: params.first_p.unwrap_or("".to_owned()),
+            last_name: params.last_p.unwrap_or("".to_owned()),
+            phone: params.phone_p.unwrap_or("".to_owned()),
+            email: params.email_p.unwrap_or("".to_owned()),
+            birth_date: params.birth_p.unwrap_or("".to_owned()),
+            time_creation: "".to_owned(),
+        };
         let new_contact_templ = NewContactTemplate {
             errors_t: errors_all,
-            first_t: params.first_p.as_deref().unwrap_or(""),
-            last_t: params.last_p.as_deref().unwrap_or(""),
-            phone_t: params.phone_p.as_deref().unwrap_or(""),
-            email_t: params.email_p.as_deref().unwrap_or(""),
-            birth_t: params.birth_p.as_deref().unwrap_or(""),
+            contact_t: contact,
         };
         Ok(Html(new_contact_templ.render()?))
     }
