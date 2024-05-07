@@ -1,15 +1,15 @@
 use askama::Template;
 use axum::extract::Query;
-use axum::response::{Html, Redirect};
+use axum::response::Redirect;
 use axum::routing::get;
 use axum::Form;
 use axum::{extract::State, Router};
 use axum_messages::Messages;
 use serde::Deserialize;
 
-use crate::errors::AppError;
-use crate::models::*;
-use crate::functions::*;
+use crate::contacts::*;
+use crate::errors::*;
+use crate::{get_time, AppStateType};
 
 #[derive(Template)]
 #[template(path = "edit.html")]
@@ -24,7 +24,6 @@ pub struct EditContactIDParam {
 
 #[derive(Deserialize)]
 pub struct EditContactParams {
-    pub id_p: u32,
     pub first_p: String,
     pub last_p: String,
     pub phone_p: String,
@@ -40,12 +39,14 @@ pub fn edit_router() -> Router<AppStateType> {
 }
 
 mod get {
+    use askama_axum::IntoResponse;
+
     use super::*;
 
     pub async fn handler_get_editcontact(
         State(state): State<AppStateType>,
         Query(params): Query<EditContactIDParam>,
-    ) -> Result<Html<String>, AppError> {
+    ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_get_editcontact", get_time());
         let errors_all = state.read().await.error_state.clone();
         let id_set = params.id_p;
@@ -66,7 +67,7 @@ mod get {
             errors_t: errors_all,
             contact_t: contact_set,
         };
-        Ok(Html(edit_contact_template.render()?))
+        Ok(edit_contact_template.into_response())
     }
 }
 
@@ -80,37 +81,28 @@ mod post {
         Form(params_form): Form<EditContactParams>,
     ) -> Result<Redirect, AppError> {
         println!("->> {} - HANDLER: handler_post_editcontact", get_time());
-        let id_set = params_query.id_p;
-        let first_set = params_form.first_p;
-        let last_set = params_form.last_p;
-        let phone_set = params_form.phone_p;
-        let email_set = params_form.email_p;
-        let birth_set = params_form.birth_p;
+        let contact = Contact {
+            id: params_query.id_p as i64,
+            first_name: params_form.first_p,
+            last_name: params_form.last_p,
+            phone: params_form.phone_p,
+            email: params_form.email_p,
+            birth_date: params_form.birth_p,
+            time_creation: String::default(),
+        };
 
         let pool = state.read().await.contacts_state.clone();
 
-        let new_error = check_errors(
-            &pool, &first_set, &last_set, &phone_set, &email_set, &birth_set, &Some(id_set),
-        )
-        .await?;
+        let new_error = contact.check_errors(&pool).await?;
 
         match new_error {
             None => {
-                let rows_affected = edit_contact(
-                    pool,
-                    first_set,
-                    last_set,
-                    phone_set,
-                    email_set,
-                    birth_set,
-                    id_set,
-                )
-                .await?;
+                let rows_affected = Contact::edit_contact(pool, contact).await?;
                 match rows_affected {
                     1 => {
                         println!("Updated Successfully");
                         messages.info(
-                            format!("Contact ID {} Updated Successfully!", id_set)
+                            format!("Contact ID {} Updated Successfully!", params_query.id_p)
                                 .to_string(),
                         );
                     }
@@ -123,15 +115,10 @@ mod post {
                 writable_state.error_state = new_error;
                 let uri = format!(
                     "/contacts/edit?id_p={}&first_p={}&last_p={}&phone_p={}&email_p={}",
-                    id_set,
-                    first_set,
-                    last_set,
-                    phone_set,
-                    email_set
+                    contact.id, contact.first_name, contact.last_name, contact.phone, contact.email,
                 );
                 Ok(Redirect::to(uri.as_str()))
             }
         }
     }
 }
-

@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n        SELECT *\n        FROM contacts_table\n        WHERE id = ?1\n        ",
+  "query": "\n                    SELECT *\n                    FROM contacts_table\n                    WHERE SUBSTR(birth_date, 6) >= STRFTIME('%m-%d', DATE('now', 'localtime'))\n                    AND SUBSTR(birth_date, 6) < STRFTIME('%m-%d', DATE('now', 'localtime', '+1 MONTH'))\n                    ORDER BY STRFTIME('%m-%d', birth_date)\n                    LIMIT ?1 OFFSET ?2\n                    ",
   "describe": {
     "columns": [
       {
@@ -40,7 +40,7 @@
       }
     ],
     "parameters": {
-      "Right": 1
+      "Right": 2
     },
     "nullable": [
       false,
@@ -52,5 +52,5 @@
       false
     ]
   },
-  "hash": "dd48ea097e2468a9e2b325efcf1d599913e14479c70644bed91204eb3a5969dd"
+  "hash": "91e85eefa07d7f73155c50780ecb9d12f7bb11dfbff097c5943dac7bd10f9e61"
 }

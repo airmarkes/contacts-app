@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n        SELECT *\n        FROM contacts_table\n        WHERE id = ?\n        ",
+  "query": "\n                    SELECT * FROM contacts_table\n                    WHERE (first_name LIKE '%' || ?1 || '%' \n                    OR  last_name LIKE '%' || ?1 || '%'            \n                    OR phone LIKE '%' || ?1 || '%'\n                    OR email LIKE '%' || ?1 || '%'\n                    OR time_creation LIKE '%' || ?1 || '%' )\n                    ORDER BY id\n                    LIMIT ?2 OFFSET ?3\n                    ",
   "describe": {
     "columns": [
       {
@@ -40,7 +40,7 @@
       }
     ],
     "parameters": {
-      "Right": 1
+      "Right": 3
     },
     "nullable": [
       false,
@@ -52,5 +52,5 @@
       false
     ]
   },
-  "hash": "d5cc19b3d6043d21e69c3bcc5c4e0e8f10a49de7db684562859ff5129fb0be3e"
+  "hash": "d2c936c87334c13baf4297bb9b7933c7c07f6755032636acd47ef11788a317c7"
 }

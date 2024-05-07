@@ -10,8 +10,8 @@ pub enum MyError {
     //#[error("error parsing json")]
     //JsonParse(#[from] serde_json::Error),
     #[error("test custom error")]
-    CustomError,    
-} 
+    CustomError,
+}
 
 /*
 impl IntoResponse for AppError {
@@ -45,8 +45,6 @@ impl IntoResponse for AppError {
     }
 } */
 
-
-
 #[derive(Debug)]
 pub struct AppError(anyhow::Error);
 
@@ -68,4 +66,3 @@ where
         Self(err.into())
     }
 }
- 

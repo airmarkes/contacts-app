@@ -1,7 +1,7 @@
 use askama::Template;
 use axum::extract::Query;
-use axum::http::{header, HeaderMap};
-use axum::response::{Html, IntoResponse, Redirect};
+use axum::http::{header, HeaderMap, StatusCode};
+use axum::response::{IntoResponse, Redirect};
 use axum::routing::get;
 use axum::{extract::State, Router};
 use axum_extra::extract::Form as ExtraForm;
@@ -10,9 +10,10 @@ use serde::Deserialize;
 use std::thread;
 use std::time::Duration;
 
-use crate::errors::AppError;
-use crate::functions::*;
-use crate::models::*;
+use crate::archiver::*;
+use crate::contacts::*;
+use crate::errors::*;
+use crate::{get_time, AppStateType};
 
 #[derive(Template)]
 #[template(path = "show.html")]
@@ -80,12 +81,12 @@ mod get {
         let pool = state.read().await.contacts_state.clone();
 
         let (contacts_set, length, page_set, max_page) =
-            match_contacts(pool, search_bar, page_set).await?;
+            Contacts::match_contacts(pool, search_bar, page_set).await?;
 
         let time_now = get_time();
 
         let rows_tmpl = RowsTemplate {
-            contacts_t: contacts_set.clone(),
+            contacts_t: contacts_set.contacts.clone(),
             length_t: length,
             page_t: page_set,
             max_page_t: max_page,
@@ -93,7 +94,7 @@ mod get {
         let contacts_tmpl = ShowTemplate {
             messages_t: messages,
             search_t: search_bar,
-            contacts_t: contacts_set,
+            contacts_t: contacts_set.contacts,
             length_t: length,
             page_t: page_set,
             max_page_t: max_page,
@@ -107,15 +108,15 @@ mod get {
         let header_hx = headers.get("HX-Trigger");
         match header_hx {
             Some(header_value) => match header_value.to_str()? {
-                "search" => Ok(([(header::VARY, "HX-Trigger")], Html(rows_tmpl.render()?))),
+                "search" => Ok(([(header::VARY, "HX-Trigger")], rows_tmpl.into_response())),
                 _ => Ok((
                     [(header::VARY, "HX-Trigger")],
-                    Html(contacts_tmpl.render()?),
+                    contacts_tmpl.into_response(),
                 )),
             },
             None => Ok((
                 [(header::VARY, "HX-Trigger")],
-                Html(contacts_tmpl.render()?),
+                contacts_tmpl.into_response(),
             )),
         }
     }
@@ -157,9 +158,23 @@ mod delete {
                     }
                     _ => println!("Deleted Successfully {} Contacts", rows_affected_sum),
                 };
-                Ok(Redirect::to("/contacts/show?page_p=1"))
+                Ok(DoNothingOrRedirect::Redirect)
             }
-            None => Ok(Redirect::to("/contacts/show?page_p=1")),
+            None => Ok(DoNothingOrRedirect::DoNothing),
+        }
+    }
+}
+enum DoNothingOrRedirect {
+    Redirect,
+    DoNothing,
+}
+impl IntoResponse for DoNothingOrRedirect {
+    fn into_response(self) -> askama_axum::Response {
+        match self {
+            DoNothingOrRedirect::Redirect => {
+                Redirect::to("/contacts/show?page_p=1").into_response()
+            }
+            DoNothingOrRedirect::DoNothing => StatusCode::NOT_IMPLEMENTED.into_response(),
         }
     }
 }

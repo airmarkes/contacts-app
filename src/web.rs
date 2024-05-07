@@ -3,5 +3,5 @@ pub mod edit;
 pub mod index;
 pub mod new;
 pub mod show;
-pub mod base;
+pub mod utils;
 pub mod view;

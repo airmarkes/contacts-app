@@ -1,92 +1,94 @@
-{% extends "base.html" %} {% block title %} Edit {% endblock %} {% block content
-%}
+{% extends "base.html" %} {% block title %} Edit {% endblock %} 
+{% block content %}
 
 <form action="/contacts/edit?id_p={{contact_t.id}}" method="post">
-  <fieldset>
-    <legend class="w-full pb-3 text-center text-2xl font-bold text-primary">
-      Edit contact with ID {{ contact_t.id }}
-    </legend>
-    <div class="flex justify-center space-x-2 p-1">
-      <label class="min-w-24" for="first">First Name</label>
-      <input
-        class="rounded-md border border-slate-900 px-1"
-        name="first_p"
-        id="first"
-        type="text"
-        placeholder="First Name"
-        value="{{ contact_t.first_name }}"
-      />
-      <div class="min-w-40 text-red-600">{{ errors_t.first_error }}</div>
+
+  <legend class="w-full pb-3 text-center text-2xl font-bold text-primary">
+    Edit contact with ID {{ contact_t.id }}
+  </legend>
+  
+  <div class="flex justify-center space-x-2 p-1">
+    <label class="min-w-24" for="first">
+    First Name
+    </label>
+    <input
+      class="rounded-md border border-slate-900 px-1"
+      name="first_p"
+      id="first"
+      type="text"
+      placeholder="First Name"
+      value="{{ contact_t.first_name }}"
+    />
+  <div class="min-w-40 text-error">{{ errors_t.first_error }}</div>
+  </div>
+  <div class="flex justify-center space-x-2 p-1">
+    <label class="min-w-24" for="last">Last Name</label>
+    <input
+      class="rounded-md border border-slate-900 px-1"
+      name="last_p"
+      id="last"
+      type="text"
+      placeholder="Last Name"
+      value="{{ contact_t.last_name }}"
+    />
+    <div class="min-w-40 text-error">{{ errors_t.last_error }}</div>
+  </div>
+  <div class="flex justify-center space-x-2 p-1">
+    <label class="min-w-24" for="email">Email</label>
+    <input
+      class="rounded-md border border-slate-900 px-1"
+      name="email_p"
+      id="email"
+      type="email"
+      placeholder="Email"
+      value="{{ contact_t.email }}"
+      hx-get="/contacts/validate_email?id_p={{contact_t.id }}"
+      hx-include="#email"
+      hx-target="next div"
+      hx-trigger="change, keyup delay:600ms changed"
+      hx-push-url="true"
+    />
+    <div class="min-w-40 text-error">
+      {{ errors_t.email_error }}{{ errors_t.email_unique_error }}
     </div>
-    <div class="flex justify-center space-x-2 p-1">
-      <label class="min-w-24" for="last">Last Name</label>
-      <input
-        class="rounded-md border border-slate-900 px-1"
-        name="last_p"
-        id="last"
-        type="text"
-        placeholder="Last Name"
-        value="{{ contact_t.last_name }}"
-      />
-      <div class="min-w-40 text-red-600">{{ errors_t.last_error }}</div>
-    </div>
-    <div class="flex justify-center space-x-2 p-1">
-      <label class="min-w-24" for="email">Email</label>
-      <input
-        class="rounded-md border border-slate-900 px-1"
-        name="email_p"
-        id="email"
-        type="email"
-        placeholder="Email"
-        value="{{ contact_t.email }}"
-        hx-get="/contacts/validate_email?id_p={{contact_t.id }}"
-        hx-include="#email"
-        hx-target="next div"
-        hx-trigger="change, keyup delay:600ms changed"
-        hx-push-url="true"
-      />
-      <div class="min-w-40 text-red-600">
-        {{ errors_t.email_error }}{{ errors_t.email_unique_error }}
-      </div>
-    </div>
-    <div class="flex justify-center space-x-2 p-1">
-      <label class="min-w-24" for="phone">Phone</label>
-      <input
-        class="rounded-md border border-slate-900 px-1"
-        name="phone_p"
-        id="phone"
-        type="tel"
-        placeholder="Phone"
-        value="{{ contact_t.phone }}"
-      />
-      <div class="min-w-40 text-red-600">{{ errors_t.phone_error }}</div>
-    </div>
-    <div class="flex justify-center space-x-2 p-1">
-      <label class="min-w-24" for="birth">Birth Date</label>
-      <input
-        class="rounded-md border border-slate-900 px-1"
-        name="birth_p"
-        id="birth"
-        type="date"
-        placeholder="Birth Date"
-        value="{{ contact_t.birth_date }}"
-      />
-      <div class="min-w-40 text-red-600">{{ errors_t.birth_error }}</div>
-    </div>
-    <div class="flex justify-evenly pt-3">
-      <button
-        class="btn btn-secondary btn-sm font-bold"
-        type="submit"
-      >
-        Save
-      </button>
-      <a
-        class="btn btn-secondary btn-sm font-bold"
-        href="/contacts/view?id_p={{contact_t.id}}"
-        >Back</a
-      >
-    </div>
-  </fieldset>
+  </div>
+  <div class="flex justify-center space-x-2 p-1">
+    <label class="min-w-24" for="phone">Phone</label>
+    <input
+      class="rounded-md border border-slate-900 px-1"
+      name="phone_p"
+      id="phone"
+      type="tel"
+      placeholder="Phone"
+      value="{{ contact_t.phone }}"
+    />
+    <div class="min-w-40 text-error">{{ errors_t.phone_error }}</div>
+  </div>
+  <div class="flex justify-center space-x-2 p-1">
+    <label class="min-w-24" for="birth">Birth Date</label>
+    <input
+      class="rounded-md border border-slate-900 px-1"
+      name="birth_p"
+      id="birth"
+      type="date"
+      placeholder="Birth Date"
+      value="{{ contact_t.birth_date }}"
+    />
+    <div class="min-w-40 text-error">{{ errors_t.birth_error }}</div>
+  </div>
+  <div class="flex justify-center space-x-6 pt-3">
+    <button
+      class="btn btn-secondary btn-sm font-bold"
+      type="submit"
+    >
+      Save
+    </button>
+    <a
+      class="btn btn-primary btn-sm font-bold"
+      href="/contacts/view?id_p={{contact_t.id}}"
+      >Back</a
+    >
+  </div>
 </form>
 
 {% endblock %}

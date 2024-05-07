@@ -1,27 +1,27 @@
-{% extends "base.html" %} {% block title %} Details {% endblock %} {% block
-content %}
-
-<h1 class="w-full pb-3 text-center text-primary text-2xl font-bold">Contact Details</h1>
-<div class="overflow-x-auto">
-<table class="table-lg">
-  <tbody>
-  <tr><td>Name:</td><td> {{contact_t.first_name}} {{contact_t.last_name}}</td></tr>
-  <tr><td>ID:</td><td> {{contact_t.id}}</td></tr>
-  <tr><td>Email:</td><td> {{contact_t.email}}</td></tr>
-  <tr><td>Phone:</td><td> {{contact_t.phone}}</td></tr>
-  <tr><td>Birth Date:</td><td> {{contact_t.birth_date}}</td></tr>
-  <tr><td>Created:</td><td> {{contact_t.time_creation}}</td></tr>
-  </tbody>
-</table>
+{% extends "base.html" %} {% block title %} Details {% endblock %} 
+{% block content %}
+<h1 class="w-full py-3 text-center text-primary text-2xl font-bold">
+  Contact Details
+</h1>
+<div class="flex justify-center">
+  <table class="table-lg">
+    <tbody>
+    <tr><td>Name:</td><td> {{contact_t.first_name}} {{contact_t.last_name}}</td></tr>
+    <tr><td>ID:</td><td> {{contact_t.id}}</td></tr>
+    <tr><td>Email:</td><td> {{contact_t.email}}</td></tr>
+    <tr><td>Phone:</td><td> {{contact_t.phone}}</td></tr>
+    <tr><td>Birth Date:</td><td> {{contact_t.birth_date}}</td></tr>
+    <tr><td>Created:</td><td> {{contact_t.time_creation}}</td></tr>
+    </tbody>
+  </table>
 </div>
-<div class="flex justify-evenly pt-3">
-  <a
+<div class="flex justify-center space-x-6 p-1">
+  <a 
     class="btn btn-secondary btn-sm font-bold"
     href="/contacts/edit?id_p={{contact_t.id}}"
   >
-    Edit</a
-  >
-
+    Edit
+  </a>
   <button
     class="btn btn-secondary btn-sm font-bold"
     id="delete_btn"
@@ -32,9 +32,8 @@ content %}
   >
     Delete
   </button>
-
   <a
-    class="btn btn-secondary btn-sm font-bold"
+    class="btn btn-primary btn-sm font-bold"
     href="/contacts/show?page_p=1"
   >
     Back

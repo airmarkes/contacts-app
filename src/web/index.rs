@@ -1,11 +1,10 @@
 use askama::Template;
-use axum::response::{Html, IntoResponse};
+use axum::response::IntoResponse;
 use axum::routing::get;
 use axum::Router;
 
 use crate::errors::AppError;
-use crate::models::*;
-use crate::functions::*;
+use crate::{get_time, AppStateType};
 
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -23,6 +22,6 @@ mod get {
     pub async fn handler_root() -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_root", get_time());
         let root_tmpl = RootTemplate { name: "Guest!" };
-        Ok(Html(root_tmpl.render()?))
+        Ok(root_tmpl.into_response())
     }
 }

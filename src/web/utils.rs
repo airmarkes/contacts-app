@@ -4,14 +4,14 @@ use axum::{extract::State, Router};
 use serde::Deserialize;
 use std::{thread, time::Duration};
 
-use crate::errors::AppError;
-use crate::models::*;
-use crate::functions::*;
+use crate::contacts::*;
+use crate::errors::*;
+use crate::{get_time, AppStateType};
 
 #[derive(Deserialize)]
 pub struct ValidateEmailParams {
     pub email_p: String,
-    pub id_p: Option<u32>,
+    pub id_p: Option<i64>,
 }
 
 pub fn utils_router() -> Router<AppStateType> {
@@ -35,8 +35,17 @@ mod get {
         let id_set_opt = params_query.id_p;
 
         let pool = state.read().await.contacts_state.clone();
-        let email_validated = validate_email(&pool, &email_set, &id_set_opt).await?;
-        Ok(email_validated)
+        match id_set_opt {
+            Some(id) => {
+                let email_validated = Contact::validate_email(&pool, &email_set, id).await?;
+                Ok(email_validated)
+            }
+            None => {
+                let id = 0;
+                let email_validated = Contact::validate_email(&pool, &email_set, id).await?;
+                Ok(email_validated)
+            }
+        }
     }
 
     pub async fn handler_contacts_count(

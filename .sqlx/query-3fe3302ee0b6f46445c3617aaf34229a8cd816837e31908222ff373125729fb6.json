@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                        SELECT COUNT(*) as count FROM contacts_table\n                        WHERE email = ?1 AND NOT id = ?2 \n                        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "count",
+        "ordinal": 0,
+        "type_info": "Int"
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3fe3302ee0b6f46445c3617aaf34229a8cd816837e31908222ff373125729fb6"
+}

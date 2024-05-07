@@ -16,7 +16,7 @@ block content %}
       placeholder="First Name"
       value="{{ first_t }}"
     />
-    <div class="min-w-40 text-red-600">{{ errors_t.first_error }}</div>
+    <div class="min-w-40 text-error">{{ errors_t.first_error }}</div>
   </div>
   <div class="flex justify-center space-x-2 p-1">
     <label class="min-w-24" for="last">Last Name</label>
@@ -28,7 +28,7 @@ block content %}
       placeholder="Last Name"
       value="{{ last_t }}"
     />
-    <div class="min-w-40 text-red-600">{{ errors_t.last_error }}</div>
+    <div class="min-w-40 text-error">{{ errors_t.last_error }}</div>
   </div>
   <div class="flex justify-center space-x-2 p-1">
     <label class="min-w-24" for="new_email">Email</label>
@@ -44,7 +44,7 @@ block content %}
       hx-target="next div"
       hx-trigger="change changed, keyup delay:600ms changed"
     />
-    <div class="min-w-40 text-red-600">
+    <div class="min-w-40 text-error">
       {{ errors_t.email_error }}{{ errors_t.email_unique_error }}
     </div>
   </div>
@@ -58,7 +58,7 @@ block content %}
       placeholder="Phone"
       value="{{ phone_t }}"
     />
-    <div class="min-w-40 text-red-600">{{ errors_t.phone_error }}</div>
+    <div class="min-w-40 text-error">{{ errors_t.phone_error }}</div>
   </div>
   <div class="flex justify-center space-x-2 p-1">
     <label class="min-w-24" for="birth_date">Birth Date</label>
@@ -70,9 +70,9 @@ block content %}
       placeholder="Birth date"
       value="{{ birth_t }}"
     />
-    <div class="min-w-40 text-red-600">{{ errors_t.birth_error }}</div>
+    <div class="min-w-40 text-error">{{ errors_t.birth_error }}</div>
   </div>
-  <div class="flex justify-evenly pt-3">
+  <div class="flex justify-center space-x-6 pt-3">
     <button
       class="btn btn-secondary btn-sm font-bold"
       type="submit"
@@ -80,7 +80,7 @@ block content %}
       Save
     </button>
     <a
-      class="btn btn-secondary btn-sm font-bold"
+      class="btn btn-primary btn-sm font-bold"
       href="/contacts/show?page_p=1"
       >Back</a
     >

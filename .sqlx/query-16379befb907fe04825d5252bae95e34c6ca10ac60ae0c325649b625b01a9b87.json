@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            UPDATE contacts_table\n            SET first_name = ?1,\n                last_name = ?2,\n                phone = ?3,\n                email = ?4,\n                birth_date = ?5,\n                time_creation = ?6\n            WHERE id = ?7                \n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 7
+    },
+    "nullable": []
+  },
+  "hash": "16379befb907fe04825d5252bae95e34c6ca10ac60ae0c325649b625b01a9b87"
+}

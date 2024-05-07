@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n        SELECT COUNT(*) as count\n        FROM contacts_table\n        ",
+  "query": "\n            SELECT COUNT(*) as count\n            FROM contacts_table\n            ",
   "describe": {
     "columns": [
       {
@@ -16,5 +16,5 @@
       false
     ]
   },
-  "hash": "615ac7a20060aec869d8ed7b1fca155e9d0112177fc767606a4e5ad6a7fb4d8c"
+  "hash": "e74f9784f6c6fd4608ee133b37559414ad9306ca6432e0f7ef570addec14acd9"
 }

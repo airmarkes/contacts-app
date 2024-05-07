@@ -1,12 +1,12 @@
-use crate::errors::AppError;
-use crate::functions::*;
-use crate::models::*;
 use askama::Template;
-use axum::response::Html;
 use axum::routing::get;
 use axum::{extract::State, Router};
 use axum::{http::header, response::IntoResponse};
 use tokio_util::io::ReaderStream;
+
+use crate::archiver::*;
+use crate::errors::AppError;
+use crate::{get_time, AppStateType};
 
 #[derive(Template)]
 #[template(path = "archive_ui.html")]
@@ -35,10 +35,10 @@ mod get {
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_get_archive", get_time());
         let archiver = state.read().await.archiver_state.clone();
-        let archive_ui = ArchiveUiTemplate {
+        let archive_ui_tmpl = ArchiveUiTemplate {
             archive_t: archiver,
         };
-        Ok(Html(archive_ui.render()?))
+        Ok(archive_ui_tmpl.into_response())
     }
 
     pub async fn handler_get_archive_file(
@@ -80,10 +80,10 @@ mod post {
         };
         let archiver_then = state.read().await.archiver_state.clone();
 
-        let archive_ui = ArchiveUiTemplate {
+        let archive_ui_tmpl = ArchiveUiTemplate {
             archive_t: archiver_then,
         };
-        Ok(Html(archive_ui.render()?))
+        Ok(archive_ui_tmpl.into_response())
     }
 }
 
@@ -98,9 +98,9 @@ mod delete {
         write.archiver_state.archive_status = "Waiting".to_owned();
         drop(write);
         let archiver = state.read().await.archiver_state.clone();
-        let archive_ui = ArchiveUiTemplate {
+        let archive_ui_tmpl = ArchiveUiTemplate {
             archive_t: archiver,
         };
-        Ok(Html(archive_ui.render()?))
+        Ok(archive_ui_tmpl.into_response())
     }
 }

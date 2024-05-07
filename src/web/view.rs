@@ -1,15 +1,15 @@
 use askama::Template;
 use axum::extract::Query;
-use axum::response::{Html, IntoResponse, Redirect};
+use axum::response::{IntoResponse, Redirect};
 use axum::routing::get;
 use axum::{extract::State, Router};
 use axum::{http::HeaderMap, response::Response};
 use axum_messages::Messages;
 use serde::Deserialize;
 
+use crate::contacts::*;
 use crate::errors::AppError;
-use crate::functions::*;
-use crate::models::*;
+use crate::{get_time, AppStateType};
 
 #[derive(Template)]
 #[template(path = "view.html")]
@@ -54,7 +54,7 @@ mod get {
         let view_contact_template = ViewContactTemplate {
             contact_t: contact_set,
         };
-        Ok(Html(view_contact_template.render()?))
+        Ok(view_contact_template.into_response())
     }
 }
 
@@ -71,7 +71,7 @@ mod delete {
             "->> {} - HANDLER: handler_delete_contact - MOD: view.rs",
             get_time()
         );
-        let id_set = params_query.id_p;
+        let id_set = params_query.id_p as i64;
         let header_hx_trigger = headers.get("HX-trigger");
 
         let pool = state.read().await.contacts_state.clone();
