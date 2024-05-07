@@ -1,8 +1,10 @@
 use askama::Template;
+use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::routing::get;
 use axum::Router;
 
+use crate::archiver::ArchiverState;
 use crate::errors::AppError;
 use crate::{get_time, AppStateType};
 
@@ -10,6 +12,7 @@ use crate::{get_time, AppStateType};
 #[template(path = "index.html")]
 pub struct RootTemplate<'a> {
     pub name: &'a str,
+    pub archive_t: ArchiverState,
 }
 
 pub fn index_router() -> Router<AppStateType> {
@@ -19,9 +22,14 @@ pub fn index_router() -> Router<AppStateType> {
 mod get {
     use super::*;
 
-    pub async fn handler_root() -> Result<impl IntoResponse, AppError> {
+    pub async fn handler_root(
+        State(state): State<AppStateType>,
+    ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_root", get_time());
-        let root_tmpl = RootTemplate { name: "Guest!" };
+        let root_tmpl = RootTemplate {
+            name: "Guest!",
+            archive_t: state.read().await.archiver_state.clone(),
+        };
         Ok(root_tmpl.into_response())
     }
 }

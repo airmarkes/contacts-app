@@ -18,50 +18,33 @@
 
     
 <div class="flex justify-center space-x-6 py-9">
-  <div class="flex w-56">
-    <a
-      class="btn btn-secondary btn-md rounded-lg border px-3 font-bold text-lg"
-      href="/contacts/new"
-    >
-      Add Contact +</a
-    >
-    <div
-      id="contacts_count"
-      class="pl-2 pt-2 font-semibold"
-      hx-get="/contacts/count"
-      hx-trigger="load delay:3000ms"
-    >
-    <span class="loading loading-spinner text-primary"></span>
-      <!--<img src="/assets/spinner.svg" class="h-6 w-6 animate-spin" />-->
-    </div>
-  </div>
+  
   <div class="flex justify-between space-x-3">
     <!-- <input class="rounded-md border border-slate-600 px-1 shadow-lg shadow-indigo-900"-->
     <input     
-      class="input input-bordered input-primary"
-      id="search"
-      type="search"
-      name="search_p"
-      placeholder="Search (or type bday)"
-      value="{{ search_t }}"
-      hx-get="/contacts/show?page_p=1"
-      hx-include="#search"
-      hx-trigger="change, keyup delay:300ms changed"
-      hx-target="#tbody"
-      hx-push-url="true"
-      hx-indicator="#spinner"
+    class="input input-bordered input-primary"
+    id="search"
+    type="search"
+    name="search_p"
+    placeholder="Search (or type bday)"
+    value="{{ search_t }}"
+    hx-get="/contacts/show?page_p=1"
+    hx-include="#search"
+    hx-trigger="change, keyup delay:300ms changed"
+    hx-target="#tbody"
+    hx-push-url="true"
+    hx-indicator="#spinner"
     />
     <span id="spinner" class="htmx-indicator loading loading-spinner text-primary"></span>
-   <!-- <div class="min-w-9 p-2">
-      <img
-        id="spinner"
-        class="htmx-indicator h-7 w-7 animate-spin"
-        src="/assets/spinner.svg"
-        alt="Request in flight.."
-      /> 
-    </div>-->
+      <!-- <div class="min-w-9 p-2">
+        <img
+          id="spinner"
+          class="htmx-indicator h-7 w-7 animate-spin"
+          src="/assets/spinner.svg"
+          alt="Request in flight.."
+        /> 
+      </div>-->
   </div>
-  <div class="w-56">{% include "archive_ui.html" %}</div>
 </div>
 
 <div class="flex justify-center">

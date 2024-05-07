@@ -7,6 +7,7 @@ use axum::{extract::State, Router};
 use axum_messages::Messages;
 use serde::Deserialize;
 
+use crate::archiver::ArchiverState;
 use crate::contacts::*;
 use crate::errors::*;
 use crate::{get_time, AppStateType};
@@ -16,6 +17,7 @@ use crate::{get_time, AppStateType};
 pub struct EditContactTemplate {
     pub errors_t: CreationErrorState,
     pub contact_t: Contact,
+    pub archive_t: ArchiverState,
 }
 #[derive(Deserialize)]
 pub struct EditContactIDParam {
@@ -66,6 +68,7 @@ mod get {
         let edit_contact_template = EditContactTemplate {
             errors_t: errors_all,
             contact_t: contact_set,
+            archive_t: state.read().await.archiver_state.clone(),
         };
         Ok(edit_contact_template.into_response())
     }

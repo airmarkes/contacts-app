@@ -80,18 +80,18 @@
      <!--
       <header
       class="fixed left-0 top-0 flex h-24 w-full items-center justify-between bg-slate-900 px-3"
-    >
-      <a
-        href="/contacts/show?page_p=1"
-        class="text-2xl font-bold text-seconday"
-        >Contacts.APP</a
       >
-      <div class="text-xl font-bold text-secondary">
-        {% block time %}{% endblock %}
-      </div>
-      <h2 class="text-xl text-primary">A Demo Contacts' Birthdays Sorter App</h2>
-    </header>
-    -->
+        <a
+          href="/contacts/show?page_p=1"
+          class="text-2xl font-bold text-seconday"
+          >Contacts.APP</a
+        >
+        <div class="text-xl font-bold text-secondary">
+          {% block time %}{% endblock %}
+        </div>
+        <h2 class="text-xl text-primary">A Demo Contacts' Birthdays Sorter App</h2>
+      </header>
+      -->
     <div class="drawer lg:drawer-open">
       <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
       <div class="drawer-content flex flex-col items-center justify-center">
@@ -110,16 +110,25 @@
         <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label> 
         <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
           <li>
-            <a href="/contacts/new">Add Contact +
-              <span id="contacts_count"
+            
+            <a
+              class="btn btn-secondary btn-md rounded-lg border px-3 font-bold text-lg"
+              href="/contacts/new"
+            >
+              Add Contact +</a
+            >
+            <div
+              id="contacts_count"
+              class="pl-2 pt-2 font-semibold"
               hx-get="/contacts/count"
-              hx-trigger="load delay:3000ms">
-                <span class="loading loading-spinner loading-xs text-primary"></span>
-              </span>
-            </a>
+              hx-trigger="load delay:3000ms"
+            >
+            <span class="loading loading-spinner text-primary"></span>
+              <!--<img src="/assets/spinner.svg" class="h-6 w-6 animate-spin" />-->
+            </div>
+           
           </li>
-          <li><a>Download Contacts Lists</a></li>
-          
+          <li>{% include "archive_ui.html" %}</li>
         </ul>
       </div>
     </div> 

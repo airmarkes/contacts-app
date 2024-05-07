@@ -1,8 +1,7 @@
 <div
-  id="archive_ui"
-  hx-target="this"
-  hx-swap="outerHTML"
-  class="flex h-full justify-center space-x-3"
+id="archive_ui"
+hx-target="this"
+hx-swap="outerHTML"
 >
   {% if archive_t.status() == "Waiting" %}
   <button
@@ -10,7 +9,7 @@
     hx-post="/contacts/archive"
   >
     <img src="/assets/save.svg" class="h-9 w-9 pt-2" />
-    <div class="p-2">Download.</div>
+    Download
   </button>
   {% else if archive_t.status() == "Running" %}
   <div
@@ -21,7 +20,7 @@
     Creating Archive...
     <div class="h-3 w-32 rounded-full bg-slate-400">
       <div
-        class="h-3 rounded-full bg-indigo-600 transition-all duration-500 ease-linear"
+        class="h-3 rounded-full bg-secondary transition-all duration-500 ease-linear"
         id="progress-bar"
         role="progressbar"
         aria-valuenow="{{ archive_t.progress() * 100.0 }}"
@@ -32,14 +31,14 @@
   {% else if archive_t.status() == "Complete" %}
   <a
     hx-boost="false"
-    class="rounded-lg border bg-indigo-300 p-2 align-middle font-semibold shadow-md shadow-indigo-900 transition delay-150 ease-in-out hover:scale-110 hover:bg-indigo-500"
+    class="btn btn-secondary btn-md rounded-lg border px-3 font-bold text-lg"
     href="/contacts/archive/file"
     _="on load click() me"
   >
     Download Ready! &downarrow;</a
   >
   <button
-    class="rounded-lg border bg-indigo-300 p-2 align-middle font-semibold shadow-md shadow-indigo-900 transition delay-150 ease-in-out hover:scale-110 hover:bg-indigo-500"
+    class="btn btn-secondary btn-xs rounded-lg border px-3 font-bold text-lg"
     hx-delete="/contacts/archive/file"
   >
     X

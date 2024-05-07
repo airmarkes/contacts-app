@@ -7,6 +7,7 @@ use axum::{http::HeaderMap, response::Response};
 use axum_messages::Messages;
 use serde::Deserialize;
 
+use crate::archiver::ArchiverState;
 use crate::contacts::*;
 use crate::errors::AppError;
 use crate::{get_time, AppStateType};
@@ -15,6 +16,7 @@ use crate::{get_time, AppStateType};
 #[template(path = "view.html")]
 pub struct ViewContactTemplate {
     pub contact_t: Contact,
+    pub archive_t: ArchiverState,
 }
 
 #[derive(Deserialize)]
@@ -53,6 +55,7 @@ mod get {
         .await?;
         let view_contact_template = ViewContactTemplate {
             contact_t: contact_set,
+            archive_t: state.read().await.archiver_state.clone(),
         };
         Ok(view_contact_template.into_response())
     }
