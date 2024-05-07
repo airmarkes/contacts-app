@@ -2,10 +2,11 @@
 id="archive_ui"
 hx-target="this"
 hx-swap="outerHTML"
->
+class="flex h-full w-full justify-center space-x-3 p-0"
+> 
   {% if archive_t.status() == "Waiting" %}
   <button
-    class="btn btn-secondary btn-md rounded-lg border px-3 font-bold text-lg"
+    class="btn btn-secondary btn-md rounded-lg border px-3 w-full font-bold text-lg"
     hx-post="/contacts/archive"
   >
     <img src="/assets/save.svg" class="h-9 w-9 pt-2" />
@@ -13,12 +14,12 @@ hx-swap="outerHTML"
   </button>
   {% else if archive_t.status() == "Running" %}
   <div
-    class="text-neutral"
-    hx-get="/contacts/archive"
-    hx-trigger="load delay:500ms"
+  class="text-md"
+  hx-get="/contacts/archive"
+  hx-trigger="load delay:500ms"
   >
     Creating Archive...
-    <div class="h-3 w-32 rounded-full bg-slate-400">
+    <div class="h-3 w-32 rounded-full bg-primary">
       <div
         class="h-3 rounded-full bg-secondary transition-all duration-500 ease-linear"
         id="progress-bar"

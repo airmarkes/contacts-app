@@ -1763,6 +1763,14 @@ html {
   width: 1rem;
 }
 
+.loading-sm {
+  width: 1.25rem;
+}
+
+.loading-lg {
+  width: 2.5rem;
+}
+
 :where(.menu li:empty) {
   --tw-bg-opacity: 1;
   background-color: var(--fallback-bc,oklch(var(--bc)/var(--tw-bg-opacity)));
@@ -2321,6 +2329,27 @@ html:has(.drawer-toggle:checked) {
   height: 100vh;
 }
 
+.h-80 {
+  height: 20rem;
+}
+
+.h-60 {
+  height: 15rem;
+}
+
+.h-fit {
+  height: -moz-fit-content;
+  height: fit-content;
+}
+
+.h-auto {
+  height: auto;
+}
+
+.h-dvh {
+  height: 100dvh;
+}
+
 .min-h-full {
   min-height: 100%;
 }
@@ -2363,6 +2392,10 @@ html:has(.drawer-toggle:checked) {
 
 .w-full {
   width: 100%;
+}
+
+.w-auto {
+  width: auto;
 }
 
 .min-w-9 {
@@ -2421,8 +2454,16 @@ html:has(.drawer-toggle:checked) {
   flex-direction: column;
 }
 
+.items-start {
+  align-items: flex-start;
+}
+
 .items-center {
   align-items: center;
+}
+
+.justify-start {
+  justify-content: flex-start;
 }
 
 .justify-center {
@@ -2449,6 +2490,12 @@ html:has(.drawer-toggle:checked) {
   --tw-space-x-reverse: 0;
   margin-right: calc(1.5rem * var(--tw-space-x-reverse));
   margin-left: calc(1.5rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+.space-y-3 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
 }
 
 .overflow-auto {
@@ -2530,6 +2577,11 @@ html:has(.drawer-toggle:checked) {
   background-color: var(--fallback-s,oklch(var(--s)/var(--tw-bg-opacity)));
 }
 
+.bg-primary {
+  --tw-bg-opacity: 1;
+  background-color: var(--fallback-p,oklch(var(--p)/var(--tw-bg-opacity)));
+}
+
 .stroke-current {
   stroke: currentColor;
 }
@@ -2544,6 +2596,10 @@ html:has(.drawer-toggle:checked) {
 
 .p-4 {
   padding: 1rem;
+}
+
+.p-0 {
+  padding: 0px;
 }
 
 .px-1 {
@@ -2665,6 +2721,11 @@ html:has(.drawer-toggle:checked) {
 .text-success-content {
   --tw-text-opacity: 1;
   color: var(--fallback-suc,oklch(var(--suc)/var(--tw-text-opacity)));
+}
+
+.text-secondary-content {
+  --tw-text-opacity: 1;
+  color: var(--fallback-sc,oklch(var(--sc)/var(--tw-text-opacity)));
 }
 
 .shadow-lg {
@@ -2789,6 +2850,15 @@ tr.htmx-swapping {
 
   .lg\:h-auto {
     height: auto;
+  }
+
+  .lg\:h-fit {
+    height: -moz-fit-content;
+    height: fit-content;
+  }
+
+  .lg\:h-full {
+    height: 100%;
   }
 
   .lg\:overflow-hidden {

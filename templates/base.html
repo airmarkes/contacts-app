@@ -9,7 +9,7 @@
     <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
   </head>
 
-  <body class="h-screen flex flex-col" hx-boost="true">
+  <body class="h-dvh flex flex-col" hx-boost="true">
     
     <header class="navbar bg-base-300">
       <div class="flex-none">
@@ -92,49 +92,51 @@
         <h2 class="text-xl text-primary">A Demo Contacts' Birthdays Sorter App</h2>
       </header>
       -->
-    <div class="drawer lg:drawer-open">
-      <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
-      <div class="drawer-content flex flex-col items-center justify-center">
-        <!-- Page content here -->
-        <main
-          class="mb-auto"
-          id="content"
-        > 
-          <!--<div class="border border-indigo-900 p-3 shadow-md shadow-indigo-600"> -->
-          <div class="w-full bg-base-100">{% block content %}{% endblock %}</div>
-        </main>
-        <!-- Page endscontent here -->
-      </div> 
-  
-      <div class="drawer-side z-10">
-        <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label> 
-        <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-          <li>
-            
-            <a
-              class="btn btn-secondary btn-md rounded-lg border px-3 font-bold text-lg"
-              href="/contacts/new"
-            >
-              Add Contact +</a
-            >
-            <div
-              id="contacts_count"
-              class="pl-2 pt-2 font-semibold"
-              hx-get="/contacts/count"
-              hx-trigger="load delay:3000ms"
-            >
-            <span class="loading loading-spinner text-primary"></span>
-              <!--<img src="/assets/spinner.svg" class="h-6 w-6 animate-spin" />-->
-            </div>
-           
-          </li>
-          <li>{% include "archive_ui.html" %}</li>
-        </ul>
-      </div>
-    </div> 
+    <main
+    class="h-full mb-auto"
+    id="content"
+    > 
+      <div class="drawer lg:drawer-open lg:h-full">
+        <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
+        <div class="drawer-content flex flex-col items-center justify-start">
+          <!-- Page content here -->
 
+            <!--<div class="border border-indigo-900 p-3 shadow-md shadow-indigo-600"> -->
+            {% block content %}{% endblock %}
+            
+          <!-- Page endscontent here -->
+        </div> 
+      
+        <div class="drawer-side z-10 lg:h-full">
+          <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label> 
+          <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content space-y-3">
+            <li>
+
+              <a
+                class="btn btn-secondary btn-md rounded-lg border px-3 font-bold text-lg"
+                href="/contacts/new"
+              >
+                Add a new contact
+                <div
+                id="contacts_count"
+                class="font-semibold"
+                hx-get="/contacts/count"
+                hx-trigger="load delay:3000ms"
+                >
+                <span class="loading loading-spinner text-secondary-content"></span>
+                <!--<img src="/assets/spinner.svg" class="h-6 w-6 animate-spin" />-->
+                </div>
+              </a>
+            </li>
+            <li>
+              {% include "archive_ui.html" %}
+            </li>
+          </ul>
+        </div>
+      </div> 
+    </main>
     <footer
-      class="footer footer-center bg-base-300 h-16 p-3 text-base-content"
+      class="footer footer-center bg-base-300 p-3 text-base-content h-auto"
     >
     <aside>
       <p>Copyright © 2024 - All right reserved by Air Markes Softwares Ltda.</p>
