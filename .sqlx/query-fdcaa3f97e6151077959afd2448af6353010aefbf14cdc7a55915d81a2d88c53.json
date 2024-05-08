@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT * FROM users_table \n            WHERE username = ?\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "username",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "passwordd",
+        "ordinal": 2,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "fdcaa3f97e6151077959afd2448af6353010aefbf14cdc7a55915d81a2d88c53"
+}

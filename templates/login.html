@@ -1,15 +1,7 @@
-<html>
-  <head>
-    <title>Login</title>
-    <style>
-      label {
-        display: block;
-        margin-bottom: 5px;
-      }
-    </style>
-  </head>
+{% extends "base.html" %} {% block title %} Login {% endblock %} 
+{% block content %}
 
-  <body>
+  
     <ul>
       {% for message in messages %}
       <li>
@@ -18,7 +10,7 @@
       {% endfor %}
     </ul>
 
-    <form method="post">
+    <form method="post" action="/login">
       <fieldset>
         <legend>User login</legend>
         <p>
@@ -42,5 +34,5 @@
       <input type="hidden" name="next" value="{{next}}" />
       {% endif %}
     </form>
-  </body>
-</html>
+    
+{% endblock %}

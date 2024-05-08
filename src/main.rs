@@ -6,6 +6,7 @@ pub mod users;
 pub mod web;
 
 use axum::Router;
+use axum_login::AuthManagerLayerBuilder;
 use axum_messages::MessagesManagerLayer;
 use chrono::{DateTime, Local};
 use dotenv::dotenv;
@@ -16,8 +17,11 @@ use tokio::net::TcpListener;
 use tokio::sync::RwLock;
 use tokio::{signal, task::AbortHandle};
 use tower_http::services::ServeDir;
+use tower_sessions::cookie::Key;
 use tower_sessions::{session_store::ExpiredDeletion, Expiry, SessionManagerLayer};
 use tower_sessions_sqlx_store::SqliteStore;
+
+use crate::users::Backend;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -37,17 +41,27 @@ async fn main() -> anyhow::Result<()> {
 
     //let session_store = MemoryStore::default();
     let session_store = SqliteStore::new(pool.clone());
-    session_store.migrate().await?;
+    //session_store.migrate().await?;
 
     let _deletion_task = tokio::task::spawn(
         session_store
             .clone()
             .continuously_delete_expired(tokio::time::Duration::from_secs(60)),
     );
+    // Generate a cryptographic key to sign the session cookie.
+    let key = Key::generate();
 
     let session_layer = SessionManagerLayer::new(session_store)
         .with_secure(false)
-        .with_expiry(Expiry::OnInactivity(time::Duration::seconds(10)));
+        .with_expiry(Expiry::OnInactivity(time::Duration::days(1)))
+        .with_signed(key);
+
+    // Auth service.
+    //
+    // This combines the session layer with our backend to establish the auth
+    // service which will provide the auth session as a request extension.
+    let backend = Backend::new(pool.clone());
+    let auth_layer = AuthManagerLayerBuilder::new(backend, session_layer).build();
 
     let app_state = AppState {
         contacts_state: pool,
@@ -64,9 +78,10 @@ async fn main() -> anyhow::Result<()> {
         .merge(crate::web::edit::edit_router())
         .merge(crate::web::archive::archive_router())
         .merge(crate::web::utils::utils_router())
+        .merge(crate::web::login::login_router())
         .with_state(app_state)
         .layer(MessagesManagerLayer)
-        .layer(session_layer)
+        .layer(auth_layer)
         .nest_service("/assets", ServeDir::new("assets"));
 
     //let socket = "127.0.0.1:8080";

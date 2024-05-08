@@ -57,6 +57,8 @@ pub fn show_router() -> Router<AppStateType> {
 }
 
 mod get {
+    use crate::users::AuthSession;
+
     use super::*;
 
     pub async fn handler_get_showcontacts(
@@ -64,9 +66,10 @@ mod get {
         Query(params): Query<ShowParams>,
         headers: HeaderMap,
         messages: Messages,
+        //auth_session: AuthSession,
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_get_showcontacts", get_time());
-
+        //if let Some(user) = auth_session.user {
         let search_bar = params.search_p.as_deref().unwrap_or("");
         let page_set = params.page_p;
 
@@ -119,6 +122,12 @@ mod get {
                 contacts_tmpl.into_response(),
             )),
         }
+        /*} else {
+            Ok((
+                [(header::VARY, "HX-Trigger")],
+                StatusCode::UNAUTHORIZED.into_response(),
+            ))
+        } */
     }
 }
 
