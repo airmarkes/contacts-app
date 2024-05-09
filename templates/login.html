@@ -2,37 +2,65 @@
 {% block content %}
 
   
-    <ul>
-      {% for message in messages %}
+<ul>
+  {% for message in messages %}
+  <li>
+    <span><strong>{{ message }}</strong></span>
+  </li>
+  {% endfor %}
+</ul>
+<form action="/login" method="post">
+  <fieldset>
+    <legend class="w-full py-3 text-center text-2xl font-bold text-secondary">
+      Log in with your account!
+    </legend>
+
+    <label class="form-control w-full max-w-xs mx-auto">
+      <div class="label">
+        <span class="label-text text-primary">Username</span>
+      </div>
+      <input type="text" placeholder="Type here" name="username" id="username"
+      class="input input-bordered  w-full max-w-xs" 
+      />
+    </label>
+
+    <label class="form-control w-full max-w-xs mx-auto">
+      <div class="label">
+        <span class="label-text text-primary">Password</span>
+      </div>
+      <input type="text" placeholder="Type here" name="password" id="password"
+        class="input input-bordered  w-full max-w-xs" 
+      />
+    </label>
+  </fieldset>
+   
+  <div class="flex justify-center">
+    <ul class="menu menu-horizontal bg-base-200 space-x-3">
       <li>
-        <span><strong>{{ message }}</strong></span>
+        <input type="submit"  value="Log in" 
+        class="btn btn-secondary btn-sm font-bold"
+        />
       </li>
-      {% endfor %}
-    </ul>
-
-    <form method="post" action="/login">
-      <fieldset>
-        <legend>User login</legend>
-        <p>
-          <label for="username">Username</label>
-          <input name="username" id="username" value="ferris" />
-        </p>
-        <p>
-          <label for="password">Password</label>
-          <input
-            name="password"
-            id="password"
-            type="password"
-            value="hunter42"
-          />
-        </p>
-      </fieldset>
-
-      <input type="submit" value="login" />
-
+      <li>
+        <a class="btn btn-accent btn-sm font-bold" 
+        href="/signup"
+        >
+          Sign Up
+        </a>
+      </li>
+      <li>
+        <a class="btn btn-primary btn-sm font-bold"
+        href="/contacts/show?page_p=1"
+        >
+          Back
+        </a>
+      </li>
+      
       {% if let Some(next) = next %}
       <input type="hidden" name="next" value="{{next}}" />
       {% endif %}
-    </form>
+    </ul>
+  </div
+</form>
     
 {% endblock %}
