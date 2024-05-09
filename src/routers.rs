@@ -93,6 +93,8 @@ pub async fn handler_get_showcontacts(
     //auth_session: AuthSession,
 ) -> Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_get_showcontacts", get_time());
+    //thread::sleep(Duration::from_millis(900));
+
     //if let Some(user) = auth_session.user {
     let search_bar = params.search_p.as_deref().unwrap_or("");
     let page_set = params.page_p;
@@ -130,7 +132,6 @@ pub async fn handler_get_showcontacts(
     };
     let mut writable_state = state.write().await;
     writable_state.error_state = CreationErrorState::default();
-    thread::sleep(Duration::from_millis(300));
 
     let header_hx = headers.get("HX-Trigger");
     match header_hx {
@@ -559,8 +560,8 @@ pub async fn handler_contacts_count(
     .fetch_one(&pool)
     .await?;
     let contacts_count = rec.count;
-    let span = format!("({} total)", contacts_count);
-    thread::sleep(Duration::from_millis(900));
+    let span = format!("({} contacts in total)", contacts_count);
+    //thread::sleep(Duration::from_millis(900));
     Ok(span)
 }
 

@@ -33,7 +33,7 @@
 
 <tr>
   <td colspan="9" class="text-center">
-    <div class="flex justify-center space-x-3 py-3">
+    <div class="flex justify-center space-x-3">
       {% if page_t > 1 %}
       <a
         href="/contacts/show?page_p={{ page_t - 1 }}"
@@ -74,6 +74,12 @@
         &gt</a
       >
       {% endif %}
+      <div
+      class="htmx-indicator flex-none"
+      id="full_spinner"
+      >
+      <span class="loading loading-bars loading-sm text-accent"></span>
+      </div>
     </div>
   </td>
 </tr>

@@ -1,7 +1,6 @@
 <!-- .. -->
 {% extends "base.html" %} 
 {% block title %} List of Contacts {% endblock %} 
-{% block time %}  {{ time_t }} {% endblock %}
 {% block content %}
 
 <div
@@ -17,7 +16,7 @@
 </div>
 
     
-<div class="flex justify-center space-x-6 py-9">
+<div class="flex py-2 space-x-6">
   
   <div class="flex justify-between space-x-3">
     <!-- <input class="rounded-md border border-slate-600 px-1 shadow-lg shadow-indigo-900"-->
@@ -45,14 +44,28 @@
         /> 
       </div>-->
   </div>
+
+  <div class="pt-3 font-semibold text-accent">
+    {{ time_t }}
+  </div>
+
+  <div
+  id="contacts_count"
+  class="pt-3 font-semibold text-accent"
+  hx-get="/contacts/count"
+  hx-trigger="load delay:300ms"
+  >
+    <span class="loading loading-bars loading-md text-accent"></span>
+    <!--<img src="/assets/spinner.svg" class="h-6 w-6 animate-spin" />-->
+  </div>
 </div>
 
 <div class="flex justify-center">
-  <form enctype="application/x-www-form-urlencoded">
+   <form enctype="application/x-www-form-urlencoded">
     <table class="table-lg">
       <thead>
         <tr>
-          <th >
+          <th>
             <button
               class="btn btn-outline btn-accent btn-xs"
               hx-delete="/contacts/show"
@@ -84,14 +97,8 @@
           </th>
         </tr>
       </thead>
-      <tbody class="relative" id="tbody">
+      <tbody id="tbody">
         {% include "show_rows.html" %}
-        <div
-          class="htmx-indicator absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-          id="full_spinner"
-        >
-          <img src="/assets/spinner.svg" class="h-12 w-12 animate-spin" />
-        </div>
       </tbody>
     </table>
   </form>
