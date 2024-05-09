@@ -1,17 +1,14 @@
 //#![allow(unused)]
-pub mod archiver;
-pub mod contacts;
-pub mod errors;
-pub mod users;
-pub mod web;
+pub mod models;
+pub mod routers;
 
+use crate::models::{AppState, ArchiverState, Backend, CreationErrorState};
 use axum::Router;
 use axum_login::AuthManagerLayerBuilder;
 use axum_messages::MessagesManagerLayer;
-use chrono::{DateTime, Local};
 use dotenv::dotenv;
+use routers::*;
 use sqlx::{sqlite::SqlitePool, Pool, Sqlite};
-//use std::sync::{Arc, RwLock};
 use std::sync::Arc;
 use tokio::net::TcpListener;
 use tokio::sync::RwLock;
@@ -20,16 +17,6 @@ use tower_http::services::ServeDir;
 use tower_sessions::cookie::Key;
 use tower_sessions::{session_store::ExpiredDeletion, Expiry, SessionManagerLayer};
 use tower_sessions_sqlx_store::SqliteStore;
-
-use crate::users::Backend;
-
-#[derive(Clone)]
-pub struct AppState {
-    pub contacts_state: Pool<Sqlite>,
-    pub error_state: contacts::CreationErrorState,
-    pub archiver_state: archiver::ArchiverState,
-}
-pub type AppStateType = Arc<RwLock<AppState>>;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -65,20 +52,20 @@ async fn main() -> anyhow::Result<()> {
 
     let app_state = AppState {
         contacts_state: pool,
-        error_state: contacts::CreationErrorState::default(),
-        archiver_state: archiver::ArchiverState::default(),
+        error_state: CreationErrorState::default(),
+        archiver_state: ArchiverState::default(),
     };
     let app_state = Arc::new(RwLock::new(app_state));
 
     let app = Router::new()
-        .merge(crate::web::index::index_router())
-        .merge(crate::web::show::show_router())
-        .merge(crate::web::new::new_router())
-        .merge(crate::web::view::view_router())
-        .merge(crate::web::edit::edit_router())
-        .merge(crate::web::archive::archive_router())
-        .merge(crate::web::utils::utils_router())
-        .merge(crate::web::login::login_router())
+        .merge(index_router())
+        .merge(show_router())
+        .merge(new_router())
+        .merge(view_router())
+        .merge(edit_router())
+        .merge(archive_router())
+        .merge(utils_router())
+        .merge(login_router())
         .with_state(app_state)
         .layer(MessagesManagerLayer)
         .layer(auth_layer)
@@ -114,11 +101,4 @@ async fn _shutdown_signal(deletion_task_abort_handle: AbortHandle) {
         _ = ctrl_c => { deletion_task_abort_handle.abort() },
         _ = terminate => { deletion_task_abort_handle.abort() },
     }
-}
-
-pub fn get_time() -> String {
-    let time_stamp_now = std::time::SystemTime::now();
-    let datetime = DateTime::<Local>::from(time_stamp_now);
-    let timestamp_str = datetime.format("%Y-%m-%d").to_string(); //%H:%M:%S
-    timestamp_str
 }
