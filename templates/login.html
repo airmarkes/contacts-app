@@ -2,20 +2,22 @@
 {% block content %}
 
   
-<ul>
+<ul class="w-full">
   {% for message in messages %}
   <li>
-    <span><strong>{{ message }}</strong></span>
+    <div class="text-center bg-error text-error-content text-lg font-bold w-full">
+      {{ message }}
+    </div>
   </li>
   {% endfor %}
 </ul>
-<form action="/login" method="post">
+<form action="/login" method="post" class="mx-auto">
   <fieldset>
     <legend class="w-full py-3 text-center text-2xl font-bold text-secondary">
       Log in with your account!
     </legend>
 
-    <label class="form-control w-full max-w-xs mx-auto">
+    <label class="form-control w-full max-w-xs">
       <div class="label">
         <span class="label-text text-primary">Username</span>
       </div>
@@ -24,7 +26,7 @@
       />
     </label>
 
-    <label class="form-control w-full max-w-xs mx-auto">
+    <label class="form-control w-full max-w-xs">
       <div class="label">
         <span class="label-text text-primary">Password</span>
       </div>
@@ -60,7 +62,7 @@
       <input type="hidden" name="next" value="{{next}}" />
       {% endif %}
     </ul>
-  </div
+  </div>
 </form>
     
 {% endblock %}

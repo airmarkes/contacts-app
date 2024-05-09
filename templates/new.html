@@ -1,13 +1,13 @@
 {% extends "base.html" %} {% block title %} Add a Contact {% endblock %} {%
 block content %}
 
-<form action="/contacts/new" method="post">
+<form action="/contacts/new" method="post" class="mx-auto">
 
   <legend class="w-full py-3 text-center text-2xl font-bold text-secondary">
     Create a new contact!
   </legend>
 
-  <label class="form-control w-full max-w-xs mx-auto">
+  <label class="form-control w-full max-w-xs">
     <div class="label">
       <span class="label-text text-primary">First name</span>
       <span class="label-text-alt">Eg. Elvis</span>
@@ -20,7 +20,7 @@ block content %}
     </div>
   </label>
 
-  <label class="form-control w-full max-w-xs mx-auto">
+  <label class="form-control w-full max-w-xs">
     <div class="label">
       <span class="label-text text-primary">Last name</span>
       <span class="label-text-alt">Eg. Presley da Silva</span>
@@ -33,7 +33,7 @@ block content %}
     </div>
   </label>
 
-  <label class="form-control w-full max-w-xs mx-auto">
+  <label class="form-control w-full max-w-xs">
     <div class="label">
       <span class="label-text text-primary">Email</span>
       <span class="label-text-alt">Eg. elvis123@gmail.com</span>
@@ -53,7 +53,7 @@ block content %}
     </div>
   </label>
   
-  <label class="form-control w-full max-w-xs mx-auto">
+  <label class="form-control w-full max-w-xs">
     <div class="label">
       <span class="label-text text-primary">Phone</span>
       <span class="label-text-alt">Eg. 981960771</span>
@@ -66,7 +66,7 @@ block content %}
     </div>
   </label>
 
-  <label class="form-control w-full max-w-xs mx-auto">
+  <label class="form-control w-full max-w-xs">
     <div class="label">
       <span class="label-text text-primary">Birthday</span>
       <span class="label-text-alt">Eg. dd/mm/aaaa</span>

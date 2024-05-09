@@ -8,8 +8,6 @@ use axum::{Form, Router};
 use axum_extra::extract::Form as ExtraForm;
 use axum_messages::{Message, Messages};
 use serde::Deserialize;
-use std::thread;
-use std::time::Duration;
 use tokio_util::io::ReaderStream;
 
 // region: INDEX
@@ -93,7 +91,7 @@ pub async fn handler_get_showcontacts(
     //auth_session: AuthSession,
 ) -> Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_get_showcontacts", get_time());
-    //thread::sleep(Duration::from_millis(900));
+    std::thread::sleep(std::time::Duration::from_millis(900));
 
     //if let Some(user) = auth_session.user {
     let search_bar = params.search_p.as_deref().unwrap_or("");
@@ -677,7 +675,7 @@ pub struct CredentialsParam {
     pub username: String,
     pub password: String,
     pub next: Option<String>,
-    submit: String,
+    //submit: String,
 }
 
 pub fn login_router() -> Router<AppStateType> {
@@ -693,43 +691,43 @@ pub async fn handler_post_login(
     Form(creds): Form<CredentialsParam>,
 ) -> impl IntoResponse {
     println!("->> {} - HANDLER: handler_login", get_time());
-    let submit = creds.clone().submit;
-    let submit = submit.as_str();
-    match submit {
-        "Log in" => {
-            let user = match auth_session.authenticate(creds.clone()).await {
-                Ok(Some(user)) => user,
-                Ok(None) => {
-                    messages.error("Invalid credentials");
+    //let submit = creds.clone().submit;
+    //let submit = submit.as_str();
+    //match submit {
+    //  "Log in" => {
+    let user = match auth_session.authenticate(creds.clone()).await {
+        Ok(Some(user)) => user,
+        Ok(None) => {
+            messages.error("Invalid credentials");
 
-                    let mut login_url = "/login".to_string();
-                    if let Some(next) = creds.next {
-                        login_url = format!("{}?next={}", login_url, next);
-                    };
-
-                    return Redirect::to(&login_url).into_response();
-                }
-                Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+            let mut login_url = "/login".to_string();
+            if let Some(next) = creds.next {
+                login_url = format!("{}?next={}", login_url, next);
             };
-            println!("->> first");
-            if auth_session.login(&user).await.is_err() {
-                return StatusCode::INTERNAL_SERVER_ERROR.into_response();
-            }
 
-            messages.success(format!("Successfully logged in as {}", user.username));
-
-            if let Some(ref next) = creds.next {
-                Redirect::to(next)
-            } else {
-                Redirect::to("/")
-            }
-            .into_response()
+            return Redirect::to(&login_url).into_response();
         }
-        _ => {
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
+    println!("->> first");
+    if auth_session.login(&user).await.is_err() {
+        return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+    }
+
+    messages.success(format!("Successfully logged in as {}", user.username));
+
+    if let Some(ref next) = creds.next {
+        Redirect::to(next)
+    } else {
+        Redirect::to("/")
+    }
+    .into_response()
+}
+/* _ => {
             todo!()
         }
     }
-}
+}*/
 
 pub async fn handler_get_login(
     messages: Messages,

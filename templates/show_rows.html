@@ -13,20 +13,22 @@
   <td class="table-cell px-2 py-1">{{ contact.time_creation }}</td>-->
   <td>
     <a
-      class="btn btn-secondary btn-sm font-bold"
-      href="/contacts/view?id_p={{ contact.id }}"
-      >View</a
+    class="btn btn-secondary btn-sm"
+    href="/contacts/view?id_p={{ contact.id }}"
     >
+      <i class="fa-solid fa-info fa-lg"></i>
+    </a>
 
     <a
-      class="btn btn-secondary btn-sm font-bold"
-      href="#"
-      hx-delete="/contacts/view?id_p={{contact.id}}"
-      hx-swap="outerHTML swap:1s"
-      hx-confirm="Are you sure you want do delete this contacts?"
-      hx-target="closest tr"
-      >Delete</a
+    class="btn btn-secondary btn-sm"
+    href="#"
+    hx-delete="/contacts/view?id_p={{contact.id}}"
+    hx-swap="outerHTML swap:1s"
+    hx-confirm="Are you sure you want do delete this contacts?"
+    hx-target="closest tr"
     >
+        <i class="fa-solid fa-trash-can fa-lg"></i>
+    </a>
   </td>
 </tr>
 {% endfor %}
@@ -42,8 +44,8 @@
         hx-select="#tbody > tr"
         hx-indicator="#full_spinner"
       >
-        &lt</a
-      >
+        <i class="fa-solid fa-chevron-left"></i>   
+      </a>
       {% endif %}
       <input
         class="w-10 rounded-md pl-3"
@@ -71,8 +73,8 @@
         hx-select="#tbody > tr"
         hx-indicator="#full_spinner"
       >
-        &gt</a
-      >
+        <i class="fa-solid fa-chevron-right"></i>      
+      </a>
       {% endif %}
       <div
       class="htmx-indicator flex-none"

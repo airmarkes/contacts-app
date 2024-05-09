@@ -2,24 +2,25 @@
 id="archive_ui"
 hx-target="this"
 hx-swap="outerHTML"
-class="flex h-full w-full justify-center space-x-3 p-0"
+class="flex h-12 w-full space-x-3 p-0"
 > 
   {% if archive_t.status() == "Waiting" %}
   <button
-    class="btn btn-secondary btn-md rounded-lg border px-3 w-full font-bold text-lg"
+    class="p-3 w-full font-bold text-lg text-left"
     hx-post="/contacts/archive"
   >
-    <img src="/assets/save.svg" class="h-9 w-9 pt-2" />
+    <!--<img src="/assets/save.svg" class="h-9 w-9 pt-2" />-->
+    <i class="fa-solid fa-download"></i>
     Download
   </button>
   {% else if archive_t.status() == "Running" %}
   <div
-  class="text-md"
+  class="text-md p-3 flex font-bold text-md"
   hx-get="/contacts/archive"
   hx-trigger="load delay:500ms"
   >
-    Creating Archive...
-    <div class="h-3 w-32 rounded-full bg-primary">
+    Creating Archive... 
+    <div class="h-3 w-28 rounded-full bg-base-content m-auto">
       <div
         class="h-3 rounded-full bg-secondary transition-all duration-500 ease-linear"
         id="progress-bar"
@@ -32,17 +33,19 @@ class="flex h-full w-full justify-center space-x-3 p-0"
   {% else if archive_t.status() == "Complete" %}
   <a
     hx-boost="false"
-    class="btn btn-secondary btn-md rounded-lg border px-3 font-bold text-lg"
+    class="p-3 w-full font-bold text-lg text-left"
     href="/contacts/archive/file"
     _="on load click() me"
   >
-    Download Ready! &downarrow;</a
+    Click to 
+    <i class="fa-solid fa-download"></i>
+  </a
   >
   <button
-    class="btn btn-secondary btn-xs rounded-lg border px-3 font-bold text-lg"
+    class="p-3 text-right"
     hx-delete="/contacts/archive/file"
   >
-    X
+    <i class="fa-solid fa-circle-xmark fa-lg"></i>
   </button>
   {% endif %}
 </div>
