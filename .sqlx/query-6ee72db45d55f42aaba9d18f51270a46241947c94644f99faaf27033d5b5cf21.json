@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n                    SELECT * FROM contacts_table\n                    WHERE (first_name LIKE '%' || ?1 || '%' \n                    OR  last_name LIKE '%' || ?1 || '%'            \n                    OR phone LIKE '%' || ?1 || '%'\n                    OR email LIKE '%' || ?1 || '%'\n                    OR time_creation LIKE '%' || ?1 || '%' )\n                    ORDER BY id\n                    LIMIT ?2 OFFSET ?3\n                    ",
+  "query": "\n                    SELECT * FROM contacts_table\n                    WHERE SUBSTR(birth_date, 6) >= STRFTIME('%m-%d', DATE('now', 'localtime'))\n                    AND SUBSTR(birth_date, 6) < STRFTIME('%m-%d', DATE('now', 'localtime', '+1 MONTH'))\n                    AND first_name LIKE '%' || ?1 || '%' \n                    OR  last_name LIKE '%' || ?1 || '%'            \n                    OR phone LIKE '%' || ?1 || '%'\n                    OR email LIKE '%' || ?1 || '%'\n                    OR time_creation LIKE '%' || ?1 || '%'\n                    \n                    ORDER BY id\n                    LIMIT ?2 OFFSET ?3\n                    ",
   "describe": {
     "columns": [
       {
@@ -52,5 +52,5 @@
       false
     ]
   },
-  "hash": "d2c936c87334c13baf4297bb9b7933c7c07f6755032636acd47ef11788a317c7"
+  "hash": "6ee72db45d55f42aaba9d18f51270a46241947c94644f99faaf27033d5b5cf21"
 }

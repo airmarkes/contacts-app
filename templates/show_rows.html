@@ -4,7 +4,7 @@
   <td>
     <input type="checkbox" name="ids_p" value="{{ contact.id }}" />
   </td>
-  <td>{{ contact.id}}</td>
+  <!--<td>{{ contact.id}}</td>-->
   <td>{{ contact.first_name }}</td>
   <td>{{ contact.last_name }}</td>
   <td>{{ contact.birth_date }}</td>
@@ -16,7 +16,8 @@
     class="btn btn-secondary btn-sm"
     href="/contacts/view?id_p={{ contact.id }}"
     >
-      <i class="fa-solid fa-eye fa-lg"></i>
+      <!--<i class="fa-solid fa-eye fa-lg"></i>-->
+      <i class="fa-regular fa-eye fa-lg"></i>
     </a>
 
     <a
@@ -27,7 +28,8 @@
     hx-confirm="Are you sure you want do delete this contacts?"
     hx-target="closest tr"
     >
-      <i class="fa-solid fa-trash-can fa-lg px-0.5"></i>
+      <!--<i class="fa-solid fa-trash-can fa-lg px-0.5"></i>-->
+      <i class="fa-regular fa-trash-can fa-lg px-0.5"></i>
     </a>
   </td>
 </tr>
@@ -38,7 +40,7 @@
     <div class="flex justify-center space-x-3">
       {% if page_t > 1 %}
       <a
-        href="/contacts/show?page_p={{ page_t - 1 }}"
+        href="/contacts/show?page_p={{ page_t - 1 }}&birthday_p={{ birthday_t }}"
         class="btn btn-secondary btn-xs font-extrabold"
         hx-target="#tbody"
         hx-select="#tbody > tr"
@@ -55,7 +57,7 @@
         type="text"
         min="1"
         max="{{max_page_t}}"
-        hx-get="/contacts/show"
+        hx-get="/contacts/show&birthday_p={{ birthday_t }}"
         hx-include="#page_p"
         hx-target="#tbody"
         hx-select="#tbody > tr"
@@ -67,7 +69,7 @@
       <span>{{ max_page_t }}</span>
       {% if length_t == 8 && page_t < max_page_t %}
       <a
-        href="/contacts/show?page_p={{ page_t + 1 }}"
+        href="/contacts/show?page_p={{ page_t + 1 }}&birthday_p={{ birthday_t }}"
         class="btn btn-secondary btn-xs font-extrabold"
         hx-target="#tbody"
         hx-select="#tbody > tr"

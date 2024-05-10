@@ -14,15 +14,15 @@
     {% block head %}{% endblock %}
   </head>
   <body class="h-screen flex flex-col" hx-boost="true">
-    <header class="navbar bg-base-300">
+    <header class="navbar bg-base-300 border-2 border-neutral">
       <div class="flex-none">
         <label for="my-drawer-2" class="btn btn-ghost drawer-button lg:hidden">
-          <i class="fa-solid fa-bars"></i>
+          <i class="fa-solid fa-bars fa-lg"></i>
         </label>
       </div>
       <div class="flex-none">
         <a class="btn btn-ghost text-xl font-bold"
-        href="/contacts/show?page_p=1"
+        href="/"
         >
           <i class="fa-solid fa-gift fa-rotate-by fa-xl text-accent"></i>
           <!--<img src="/assets/favicon.ico" class="h-6 w-6">-->
@@ -30,8 +30,31 @@
         </a>
       </div>
       <div class="flex-1">
+        <ul class="menu menu-horizontal px-1">
+          <li><a>Plan</a></li>
+          <li><a>Docs</a></li>
+          <li>
+            <details>
+              <summary>
+                Support
+              </summary>
+              <ul class="p-2 bg-base-100 rounded-t-none z-10">
+                <li><a>FAQ</a></li>
+                <li><a>Guides</a></li>
+              </ul>
+            </details>
+          </li>
+        </ul>
       </div>
-      <div class="flex">
+      <div class="flex-none">
+        <label class="cursor-pointer label space-x-2">
+          <span class="label-text pb-1">Dark</span> 
+            <input class="toggle toggle-primary"
+            type="checkbox" 
+            checked />
+        </label>
+      </div>
+      <div class="flex-none px-2">
         <a class="btn btn-square btn-ghost"
         href="/login">
           <i class="fa-solid fa-arrow-right-to-bracket fa-lg"></i>
@@ -55,81 +78,53 @@
         </div> 
         <div class="drawer-side z-10 lg:h-full">
           <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label> 
-          <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+          <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content space-y-3">
             <li>
               <a
-                class="px-3 font-bold text-lg"
-                href="/contacts/show?page_p=1"
+                class="px-3 py-2 font-bold text-lg"
+                href="/contacts/show?page_p=1&birthday_p=0"
               >
-              <i class="fa-solid fa-list"></i>
-                List
+                <i class="fa-solid fa-address-book px-1"></i>
+                Show all
               </a>
             </li>
             <li>
               <a
-                class="px-3 font-bold text-lg"
-                href="/contacts/new"
+                class="px-3 py-2 font-bold text-lg"
+                href="/contacts/new?id=0&first_name=&last_name=&phone=&email=&birth_date=&time_creation="
               >
-              <i class="fa-solid fa-address-book"></i>
+                <i class="fa-solid fa-user-plus px-1"></i>
                 Add a new contact
+              </a>
+            </li>
+            <li>
+              <a
+                class="px-3 py-2 font-bold text-lg"
+                href="/contacts/show?page_p=1&birthday_p=1"
+              >
+              <i class="fa-solid fa-list px-1"></i>
+                List upcoming birthdates
+              </a>
+            </li>
+            <li>
+              <a
+                class="px-3 py-2 font-bold text-lg"
+                href="#"
+              >
+              <i class="fa-solid fa-list-check px-1"></i>                List recent birthdates
+              </a>
+            </li>
+            <li>
+              <a
+                class="px-3 py-2 font-bold text-lg"
+                href="#"
+              >
+              <i class="fa-solid fa-screwdriver-wrench px-1"></i>
+                New feature coming soon..
               </a>
             </li>
             <li>
               {% include "archive_ui.html" %}
-            </li>
-            <li>
-              <a
-                class="px-3 font-bold text-lg"
-                href="/contacts/new"
-              >
-              <i class="fa-solid fa-address-book"></i>
-                Add a new contact
-              </a>
-            </li>
-            <li>
-              <a
-                class="px-3 font-bold text-lg"
-                href="/contacts/new"
-              >
-              <i class="fa-solid fa-address-book"></i>
-                Add a new contact
-              </a>
-            </li>
-            <li>
-              <a
-                class="px-3 font-bold text-lg"
-                href="/contacts/new"
-              >
-              <i class="fa-solid fa-address-book"></i>
-                Add a new contact
-              </a>
-            </li>
-            <li>
-              <a
-                class="px-3 font-bold text-lg"
-                href="/contacts/new"
-              >
-              <i class="fa-solid fa-address-book"></i>
-                Add a new contact
-              </a>
-            </li>
-            <li>
-              <a
-                class="px-3 font-bold text-lg"
-                href="/contacts/new"
-              >
-              <i class="fa-solid fa-address-book"></i>
-                Add a new contact
-              </a>
-            </li>
-            <li>
-              <a
-                class="px-3 font-bold text-lg"
-                href="/contacts/new"
-              >
-              <i class="fa-solid fa-address-book"></i>
-                Add a new contact
-              </a>
             </li>
           </ul>
         </div>

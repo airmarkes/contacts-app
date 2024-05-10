@@ -76,6 +76,7 @@ pub struct Contact {
     pub birth_date: String,
     pub time_creation: String,
 }
+
 pub struct Contacts {
     pub contacts: Vec<Contact>,
 }
@@ -95,6 +96,7 @@ impl Contacts {
         pool: Pool<Sqlite>,
         search_bar: &str,
         mut page_set: u32,
+        birthday_set: u32,
     ) -> anyhow::Result<(Contacts, u32, u32, u32)> {
         let num_of_rows = sqlx::query!(
             r#"
@@ -116,8 +118,9 @@ impl Contacts {
             page_set = max_page;
         };
         let offset = (page_set - 1) * page_size;
-        match search_bar {
-            "" => {
+
+        match (search_bar, birthday_set) {
+            ("", 0) => {
                 let contacts_set = sqlx::query_as!(
                     Contact,
                     r#"
@@ -141,7 +144,7 @@ impl Contacts {
                     max_page,
                 ))
             }
-            "bday" => {
+            ("", 1) => {
                 let contacts_set = sqlx::query_as!(
                     Contact,
                     r#"
@@ -168,7 +171,7 @@ impl Contacts {
                     max_page,
                 ))
             }
-            _ => {
+            (_, 0) => {
                 let contacts_set = sqlx::query_as!(
                     Contact,
                     r#"
@@ -177,7 +180,40 @@ impl Contacts {
                     OR  last_name LIKE '%' || ?1 || '%'            
                     OR phone LIKE '%' || ?1 || '%'
                     OR email LIKE '%' || ?1 || '%'
+                    OR birth_date LIKE '%' || ?1 || '%'
                     OR time_creation LIKE '%' || ?1 || '%' )
+                    ORDER BY id
+                    LIMIT ?2 OFFSET ?3
+                    "#,
+                    search_bar,
+                    page_size,
+                    offset
+                )
+                .fetch_all(&pool)
+                .await?;
+                let length = contacts_set.len() as u32;
+                Ok((
+                    Contacts {
+                        contacts: contacts_set,
+                    },
+                    length,
+                    page_set,
+                    max_page,
+                ))
+            }
+            (_, _) => {
+                let contacts_set = sqlx::query_as!(
+                    Contact,
+                    r#"
+                    SELECT * FROM contacts_table
+                    WHERE SUBSTR(birth_date, 6) >= STRFTIME('%m-%d', DATE('now', 'localtime'))
+                    AND SUBSTR(birth_date, 6) < STRFTIME('%m-%d', DATE('now', 'localtime', '+1 MONTH'))
+                    AND first_name LIKE '%' || ?1 || '%' 
+                    OR  last_name LIKE '%' || ?1 || '%'            
+                    OR phone LIKE '%' || ?1 || '%'
+                    OR email LIKE '%' || ?1 || '%'
+                    OR time_creation LIKE '%' || ?1 || '%'
+                    
                     ORDER BY id
                     LIMIT ?2 OFFSET ?3
                     "#,
@@ -201,7 +237,7 @@ impl Contacts {
     }
 }
 impl Contact {
-    pub async fn check_errors(
+    pub async fn check_contact_errors(
         &self,
         pool: &Pool<Sqlite>,
     ) -> anyhow::Result<Option<CreationErrorState>> {
@@ -226,7 +262,8 @@ impl Contact {
             } else {
                 "".to_string()
             },
-            email_unique_error: Self::validate_email(pool, self.email.as_str(), self.id).await?,
+            email_unique_error: Self::validate_email(pool, self.email.as_str(), self.id as u32)
+                .await?,
             birth_error: if self.birth_date.is_empty() {
                 "Birth Date Required".to_string()
             } else {
@@ -265,7 +302,7 @@ impl Contact {
         .last_insert_rowid();
         Ok(id_inserted as u32)
     }
-    pub async fn edit_contact(pool: Pool<Sqlite>, contact: Contact) -> anyhow::Result<u32> {
+    pub async fn edit_contact(pool: Pool<Sqlite>, contact: Contact) -> anyhow::Result<(u32, i64)> {
         let contact_set = sqlx::query_as!(
             Contact,
             r#"
@@ -300,15 +337,15 @@ impl Contact {
         .execute(&pool)
         .await?
         .rows_affected();
-        Ok(rows_affected as u32)
+        Ok((rows_affected as u32, contact.id))
     }
     pub async fn validate_email(
         pool: &Pool<Sqlite>,
         email_set: &str,
-        id_set_opt: i64,
+        id: u32,
     ) -> anyhow::Result<String> {
         let email_equal;
-        match id_set_opt {
+        match id {
             0 => {
                 let result = sqlx::query!(
                     r#"
