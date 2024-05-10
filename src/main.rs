@@ -20,6 +20,7 @@ use tower_sessions_sqlx_store::SqliteStore;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    tracing_subscriber::fmt::init();
     dotenv().ok();
     let db_url: String = std::env::var("DATABASE_URL")?;
     //let db_url = "sqlite:db/contacts.db";
@@ -74,7 +75,8 @@ async fn main() -> anyhow::Result<()> {
     //let socket = "127.0.0.1:8080";
     let socket = "0.0.0.0:8080";
     let listener = TcpListener::bind(socket).await?;
-    println!("Listening on {}\n", socket);
+    tracing::debug!("Listening on {}\n", socket);
+    println!("\nListening on {}", socket);
     axum::serve(listener, app).await?;
     Ok(())
 }

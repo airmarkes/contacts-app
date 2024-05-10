@@ -2,33 +2,32 @@
 <html lang="en" data-theme="night">
   <head>
     <link rel="stylesheet" href="../assets/o-tailwind.css" />
-    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+    <link rel="stylesheet" href="../assets/fontawersome/css/all.min.css" />
+    <link rel="stylesheet" href="../assets/fontawersome/css/fontawesome.min.css" />
+    <!--<link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />-->
+    <link rel="icon" href="/assets/gift-solid.svg" sizes="any" type="image/svg+xml">
+    <script src="/assets/htmx.min.js"></script>
+    <!--<script src="https://unpkg.com/hyperscript.org@0.9.12"></script>-->
+    <!--<script src="https://kit.fontawesome.com/bab82eebbb.js" crossorigin="anonymous"></script>-->
+    
     <title>{% block title %} {{ title }} {% endblock %}</title>
     {% block head %}{% endblock %}
-    <script src="/assets/htmx.min.js"></script>
-    <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
-    <script src="https://kit.fontawesome.com/bab82eebbb.js" crossorigin="anonymous"></script>
   </head>
-
   <body class="h-screen flex flex-col" hx-boost="true">
-    
     <header class="navbar bg-base-300">
       <div class="flex-none">
         <label for="my-drawer-2" class="btn btn-ghost drawer-button lg:hidden">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          <i class="fa-solid fa-bars"></i>
         </label>
-                
-       
       </div>
       <div class="flex-none">
-        
         <a class="btn btn-ghost text-xl font-bold"
         href="/contacts/show?page_p=1"
         >
-        <img src="/assets/favicon.ico" class="h-6 w-6">
-        Bday Contacts
+          <i class="fa-solid fa-gift fa-rotate-by fa-xl text-accent"></i>
+          <!--<img src="/assets/favicon.ico" class="h-6 w-6">-->
+          Bday Contacts
         </a>
-        
       </div>
       <div class="flex-1">
       </div>
@@ -39,26 +38,34 @@
         </a>
       </div>
     </header>
-
     <main
-    class="lg:h-full mb-auto"
+    class="mb-auto"
     id="content"
     > 
-      <div class="drawer lg:drawer-open h-auto lg:h-full">
+      <div class="drawer lg:drawer-open h-auto lg:h-full lg:mb-auto">
         <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
-        <div class="drawer-content flex flex-col items-start md:items-center justify-start lg:h-full" id="newcontent">
+        <div class="drawer-content flex flex-col items-start md:items-center justify-start lg:h-full" 
+        id="newcontent"
+        > 
           <!-- Page content here -->
 
             {% block content %}{% endblock %}
             
           <!-- Page endscontent here -->
         </div> 
-      
         <div class="drawer-side z-10 lg:h-full">
           <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label> 
           <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
             <li>
-
+              <a
+                class="px-3 font-bold text-lg"
+                href="/contacts/show?page_p=1"
+              >
+              <i class="fa-solid fa-list"></i>
+                List
+              </a>
+            </li>
+            <li>
               <a
                 class="px-3 font-bold text-lg"
                 href="/contacts/new"
@@ -69,6 +76,60 @@
             </li>
             <li>
               {% include "archive_ui.html" %}
+            </li>
+            <li>
+              <a
+                class="px-3 font-bold text-lg"
+                href="/contacts/new"
+              >
+              <i class="fa-solid fa-address-book"></i>
+                Add a new contact
+              </a>
+            </li>
+            <li>
+              <a
+                class="px-3 font-bold text-lg"
+                href="/contacts/new"
+              >
+              <i class="fa-solid fa-address-book"></i>
+                Add a new contact
+              </a>
+            </li>
+            <li>
+              <a
+                class="px-3 font-bold text-lg"
+                href="/contacts/new"
+              >
+              <i class="fa-solid fa-address-book"></i>
+                Add a new contact
+              </a>
+            </li>
+            <li>
+              <a
+                class="px-3 font-bold text-lg"
+                href="/contacts/new"
+              >
+              <i class="fa-solid fa-address-book"></i>
+                Add a new contact
+              </a>
+            </li>
+            <li>
+              <a
+                class="px-3 font-bold text-lg"
+                href="/contacts/new"
+              >
+              <i class="fa-solid fa-address-book"></i>
+                Add a new contact
+              </a>
+            </li>
+            <li>
+              <a
+                class="px-3 font-bold text-lg"
+                href="/contacts/new"
+              >
+              <i class="fa-solid fa-address-book"></i>
+                Add a new contact
+              </a>
             </li>
           </ul>
         </div>

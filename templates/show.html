@@ -2,25 +2,40 @@
 {% extends "base.html" %} 
 {% block title %} List of Contacts {% endblock %} 
 {% block content %}
-
 <div
-  id="fire_reload"
-  hx-get="/contacts/count"
-  hx-trigger="fire_reload from:body"
-  hx-target="#contacts_count"
+id="fire_reload"
+hx-get="/contacts/count"
+hx-trigger="fire_reload from:body, load delay:300ms"
+hx-target="#contacts_count"
 >
 </div>
 
-<div class="text-center bg-success text-success-content text-lg w-full font-bold">
-  {{ messages_t }}
-</div>
-
+<ul class="w-full">
+  {% for message in messages_t %}
+  <li>
+    {% if message.level == Level::Error %}
+    <button class="text-center bg-error text-error-content text-lg font-bold w-full"
+    hx-get="/utils/close-flash"
+    hx-target="ul > li">
+      {{ message }}
+      <i class="fa-regular fa-circle-xmark"></i>
+    </button>
+    {% else %}
+    <button class="text-center bg-success text-success-content text-lg font-bold w-full"
+    hx-get="/utils/close-flash"
+    hx-target="ul > li">
+      {{ message }}
+      <i class="fa-regular fa-circle-xmark"></i>
+    </button>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
     
 <div class="flex p-2 space-x-6">
-  
   <div class="flex justify-between space-x-3">
-    <!-- <input class="rounded-md border border-slate-600 px-1 shadow-lg shadow-indigo-900"-->
     <label class="input input-bordered input-primary flex items-center gap-2">
+      <i class="fa-solid fa-magnifying-glass fa-lg text-primary"></i>   
       <input class="grow"   
       id="search"
       type="search"
@@ -34,23 +49,25 @@
       hx-push-url="true"
       hx-indicator="#spinner"
       />
-      <i class="fa-solid fa-magnifying-glass fa-lg" style="color: #74C0FC;"></i>   
     </label>
-    <span id="spinner" class="htmx-indicator loading loading-bars loading-sm text-primary"></span>
+    <span class="htmx-indicator loading loading-bars loading-sm text-primary"
+    id="spinner">
+    </span>
   </div>
-
-  <div class="pt-3 font-semibold text-accent">
-    {{ time_t }}
-  </div>
-
-  <div
-  id="contacts_count"
-  class="pt-3 font-semibold text-accent"
-  hx-get="/contacts/count"
-  hx-trigger="load delay:300ms"
-  >
-    <span class="loading loading-bars loading-md text-accent"></span>
-    <!--<img src="/assets/spinner.svg" class="h-6 w-6 animate-spin" />-->
+  <div class="flex space-x-6"> 
+    <div class="flex pt-3 font-semibold text-accent">
+      <i class="fa-regular fa-calendar-days fa-lg text-accent px-2 pt-3"></i>
+      {{ time_t }}
+    </div>
+    <div class="flex pt-3 font-semibold text-accent">
+      <i class="fa-solid fa-users fa-lg text-accent px-2 pt-3"></i>
+      <div class="w-28"
+      id="contacts_count"
+      > 
+        <span class="loading loading-bars loading-md text-accent"></span>
+        <!--<img src="/assets/spinner.svg" class="h-6 w-6 animate-spin" />-->
+      </div>
+    </div>
   </div>
 </div>
 

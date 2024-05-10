@@ -6,6 +6,7 @@ use axum::response::{Html, IntoResponse, Redirect};
 use axum::routing::{get, post};
 use axum::{Form, Router};
 use axum_extra::extract::Form as ExtraForm;
+use axum_messages::Level;
 use axum_messages::{Message, Messages};
 use serde::Deserialize;
 use tokio_util::io::ReaderStream;
@@ -47,7 +48,7 @@ mod get {
 pub struct ShowTemplate<'a> {
     pub contacts_t: Vec<Contact>,
     pub search_t: &'a str,
-    pub messages_t: String,
+    pub messages_t: Vec<Message>,
     pub length_t: u32,
     pub page_t: u32,
     pub max_page_t: u32,
@@ -91,7 +92,7 @@ pub async fn handler_get_showcontacts(
     //auth_session: AuthSession,
 ) -> Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_get_showcontacts", get_time());
-    std::thread::sleep(std::time::Duration::from_millis(900));
+    //std::thread::sleep(std::time::Duration::from_millis(900));
 
     //if let Some(user) = auth_session.user {
     let search_bar = params.search_p.as_deref().unwrap_or("");
@@ -99,11 +100,11 @@ pub async fn handler_get_showcontacts(
 
     let archiver = state.read().await.archiver_state.clone();
 
-    let messages = messages
-        .into_iter()
-        .map(|message| format!("{}: {}", message.level, message))
-        .collect::<Vec<_>>()
-        .join(", ");
+    /* let messages = messages
+    .into_iter()
+    .map(|message| format!("{}: {}", message.level, message))
+    .collect::<Vec<_>>()
+    .join(", "); */
 
     let pool = state.read().await.contacts_state.clone();
 
@@ -119,7 +120,7 @@ pub async fn handler_get_showcontacts(
         max_page_t: max_page,
     };
     let contacts_tmpl = ShowTemplate {
-        messages_t: messages,
+        messages_t: messages.into_iter().collect(),
         search_t: search_bar,
         contacts_t: contacts_set.contacts,
         length_t: length,
@@ -482,14 +483,8 @@ pub async fn handler_post_editcontact(
         None => {
             let rows_affected = Contact::edit_contact(pool, contact).await?;
             match rows_affected {
-                1 => {
-                    println!("Updated Successfully");
-                    messages.info(
-                        format!("Contact ID {} Updated Successfully!", params_query.id_p)
-                            .to_string(),
-                    );
-                }
-                _ => println!("Updated Unsuccessfully"),
+                1 => messages.success("Contact Updated!"),
+                _ => messages.error("Contact Update Failed!"),
             };
             Ok(Redirect::to("/contacts/show?page_p=1"))
         }
@@ -518,7 +513,8 @@ pub struct ValidateEmailParams {
 pub fn utils_router() -> Router<AppStateType> {
     Router::new()
         .route("/contacts/validate_email", get(handler_get_validate_email))
-        .route("/contacts/count", get(handler_contacts_count))
+        .route("/contacts/count", get(handler_get_count))
+        .route("/utils/close-flash", get(handler_close_flash))
 }
 
 pub async fn handler_get_validate_email(
@@ -543,7 +539,7 @@ pub async fn handler_get_validate_email(
     }
 }
 
-pub async fn handler_contacts_count(
+pub async fn handler_get_count(
     State(state): State<AppStateType>, //State(state_contacts): State<ContactState>
 ) -> Result<String, AppError> {
     println!("->> {} - HANDLER: handler_contacts_count", get_time());
@@ -558,8 +554,14 @@ pub async fn handler_contacts_count(
     .fetch_one(&pool)
     .await?;
     let contacts_count = rec.count;
-    let span = format!("({} contacts in total)", contacts_count);
+    let span = format!("{} contacts", contacts_count);
     //thread::sleep(Duration::from_millis(900));
+    Ok(span)
+}
+
+pub async fn handler_close_flash() -> Result<String, AppError> {
+    println!("->> {} - HANDLER: handler_close_flash", get_time());
+    let span = format!("");
     Ok(span)
 }
 
@@ -683,6 +685,7 @@ pub fn login_router() -> Router<AppStateType> {
         .route("/login", post(handler_post_login))
         .route("/login", get(handler_get_login))
         .route("/logout", get(handler_get_logout))
+        .route("/signup", post(handler_post_signup))
 }
 
 pub async fn handler_post_login(
@@ -698,7 +701,7 @@ pub async fn handler_post_login(
     let user = match auth_session.authenticate(creds.clone()).await {
         Ok(Some(user)) => user,
         Ok(None) => {
-            messages.error("Invalid credentials");
+            messages.error("Invalid credentials!");
 
             let mut login_url = "/login".to_string();
             if let Some(next) = creds.next {
@@ -746,6 +749,11 @@ pub async fn handler_get_logout(mut auth_session: AuthSession) -> impl IntoRespo
         Ok(_) => Redirect::to("/login").into_response(),
         Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     }
+}
+
+pub async fn handler_post_signup(messages: Messages) -> impl IntoResponse {
+    messages.success("Failed Successfully!");
+    Redirect::to("/login").into_response()
 }
 
 // endregion: LOGIN

@@ -5,15 +5,28 @@
 <ul class="w-full">
   {% for message in messages %}
   <li>
-    <div class="text-center bg-error text-error-content text-lg font-bold w-full">
+    {% if message.level == Level::Error %}
+    <button class="text-center bg-error text-error-content text-lg font-bold w-full"
+    hx-get="/utils/close-flash"
+    hx-target="ul > li">
       {{ message }}
-    </div>
+      <i class="fa-regular fa-circle-xmark"></i>
+    </button>
+    {% else %}
+    <button class="text-center bg-success text-success-content text-lg font-bold w-full"
+    hx-get="/utils/close-flash"
+    hx-target="ul > li">
+      {{ message }}
+      <i class="fa-regular fa-circle-xmark"></i>
+    </button>
+    {% endif %}
   </li>
   {% endfor %}
 </ul>
-<form action="/login" method="post" class="mx-auto">
+<form class="mx-auto border-2 border-neutral rounded-md px-6 p-3 mt-3 min-w-80" 
+method="post">
   <fieldset>
-    <legend class="w-full py-3 text-center text-2xl font-bold text-secondary">
+    <legend class="w-full py-3 text-center text-2xl font-bold text-accent">
       Log in with your account!
     </legend>
 
@@ -21,8 +34,8 @@
       <div class="label">
         <span class="label-text text-primary">Username</span>
       </div>
-      <input type="text" placeholder="Type here" name="username" id="username"
-      class="input input-bordered  w-full max-w-xs" 
+      <input class="input input-bordered  w-full max-w-xs" 
+      type="text" placeholder="Type here" name="username" id="username"
       />
     </label>
 
@@ -30,8 +43,8 @@
       <div class="label">
         <span class="label-text text-primary">Password</span>
       </div>
-      <input type="text" placeholder="Type here" name="password" id="password"
-        class="input input-bordered  w-full max-w-xs" 
+      <input class="input input-bordered  w-full max-w-xs" 
+      type="text" placeholder="Type here" name="password" id="password"
       />
     </label>
   </fieldset>
@@ -39,16 +52,16 @@
   <div class="flex justify-center">
     <ul class="menu menu-horizontal bg-base-200 space-x-3">
       <li>
-        <input type="submit"  value="Log in" 
+        <button type="submit" formaction="/login"
         class="btn btn-secondary btn-sm font-bold"
-        />
+        >
+        Log in
+        </button>
       </li>
       <li>
-        <a class="btn btn-accent btn-sm font-bold" 
-        href="/signup"
-        >
-          Sign Up
-        </a>
+        <input type="submit" value="Sign up" formaction="/signup"
+        class="btn btn-accent btn-sm font-bold"
+        />
       </li>
       <li>
         <a class="btn btn-primary btn-sm font-bold"

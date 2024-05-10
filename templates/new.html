@@ -1,9 +1,9 @@
 {% extends "base.html" %} {% block title %} Add a Contact {% endblock %} {%
 block content %}
 
-<form action="/contacts/new" method="post" class="mx-auto">
+<form action="/contacts/new" method="post" class="mx-auto border-2 border-neutral rounded-md px-6 p-3 mt-3 min-w-80">
 
-  <legend class="w-full py-3 text-center text-2xl font-bold text-secondary">
+  <legend class="w-full pb-3 text-center text-2xl font-bold text-accent">
     Create a new contact!
   </legend>
 
@@ -12,8 +12,12 @@ block content %}
       <span class="label-text text-primary">First name</span>
       <span class="label-text-alt">Eg. Elvis</span>
     </div>
-    <input type="text" placeholder="Type here" name="first_p" id="first"
-      class="input input-bordered  w-full max-w-xs" value="{{ contact_t.first_name }}"
+    <input class="input input-bordered  w-full max-w-xs" 
+    value="{{ contact_t.first_name }}"
+    type="text" 
+    placeholder="Type here" 
+    name="first_p" 
+    id="first"
     />
     <div class="label">
       <span class="label-text-alt text-error">{{ errors_t.first_error }}</span>
