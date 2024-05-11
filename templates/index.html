@@ -1,19 +1,27 @@
 {% extends "base.html" %} {% block title %} Portfolio {% endblock %} {% block
 content %}
-<div class="mx-auto">
-  <h1 class="block text-center text-2xl font-extrabold text-primary py-9">Hello, {{name}}</h1>
-  
-  <h1 class="block text-center text-xl font-bold text-neutral-content">
-    Welcome to the Menu, choose the app:
-  </h1>
-  
-  <div class="py-9 flex justify-center space-x-12">
-    <a
+
+
+<div class="hero min-h-[calc(100vh-118px)] bg-base-200 border-2 rounded-full glass">
+  <div class="hero-content text-center">
+    <div class="max-w-md">
+      <h1 class="text-6xl font-bold text-accent">Hello there</h1>
+      <p class="py-6 text-3xl text-primary">
+        Are you tired of forgetting important people's birthday?!? 
+        <span class="text-base-content text-lg"
+        >
+        <span class="text-accent">Bday Contacts</span> is a contact's list that can sort by upcoming bdays for you.
+        </span>
+      </p>
+      <a class="btn btn-secondary btn-wide font-bold text-xl"
       class="btn btn-secondary btn-lg rounded-full border px-3 font-bold text-lg"
       href="/contacts/show?page_p=1&birthday_p=0"
-    >
-      Contacts app
-    </a>
+      >
+        Get Started
+      <i class="fa-regular fa-hand-pointer fa-lg px-2"></i>
+      </a>
+    </div>
   </div>
 </div>
+
 {% endblock %}

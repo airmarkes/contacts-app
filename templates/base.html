@@ -46,6 +46,12 @@
           </li>
         </ul>
       </div>
+      <div class="flex-none px-2">
+        <a class="btn btn-square btn-ghost"
+        href="#">
+          <i class="fa-brands fa-github fa-xl"></i>
+        </a>
+      </div>
       <div class="flex-none">
         <label class="cursor-pointer label space-x-2">
           <span class="label-text pb-1">Dark</span> 
@@ -62,12 +68,12 @@
       </div>
     </header>
     <main
-    class="mb-auto"
+    class="mb-auto h-auto"
     id="content"
     > 
-      <div class="drawer lg:drawer-open h-auto lg:h-full lg:mb-auto">
+      <div class="drawer lg:drawer-open h-full mb-auto">
         <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
-        <div class="drawer-content flex flex-col items-start md:items-center justify-start lg:h-full" 
+        <div class="drawer-content flex flex-col items-start md:items-center justify-start min-h-[calc(100vh-118px)] mb-auto" 
         id="newcontent"
         > 
           <!-- Page content here -->
@@ -82,19 +88,19 @@
             <li>
               <a
                 class="px-3 py-2 font-bold text-lg"
-                href="/contacts/show?page_p=1&birthday_p=0"
+                href="/contacts/new?id=0&first_name=&last_name=&phone=&email=&birth_date=&time_creation="
               >
-                <i class="fa-solid fa-address-book px-1"></i>
-                Show all
+                <i class="fa-solid fa-user-plus px-1 text-secondary"></i>
+                Add a new contact
               </a>
             </li>
             <li>
               <a
                 class="px-3 py-2 font-bold text-lg"
-                href="/contacts/new?id=0&first_name=&last_name=&phone=&email=&birth_date=&time_creation="
+                href="/contacts/show?page_p=1&birthday_p=0"
               >
-                <i class="fa-solid fa-user-plus px-1"></i>
-                Add a new contact
+                <i class="fa-solid fa-address-book px-1 text-secondary"></i>
+                Show all
               </a>
             </li>
             <li>
@@ -102,8 +108,8 @@
                 class="px-3 py-2 font-bold text-lg"
                 href="/contacts/show?page_p=1&birthday_p=1"
               >
-              <i class="fa-solid fa-list px-1"></i>
-                List upcoming birthdates
+              <i class="fa-solid fa-list px-1 text-secondary"></i>
+                Show upcoming bdays
               </a>
             </li>
             <li>
@@ -111,7 +117,8 @@
                 class="px-3 py-2 font-bold text-lg"
                 href="#"
               >
-              <i class="fa-solid fa-list-check px-1"></i>                List recent birthdates
+              <i class="fa-solid fa-list-check px-1 text-secondary"></i>
+                Show previous bdays
               </a>
             </li>
             <li>

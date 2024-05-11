@@ -10,38 +10,60 @@ hx-target="#contacts_count"
 >
 </div>
 
-<ul class="w-full" id="flash">
-  {% for message in messages_t %}
-  <li>
-    {% if message.level == Level::Error %}
-    <button class="text-center bg-error text-error-content text-lg font-bold w-full"
-    hx-get="/utils/close-flash"
-    hx-target="#flash">
-      {{ message }}
-      <i class="fa-regular fa-circle-xmark"></i>
-    </button>
-    {% else %}
-    <button class="text-center bg-success text-success-content text-lg font-bold w-full"
-    hx-get="/utils/close-flash"
-    hx-target="#flash">
-      {{ message }}
-      <i class="fa-regular fa-circle-xmark"></i>
-    </button>
-    {% endif %}
-  </li>
-  {% endfor %}
-</ul>
 
-<div class="mx-auto border-2 border-neutral rounded-md px-6 p-3 mt-3">    
-  
-  <div class="flex justify-evenly">
-    <div class="flex pr-3">
-      <a class="btn btn-secondary text-lg px-3"
-      href="/contacts/new?id=0&first_name=&last_name=&phone=&email=&birth_date=&time_creation="
-      >
-        <i class="fa-solid fa-user-plus"></i>
-      </a>
+
+<div class="mx-auto border-2 border-neutral rounded-md px-6 p-3 mt-3 bg-neutral">   
+  <ul class="w-full" id="flash">
+    {% for message in messages_t %}
+    <li>
+      {% if message.level == Level::Error %}
+      <button class="text-center bg-error text-error-content rounded-full text-lg font-bold w-full"
+      hx-get="/utils/close-flash"
+      hx-target="#flash">
+        {{ message }}
+        <i class="fa-regular fa-circle-xmark"></i>
+      </button>
+      {% else %}
+      <button class="text-center bg-success text-success-content rounded-full text-lg font-bold w-full"
+      hx-get="/utils/close-flash"
+      hx-target="#flash">
+        {{ message }}
+        <i class="fa-regular fa-circle-xmark"></i>
+      </button>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+
+
+  <div class="flex justify-around py-2">
+    <div class="flex font-semibold text-accent py-3">
+      <i class="fa-regular fa-calendar-days fa-lg text-accent px-2 pt-3"></i>
+      {{ time_t }}
     </div>
+    {% if birthday_t == 0 %}
+    <div class="flex font-semibold text-accent text-xl">
+      <i class="fa-solid fa-address-book fa-lg text-accent px-2 pt-3"></i>
+      All Contacts
+    </div>
+    {% else %}
+    <div class="flex font-semibold text-accent text-xl">
+      <i class="fa-solid fa-list fa-lg text-accent px-2 pt-3"></i>
+      Upcoming Bdays
+    </div>
+    {% endif %}
+    <div class="flex font-semibold text-accent py-3">
+      <i class="fa-solid fa-users fa-lg text-accent px-2 pt-3"></i>
+      <div class="w-20"
+      id="contacts_count"
+      > 
+        <span class="loading loading-bars loading-md text-accent"></span>
+        <!--<img src="/assets/spinner.svg" class="h-6 w-6 animate-spin" />-->
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-evenly py-1">
     <label class="input input-bordered input-primary flex items-center gap-2 pr-0">
       <i class="fa-solid fa-magnifying-glass fa-lg text-primary"></i>   
       <input class="grow"   
@@ -66,28 +88,15 @@ hx-target="#contacts_count"
         <option>Prev Bdays</option>
       </select>
     </label>
+    <div class="flex">
+      <a class="btn btn-secondary text-lg"
+      href="/contacts/new?id=0&first_name=&last_name=&phone=&email=&birth_date=&time_creation="
+      >
+        <i class="fa-solid fa-user-plus fa-lg"></i>
+      </a>
+    </div>
   </div>
-  <div class="flex space-x-6 justify-center">
-    {% if birthday_t == 0 %}
-    <i class="fa-solid fa-address-book fa-lg text-accent px-2 pt-6"></i>
-    {% else %}
-    <i class="fa-solid fa-list fa-lg text-accent px-2 pt-6"></i>
-    {% endif %}
   
-    <div class="flex pt-3 font-semibold text-accent">
-      <i class="fa-regular fa-calendar-days fa-lg text-accent px-2 pt-3"></i>
-      {{ time_t }}
-    </div>
-    <div class="flex pt-3 font-semibold text-accent">
-      <i class="fa-solid fa-users fa-lg text-accent px-2 pt-3"></i>
-      <div class="w-20"
-      id="contacts_count"
-      > 
-        <span class="loading loading-bars loading-md text-accent"></span>
-        <!--<img src="/assets/spinner.svg" class="h-6 w-6 animate-spin" />-->
-      </div>
-    </div>
-  </div>
 
   <div class="overflow-x-auto">
      <form enctype="application/x-www-form-urlencoded">
@@ -132,5 +141,7 @@ hx-target="#contacts_count"
       </table>
     </form>
   </div>
+</div>
+<div class="h-3">
 </div>
 {% endblock %}
