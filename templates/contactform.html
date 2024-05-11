@@ -26,7 +26,7 @@ method="post">
       value="{{ contact.first_name }}"
       type="text" 
       placeholder="Type here" 
-      name="first_name" id="first"
+      name="first_name" id="first" 
       />
       <div class="label">
         <span class="label-text-alt text-error">{{ errors_t.first_error }}</span>
@@ -104,7 +104,7 @@ method="post">
       </div>
     </label>
   </fieldset>
-  
+
   <div class="flex justify-center space-x-6">
     {% if contact.id == 0 %}
     <button class="btn btn-secondary btn-sm font-bold" type="submit" formaction="/contacts/new">
