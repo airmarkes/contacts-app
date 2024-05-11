@@ -29,7 +29,7 @@ async fn main() -> anyhow::Result<()> {
 
     //let session_store = MemoryStore::default();
     let session_store = SqliteStore::new(pool.clone());
-    //session_store.migrate().await?;
+    session_store.migrate().await?;
 
     let _deletion_task = tokio::task::spawn(
         session_store

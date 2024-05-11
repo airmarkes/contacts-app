@@ -10,23 +10,22 @@ hx-target="#contacts_count"
 >
 </div>
 
+<div class="mx-auto border-2 border-neutral rounded-md px-6 p-3 mt-3 bg-base-100"> 
 
-
-<div class="mx-auto border-2 border-neutral rounded-md px-6 p-3 mt-3 bg-neutral">   
-  <ul class="w-full" id="flash">
+  <ul class="w-full" id="flash_show">
     {% for message in messages_t %}
     <li>
       {% if message.level == Level::Error %}
-      <button class="text-center bg-error text-error-content rounded-full text-lg font-bold w-full"
+      <button class="text-center bg-error text-error-content rounded-full text-lg font-semibold w-full"
       hx-get="/utils/close-flash"
-      hx-target="#flash">
+      hx-target="#flash_show">
         {{ message }}
         <i class="fa-regular fa-circle-xmark"></i>
       </button>
       {% else %}
-      <button class="text-center bg-success text-success-content rounded-full text-lg font-bold w-full"
+      <button class="text-center bg-success text-success-content rounded-full text-lg font-semibold w-full"
       hx-get="/utils/close-flash"
-      hx-target="#flash">
+      hx-target="#flash_show">
         {{ message }}
         <i class="fa-regular fa-circle-xmark"></i>
       </button>
@@ -35,12 +34,12 @@ hx-target="#contacts_count"
     {% endfor %}
   </ul>
 
-
   <div class="flex justify-around py-2">
     <div class="flex font-semibold text-accent py-3">
       <i class="fa-regular fa-calendar-days fa-lg text-accent px-2 pt-3"></i>
       {{ time_t }}
     </div>
+
     {% if birthday_t == 0 %}
     <div class="flex font-semibold text-accent text-xl">
       <i class="fa-solid fa-address-book fa-lg text-accent px-2 pt-3"></i>
@@ -52,6 +51,7 @@ hx-target="#contacts_count"
       Upcoming Bdays
     </div>
     {% endif %}
+
     <div class="flex font-semibold text-accent py-3">
       <i class="fa-solid fa-users fa-lg text-accent px-2 pt-3"></i>
       <div class="w-20"
@@ -100,7 +100,7 @@ hx-target="#contacts_count"
 
   <div class="overflow-x-auto">
      <form enctype="application/x-www-form-urlencoded">
-      <table class="table-lg">
+      <table class="table-lg text-base-content">
         <thead>
           <tr>
             <th>
@@ -116,7 +116,7 @@ hx-target="#contacts_count"
             <!--<th >
               ID
             </th>-->
-            <th >
+            <th>
               First Name
             </th>
             <th >

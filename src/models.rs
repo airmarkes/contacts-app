@@ -404,8 +404,8 @@ impl ArchiverState {
         self.archive_progress
     }
     pub fn archive_file(&self) -> &str {
-        //"/db/contacts.db"
-        "D:/RustProjects/axum-3-htmx/db/contacts.db"
+        "/db/contacts.db"
+        //"D:/RustProjects/axum-3-htmx/db/contacts.db"
     }
 }
 pub async fn run_thread(state: AppStateType) {
@@ -439,7 +439,7 @@ use crate::routers::CredentialsParam;
 pub struct User {
     id: i64,
     pub username: String,
-    passwordd: String,
+    password: String,
 }
 // Here we've implemented `Debug` manually to avoid accidentally logging the
 // password hash.
@@ -460,10 +460,10 @@ impl AuthUser for User {
     }
 
     fn session_auth_hash(&self) -> &[u8] {
-        self.passwordd.as_bytes() // We use the password hash as the auth
-                                  // hash--what this means
-                                  // is when the user changes their password the
-                                  // auth session becomes invalid.
+        self.password.as_bytes() // We use the password hash as the auth
+                                 // hash--what this means
+                                 // is when the user changes their password the
+                                 // auth session becomes invalid.
     }
 }
 
@@ -514,7 +514,7 @@ impl AuthnBackend for Backend {
         task::spawn_blocking(|| {
             // We're using password-based authentication--this works by comparing our form
             // input with an argon2 password hash.
-            Ok(user.filter(|user| verify_password(creds.password, &user.passwordd).is_ok()))
+            Ok(user.filter(|user| verify_password(creds.password, &user.password).is_ok()))
         })
         .await?
     }

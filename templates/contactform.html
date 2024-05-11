@@ -1,108 +1,110 @@
 {% extends "base.html" %} {% block title %} Edit {% endblock %} 
 {% block content %}
 
-<form class="mx-auto  border-2 border-neutral rounded-md px-6 p-3 mt-3 min-w-80 bg-neutral"
+<form class="mx-auto border-2 border-neutral rounded-xl px-6 p-3 mt-3 min-w-80 bg-base-100"
 method="post">
-  {% if contact.id == 0 %}
-  <legend class="w-full pb-3 text-center text-2xl font-bold text-accent">
-    <i class="fa-solid fa-user-plus px-2"></i>
-    Create a new contact!
-  </legend>
-  {% else %}
-  <legend class="w-full pb-3 text-center text-2xl font-bold text-accent">
-    <i class="fa-solid fa-pen-to-square px-1"></i>
-    Edit contact ID: {{ contact.id }}!
-  </legend>
-  {% endif %}
-  <input type="hidden" name="id" value="{{contact.id}}"/>
+  <fieldset>
+    {% if contact.id == 0 %}
+    <legend class="w-full pb-3 text-center text-2xl font-bold text-accent">
+      <i class="fa-solid fa-user-plus px-2"></i>
+      Create a new contact!
+    </legend>
+    {% else %}
+    <legend class="w-full pb-3 text-center text-2xl font-bold text-accent">
+      <i class="fa-solid fa-pen-to-square px-1"></i>
+      Edit contact ID: {{ contact.id }}!
+    </legend>
+    {% endif %}
+    <input type="hidden" name="id" value="{{contact.id}}"/>
 
-  <label class="form-control w-full max-w-xs">
-    <div class="label">
-      <span class="label-text text-primary">First name</span>
-      <span class="label-text-alt">Eg. Elvis</span>
-    </div>
-    <input class="input input-bordered  w-full max-w-xs" 
-    value="{{ contact.first_name }}"
-    type="text" 
-    placeholder="Type here" 
-    name="first_name" id="first"
-    />
-    <div class="label">
-      <span class="label-text-alt text-error">{{ errors_t.first_error }}</span>
-    </div>
-  </label>
-
-  <label class="form-control w-full max-w-xs">
-    <div class="label">
-      <span class="label-text text-primary">Last name</span>
-      <span class="label-text-alt">Eg. Presley da Silva</span>
-    </div>
-    <input class="input input-bordered  w-full max-w-xs" 
-    value="{{ contact.last_name }}"
-    type="text" 
-    placeholder="Type here" 
-    name="last_name" id="last"
-    />
-    <div class="label">
-      <span class="label-text-alt text-error">{{ errors_t.last_error }}</span>
-    </div>
-  </label>
-
-  <label class="form-control w-full max-w-xs">
-    <div class="label">
-      <span class="label-text text-primary">Email</span>
-      <span class="label-text-alt">Eg. elvis123@gmail.com</span>
-    </div>
-    <input class="input input-bordered  w-full max-w-xs" 
-      value="{{ contact.email }}"
-      type="email" 
+    <label class="form-control w-full max-w-xs">
+      <div class="label">
+        <span class="label-text  font-semibold">First name</span>
+        <span class="label-text-alt ">Eg. Elvis</span>
+      </div>
+      <input class="input input-bordered  w-full max-w-xs" 
+      value="{{ contact.first_name }}"
+      type="text" 
       placeholder="Type here" 
-      name="email" id="email"
-      hx-get="/contacts/validate_email?id_p={{contact.id }}"
-      hx-include="#email"
-      hx-target="next span"
-      hx-trigger="change, keyup delay:600ms changed"
-      hx-push-url="true"
-    />
-    <div class="label">
-      <span class="label-text-alt text-error">{{ errors_t.email_error }}
-        {{ errors_t.email_unique_error }}
-      </span>
-    </div>
-  </label>
+      name="first_name" id="first"
+      />
+      <div class="label">
+        <span class="label-text-alt text-error">{{ errors_t.first_error }}</span>
+      </div>
+    </label>
+
+    <label class="form-control w-full max-w-xs">
+      <div class="label">
+        <span class="label-text  font-semibold">Last name</span>
+        <span class="label-text-alt ">Eg. Presley da Silva</span>
+      </div>
+      <input class="input input-bordered  w-full max-w-xs" 
+      value="{{ contact.last_name }}"
+      type="text" 
+      placeholder="Type here" 
+      name="last_name" id="last"
+      />
+      <div class="label">
+        <span class="label-text-alt text-error">{{ errors_t.last_error }}</span>
+      </div>
+    </label>
+
+    <label class="form-control w-full max-w-xs text-base-content">
+      <div class="label">
+        <span class="label-text  font-semibold">Email</span>
+        <span class="label-text-alt ">Eg. elvis123@gmail.com</span>
+      </div>
+      <input class="input input-bordered  w-full max-w-xs" 
+        value="{{ contact.email }}"
+        type="email" 
+        placeholder="Type here" 
+        name="email" id="email"
+        hx-get="/contacts/validate_email?id_p={{contact.id }}"
+        hx-include="#email"
+        hx-target="next span"
+        hx-trigger="change, keyup delay:600ms changed"
+        hx-push-url="true"
+      />
+      <div class="label">
+        <span class="label-text-alt text-error">{{ errors_t.email_error }}
+          {{ errors_t.email_unique_error }}
+        </span>
+      </div>
+    </label>
+
+    <label class="form-control w-full max-w-xs ">
+      <div class="label">
+        <span class="label-text  font-semibold">Phone</span>
+        <span class="label-text-alt ">Eg. 981960771</span>
+      </div>
+      <input class="input input-bordered  w-full max-w-xs" 
+      value="{{ contact.phone }}"
+      type="tel" 
+      placeholder="Type here" 
+      name="phone" id="phone"
+      />
+      <div class="label">
+        <span class="label-text-alt text-error">{{ errors_t.phone_error }}</span>
+      </div>
+    </label>
+
+    <label class="form-control w-full max-w-xs">
+      <div class="label">
+        <span class="label-text  font-semibold">Birthday</span>
+        <span class="label-text-alt ">Eg. dd/mm/aaaa</span>
+      </div>
+      <input class="input input-bordered  w-full max-w-xs" 
+      value="{{ contact.birth_date }}"
+      type="date" 
+      placeholder="Type here" 
+      name="birth_date" id="birth"
+      />
+      <div class="label">
+        <span class="label-text-alt text-error">{{ errors_t.birth_error }}</span>
+      </div>
+    </label>
+  </fieldset>
   
-  <label class="form-control w-full max-w-xs">
-    <div class="label">
-      <span class="label-text text-primary">Phone</span>
-      <span class="label-text-alt">Eg. 981960771</span>
-    </div>
-    <input class="input input-bordered  w-full max-w-xs" 
-    value="{{ contact.phone }}"
-    type="tel" 
-    placeholder="Type here" 
-    name="phone" id="phone"
-    />
-    <div class="label">
-      <span class="label-text-alt text-error">{{ errors_t.phone_error }}</span>
-    </div>
-  </label>
-
-  <label class="form-control w-full max-w-xs">
-    <div class="label">
-      <span class="label-text text-primary">Birthday</span>
-      <span class="label-text-alt">Eg. dd/mm/aaaa</span>
-    </div>
-    <input class="input input-bordered  w-full max-w-xs" 
-    value="{{ contact.birth_date }}"
-    type="date" 
-    placeholder="Type here" 
-    name="birth_date" id="birth"
-    />
-    <div class="label">
-      <span class="label-text-alt text-error">{{ errors_t.birth_error }}</span>
-    </div>
-  </label>
-
   <div class="flex justify-center space-x-6">
     {% if contact.id == 0 %}
     <button class="btn btn-secondary btn-sm font-bold" type="submit" formaction="/contacts/new">

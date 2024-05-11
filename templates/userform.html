@@ -1,30 +1,31 @@
 {% extends "base.html" %} {% block title %} Login {% endblock %} 
 {% block content %}
 
-  
-<ul class="w-full">
-  {% for message in messages %}
-  <li>
-    {% if message.level == Level::Error %}
-    <button class="text-center bg-error text-error-content text-lg font-bold w-full"
-    hx-get="/utils/close-flash"
-    hx-target="ul > li">
-      {{ message }}
-      <i class="fa-regular fa-circle-xmark"></i>
-    </button>
-    {% else %}
-    <button class="text-center bg-success text-success-content text-lg font-bold w-full"
-    hx-get="/utils/close-flash"
-    hx-target="ul > li">
-      {{ message }}
-      <i class="fa-regular fa-circle-xmark"></i>
-    </button>
-    {% endif %}
-  </li>
-  {% endfor %}
-</ul>
-<form class="mx-auto border-2 border-neutral rounded-md px-6 p-3 mt-3 min-w-80" 
+<form class="mx-auto border-2 border-neutral rounded-xl px-6 p-3 mt-3 min-w-80 bg-base-100" 
 method="post">
+
+  <ul class="w-full" id="flash_user">
+    {% for message in messages %}
+    <li>
+      {% if message.level == Level::Error %}
+      <button class="text-center bg-error text-error-content rounded-full text-lg font-semibold w-full"
+      hx-get="/utils/close-flash"
+      hx-target="#flash_user">
+        {{ message }}
+        <i class="fa-regular fa-circle-xmark"></i>
+      </button>
+      {% else %}
+      <button class="text-center bg-success text-success-content rounded-full text-lg font-semibold w-full"
+      hx-get="/utils/close-flash"
+      hx-target="#flash_user">
+        {{ message }}
+        <i class="fa-regular fa-circle-xmark"></i>
+      </button>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+
   <fieldset>
     <legend class="w-full py-3 text-center text-2xl font-bold text-accent">
       Log in with your account!
@@ -32,7 +33,7 @@ method="post">
 
     <label class="form-control w-full max-w-xs">
       <div class="label">
-        <span class="label-text text-primary">Username</span>
+        <span class="label-text text-base-content font-semibold">Username</span>
       </div>
       <input class="input input-bordered  w-full max-w-xs" 
       type="text" placeholder="Type here" name="username" id="username"
@@ -41,7 +42,7 @@ method="post">
 
     <label class="form-control w-full max-w-xs">
       <div class="label">
-        <span class="label-text text-primary">Password</span>
+        <span class="label-text text-base-content font-semibold">Password</span>
       </div>
       <input class="input input-bordered  w-full max-w-xs" 
       type="text" placeholder="Type here" name="password" id="password"

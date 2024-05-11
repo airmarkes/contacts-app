@@ -8,3 +8,8 @@ CREATE TABLE IF NOT EXISTS contacts_table (
     birth_date TEXT NOT NULL,
     time_creation TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS users_table (
+    id INTEGER PRIMARY KEY NOT NULL,
+    username TEXT NOT NULL,
+    password TEXT NOT NULL    
+);
