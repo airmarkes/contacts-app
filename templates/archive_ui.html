@@ -6,11 +6,11 @@ class="flex h-12 w-full space-x-3 p-0"
 > 
   {% if archive_t.status() == "Waiting" %}
   <button
-    class="p-3 w-full font-bold text-lg text-left"
+    class="px-3 py-2 font-bold text-lg"
     hx-post="/contacts/archive"
   >
     <!--<img src="/assets/save.svg" class="h-9 w-9 pt-2" />-->
-    <i class="fa-solid fa-download px-1 text-secondary"></i>
+    <i class="fa-solid fa-download px-1 text-secondary mr-1.5"></i>
     Download
   </button>
   {% else if archive_t.status() == "Running" %}

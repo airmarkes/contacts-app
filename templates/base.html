@@ -1,14 +1,24 @@
 <!doctype html>
-<html lang="en" data-theme="night">
+<html lang="en" data-theme="business">
   <head>
     <link rel="stylesheet" href="../assets/o-tailwind.css" />
-<!--     <link rel="stylesheet" href="../assets/fontawersome/css/all.min.css" />
+    <link rel="stylesheet" href="../assets/fontawersome/css/all.min.css" />
     <link rel="stylesheet" href="../assets/fontawersome/css/fontawesome.min.css" />
- -->    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
-    <!--<link rel="icon" href="/assets/gift-solid.svg" sizes="any" type="image/svg+xml">-->    <script src="/assets/htmx.min.js"></script>
+    <link rel="stylesheet" href="../assets/inter.css"/>
+<!--     <link rel="stylesheet" href="https://rsms.me/inter/inter.css"/>
+ -->
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+    <!--
+    <link rel="icon" href="/assets/gift-solid.svg" sizes="any" type="image/svg+xml">
+    <script src="/assets/htmx.min.js"></script>
+    -->   
+    <script src="/assets/htmx1-9-12.min.js"></script>
     <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
-    <script src="https://kit.fontawesome.com/bab82eebbb.js" crossorigin="anonymous"></script>
+    <!--
+    <script src="https://kit.fontawesome.com/bab82eebbb.js" 
+    crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/theme-change@2.0.2/index.js"></script>
+    -->    
     <title>{% block title %} {{ title }} {% endblock %}</title>
     {% block head %}{% endblock %}
   </head>
@@ -25,12 +35,18 @@
         >
           <i class="fa-solid fa-gift fa-rotate-by fa-xl text-accent"></i>
           <!--<img src="/assets/favicon.ico" class="h-6 w-6">-->
-          Bday Contacts
+          Birthday Contacts
         </a>
       </div>
       <div class="flex-1">
         <ul class="menu menu-horizontal px-1">
-          <li><a>Plan</a></li>
+          <li><a href="/contacts/show?page_p=1&birthday_p=0">
+            <i class="fa-solid fa-address-book px-1 text-secondary"></i></a>
+          </li>
+          <li><a href="/contacts/show?page_p=1&birthday_p=1">
+            <i class="fa-solid fa-list px-1 text-secondary"></i></a>
+          </li>
+          
           <li><a>Docs</a></li>
           <li>
             <details>
@@ -45,16 +61,25 @@
           </li>
         </ul>
       </div>
-      <div class="flex-none px-2">
+<!--       <div class="flex-none px-2">
         <label class="flex cursor-pointer gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
-          <input data-toggle-theme="light,night" checked type="checkbox" value="night" class="toggle theme-controller"/>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" 
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" 
+          stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" 
+          r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 
+          12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+          <input data-toggle-theme="light,night" checked type="checkbox" value="night"
+           class="toggle theme-controller"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" 
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" 
+          stroke-linecap="round" stroke-linejoin="round"><path 
+          d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
         </label>
       </div>
-      <div class="flex-none px-1">
+ -->      <div class="flex-none px-1">
         <a class="btn btn-square btn-ghost"
-        href="#">
+        href="https://github.com/airmarkes/contacts-app"
+        target="_blank">
           <i class="fa-brands fa-github fa-xl"></i>
         </a>
       </div>
@@ -72,7 +97,8 @@
     > 
       <div class="drawer lg:drawer-open h-full mb-auto">
         <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
-        <div class="drawer-content flex flex-col items-start md:items-center justify-start min-h-[calc(100vh-118px)] mb-auto bg-base200" 
+        <div class="drawer-content flex flex-col items-start md:items-center 
+        justify-start min-h-[calc(100vh-118px)] mb-auto bg-base200" 
         id="newcontent"
         > 
           <!-- Page content here -->
@@ -83,7 +109,7 @@
         </div> 
         <div class="drawer-side z-10 lg:h-full">
           <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label> 
-          <ul class="menu p-4 w-80 min-h-full bg-base-300 text-base-content space-y-3">
+          <ul class="menu p-4 w-81 min-h-full bg-base-300 text-base-content space-y-3">
             <li>
               <a
                 class="px-3 py-2 font-bold text-lg"
@@ -99,7 +125,7 @@
                 href="/contacts/show?page_p=1&birthday_p=0"
               >
                 <i class="fa-solid fa-address-book px-1 text-secondary"></i>
-                Show all
+                Show all contacts
               </a>
             </li>
             <li>
@@ -108,7 +134,7 @@
                 href="/contacts/show?page_p=1&birthday_p=1"
               >
               <i class="fa-solid fa-list px-1 text-secondary"></i>
-                Show upcoming bdays
+                Upcoming birthdays
               </a>
             </li>
             <li>
@@ -117,7 +143,7 @@
                 href="#"
               >
               <i class="fa-solid fa-list-check px-1 text-secondary"></i>
-                Show previous bdays
+                Previous birthdays
               </a>
             </li>
             <li>
@@ -126,7 +152,7 @@
                 href="#"
               >
               <i class="fa-solid fa-screwdriver-wrench px-1 text-secondary"></i>
-                New feature coming soon..
+                New feature coming soon
               </a>
             </li>
             <li>
@@ -140,7 +166,7 @@
       class="footer footer-center bg-base-300 p-3 text-base-content h-auto"
     >
     <aside>
-      <p>Copyright © 2024 - All right reserved by Air Markes Softwares Ltda.</p>
+      <p>Copyright © 2024 - All right reserved by Sofiatwares .</p>
     </aside> 
     </footer>
   </body>

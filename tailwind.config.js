@@ -1,11 +1,15 @@
+import { fontFamily } from 'tailwindcss/defaultTheme';
+
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./templates/*.html"],
-  theme: {
-    extend: {},
+export const content = ["./templates/*.html"];
+export const theme = {
+  extend: {
+    fontFamily: {
+      sans: ['Inter var', ...fontFamily.sans],
+    },
   },
-  plugins: [require("daisyui")],
-  daisyui: {
-    themes: ["light", "dark", "cupcake", "night"],
-  },
+};
+export const plugins = [require("daisyui")];
+export const daisyui = {
+  themes: ["light", "dark", "business"],
 };

@@ -1,0 +1,20 @@
+/*
+Font families defined by this CSS:
+  - InterVariable  variable font for modern web browsers
+  - Inter          static fonts for older web browsers (small optical size)
+  - InterDisplay   static fonts for older web browsers (large optical size)
+
+Usage example:
+  :root { font-family: Inter, sans-serif; }
+  @supports (font-variation-settings: normal) {
+    :root { font-family: InterVariable, sans-serif; }
+  }
+
+
+  woffv4.0
+*/
+  
+  /* legacy name "Inter var" (Oct 2023) */
+  @font-face { font-family:'Inter var'; font-style:normal; font-weight:100 900; font-display:swap; src: url('fonts/InterVariable.woff2') format('woff2'); }
+  @font-face { font-family:'Inter var'; font-style:italic; font-weight:100 900; font-display:swap; src: url('fonts/InterVariable-Italic.woff2') format('woff2'); }
+  /* static fonts */

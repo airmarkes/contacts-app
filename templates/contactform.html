@@ -107,22 +107,22 @@ method="post">
 
   <div class="flex justify-center space-x-6">
     {% if contact.id == 0 %}
-    <button class="btn btn-secondary btn-sm font-bold" type="submit" formaction="/contacts/new">
+    <button class="btn btn-secondary btn-sm rounded-xl font-bold" type="submit" formaction="/contacts/new">
       Save
     </button>
     {% else %}
-    <button class="btn btn-secondary btn-sm font-bold" type="submit" formaction="/contacts/edit?id_p={{ contact.id }}">
+    <button class="btn btn-secondary btn-sm rounded-xl font-bold" type="submit" formaction="/contacts/edit?id_p={{ contact.id }}">
     Save
     </button>
     {% endif %}
     {% if contact.id == 0 %}
-    <a class="btn btn-primary btn-sm font-bold"
+    <a class="btn btn-primary btn-sm rounded-xl font-bold"
     href="/contacts/show?page_p=1&birthday_p=0"
     >
       Back
     </a>
     {% else %}
-    <a class="btn btn-primary btn-sm font-bold"
+    <a class="btn btn-primary btn-sm rounded-xl font-bold"
     href="/contacts/view?id_p={{contact.id}}"
     >
       Back

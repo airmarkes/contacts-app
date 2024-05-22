@@ -13,7 +13,7 @@
   <td class="table-cell px-2 py-1">{{ contact.time_creation }}</td>-->
   <td>
     <a
-    class="btn btn-secondary btn-sm"
+    class="btn btn-secondary btn-sm rounded-xl"
     href="/contacts/view?id_p={{ contact.id }}"
     >
       <!--<i class="fa-solid fa-eye fa-lg"></i>-->
@@ -21,7 +21,7 @@
     </a>
 
     <a
-    class="btn btn-secondary btn-sm"
+    class="btn btn-secondary btn-sm rounded-xl"
     href="#"
     hx-delete="/contacts/view?id_p={{contact.id}}"
     hx-swap="outerHTML swap:1s"
@@ -41,7 +41,7 @@
       {% if page_t > 1 %}
       <a
         href="/contacts/show?page_p={{ page_t - 1 }}&birthday_p={{ birthday_t }}"
-        class="btn btn-secondary btn-xs font-extrabold"
+        class="btn btn-secondary btn-xs rounded-xl font-extrabold"
         hx-target="#tbody"
         hx-select="#tbody > tr"
         hx-indicator="#full_spinner"
@@ -69,7 +69,7 @@
       {% if length_t == 8 && page_t < max_page_t %}
       <a
         href="/contacts/show?page_p={{ page_t + 1 }}&birthday_p={{ birthday_t }}"
-        class="btn btn-secondary btn-xs font-extrabold"
+        class="btn btn-secondary btn-xs rounded-xl font-extrabold"
         hx-target="#tbody"
         hx-select="#tbody > tr"
         hx-indicator="#full_spinner"

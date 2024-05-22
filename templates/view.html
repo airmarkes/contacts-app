@@ -22,14 +22,14 @@
   <div class="flex justify-center">
     <ul class="menu menu-horizontal space-x-3 ">
       <li>
-        <a class="btn btn-secondary btn-sm font-bold"
+        <a class="btn btn-secondary btn-sm rounded-xl font-bold"
         href="/contacts/edit?id_p={{contact_t.id}}"
         >
           <i class="fa-solid fa-pen-to-square fa-lg"></i>
         </a>
       </li>
       <li>
-        <button class="btn btn-secondary btn-sm font-bold"
+        <button class="btn btn-secondary btn-sm rounded-xl font-bold"
         id="delete_btn"
         hx-delete="/contacts/view?id_p={{contact_t.id}}"
         hx-target="body"
@@ -39,7 +39,7 @@
         <i class="fa-solid fa-trash-can fa-lg"></i>        </button>
       </li>
       <li>
-        <a class="btn btn-primary btn-sm font-bold"
+        <a class="btn btn-primary btn-sm rounded-xl font-bold"
         href="/contacts/show?page_p=1&birthday_p=0"
         >
           Back

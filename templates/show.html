@@ -54,7 +54,7 @@ hx-target="#contacts_count"
 
     <div class="flex font-semibold text-accent py-3">
       <i class="fa-solid fa-users fa-lg text-accent px-2 pt-3"></i>
-      <div class="w-20"
+      <div class="w-24"
       id="contacts_count"
       > 
         <span class="loading loading-bars loading-md text-accent"></span>
@@ -82,14 +82,14 @@ hx-target="#contacts_count"
       <span class="htmx-indicator loading loading-bars loading-sm text-primary"
       id="spinner">
       </span>
-      <select class="select select-bordered join-item select-primary">
+<!--       <select class="select select-bordered join-item select-primary">
         <option selected>All</option>
         <option>Nexy Bdays</option>
         <option>Prev Bdays</option>
       </select>
-    </label>
+ -->    </label>
     <div class="flex">
-      <a class="btn btn-secondary text-lg"
+      <a class="btn btn-secondary text-lg rounded-xl"
       href="/contacts/new?id=0&first_name=&last_name=&phone=&email=&birth_date=&time_creation="
       >
         <i class="fa-solid fa-user-plus fa-lg"></i>
@@ -105,7 +105,7 @@ hx-target="#contacts_count"
           <tr>
             <th>
               <button
-                class="btn btn-secondary btn-xs"
+                class="btn btn-secondary btn-xs rounded-xl"
                 hx-delete="/contacts/show?page_p=1&birthday_p=0"
                 hx-confirm="Are you sure you want to delete these contacts?"
                 hx-target="body"
