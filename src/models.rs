@@ -1,3 +1,5 @@
+use argon2::password_hash::{rand_core::OsRng, PasswordHasher, SaltString};
+use argon2::Argon2;
 use axum::extract::FromRef;
 use axum::{http::StatusCode, response::IntoResponse};
 use axum_macros::FromRef;
@@ -60,6 +62,8 @@ pub enum MyError {
     #[error("test custom error")]
     CustomError,
     // bail!(MyError::CustomError);
+    #[error("error hashing password")]
+    HashError(#[from] argon2::password_hash::Error),
 }
 
 #[derive(Debug)]
@@ -540,7 +544,7 @@ impl AuthnBackend for Backend {
     }
 
     async fn get_user(&self, user_id: &UserId<Self>) -> Result<Option<Self::User>, Self::Error> {
-        let user = sqlx::query_as("select * from users where id = ?")
+        let user = sqlx::query_as("SELECT * FROM users_table WHERE id = ?")
             .bind(user_id)
             .fetch_optional(&self.db)
             .await?;
@@ -604,6 +608,12 @@ pub async fn create_user(
     pool: Pool<Sqlite>,
 ) -> anyhow::Result<u32> {
     //let timestamp_str = get_time();
+    let salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
+    let password_hash = argon2
+        .hash_password(password.as_bytes(), &salt)?
+        .to_string();
+
     let mut conn = pool.acquire().await?;
     let id_inserted = sqlx::query!(
         r#"
@@ -611,7 +621,7 @@ pub async fn create_user(
         VALUES (?1, ?2)
         "#,
         username,
-        password,
+        password_hash,
         //timestamp_str
     )
     .execute(&mut *conn)

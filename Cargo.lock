@@ -199,6 +199,7 @@ name = "axum-3-htmx"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "argon2",
  "askama",
  "askama_axum",
  "axum",

@@ -391,10 +391,17 @@ pub async fn handler_get_editcontact(
 
 pub async fn handler_post_editcontact(
     State(state): State<AppState>,
+    auth_session: AuthSession,
     messages: Messages,
     Form(contact): Form<Contact>,
 ) -> Result<Redirect, AppError> {
     println!("->> {} - HANDLER: handler_post_editcontact", get_time());
+
+    match auth_session.user {
+        Some(user) => println!("user {:?}", user),
+        None => println!("none"),
+    }
+
     let pool = state.pool_state.read().await.clone();
     let new_error = contact.check_contact_errors(&pool).await?;
     match new_error {
@@ -629,7 +636,6 @@ pub async fn handler_post_login(
         }
         Err(_) => return Ok(StatusCode::INTERNAL_SERVER_ERROR.into_response()),
     };
-    println!("->> first");
     if auth_session.login(&user).await.is_err() {
         return Ok(StatusCode::INTERNAL_SERVER_ERROR.into_response());
     }
@@ -639,7 +645,7 @@ pub async fn handler_post_login(
     if let Some(ref next) = creds.next {
         Ok(Redirect::to(next).into_response())
     } else {
-        Ok(Redirect::to("/").into_response())
+        Ok(Redirect::to("/contacts/show?page_p=1&birthday_p=0").into_response())
     }
 }
 
@@ -648,21 +654,20 @@ pub async fn handler_post_signup(
     State(state): State<AppState>,
     Form(creds): Form<CredentialsParam>,
 ) -> Result<impl IntoResponse, AppError> {
-    println!("->> {} - HANDLER: handler_login", get_time());
+    println!("->> {} - HANDLER: handler_post_signup", get_time());
     let pool = state.pool_state.read().await.clone();
     let username = creds.username;
     let password = creds.password;
     let new_error = check_user_errors(&username, &password, &pool).await?;
     match new_error {
         None => {
-            create_user(username, password, pool).await?;
-            messages.info(format!("User Created Successfully!").to_string());
-            Ok(Redirect::to(""))
+            let id_inserted = create_user(username, password, pool).await?;
+            messages.info(format!("User ID {} Created Successfully!", id_inserted).to_string());
+            Ok(Redirect::to("/login"))
         }
-        Some(new_error) => {
-            messages.success("Failed Successfully!");
-
-            Ok(Redirect::to(""))
+        Some(_) => {
+            messages.error("Oops, something wrong!");
+            Ok(Redirect::to("/login"))
         }
     }
 
