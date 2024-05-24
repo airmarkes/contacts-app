@@ -1,4 +1,6 @@
+use axum::extract::FromRef;
 use axum::{http::StatusCode, response::IntoResponse};
+use axum_macros::FromRef;
 use chrono::{DateTime, Local};
 use rand::Rng;
 use serde::Deserialize;
@@ -12,17 +14,37 @@ use tokio::time::{sleep, Duration};
 
 #[derive(Clone)]
 pub struct AppState {
-    pub contacts_state: Pool<Sqlite>,
-    pub error_state: CreationErrorState,
-    pub archiver_state: ArchiverState,
+    pub pool_state: PoolStateType,
+    pub contact_error_state: CreationErrorStateType,
+    pub archiver_state: ArchiverStateType,
 }
-pub type AppStateType = Arc<RwLock<AppState>>;
+
+//pub type AppStateType = Arc<RwLock<AppState>>;
+pub type PoolStateType = Arc<RwLock<Pool<Sqlite>>>;
+pub type CreationErrorStateType = Arc<RwLock<CreationErrorState>>;
+pub type ArchiverStateType = Arc<RwLock<ArchiverState>>;
 
 pub fn get_time() -> String {
     let time_stamp_now = std::time::SystemTime::now();
     let datetime = DateTime::<Local>::from(time_stamp_now);
     let timestamp_str = datetime.format("%Y-%m-%d").to_string(); //%H:%M:%S
     timestamp_str
+}
+
+impl FromRef<AppState> for Arc<RwLock<Pool<Sqlite>>> {
+    fn from_ref(app_state: &AppState) -> Arc<RwLock<Pool<Sqlite>>> {
+        app_state.pool_state.clone()
+    }
+}
+impl FromRef<AppState> for Arc<RwLock<CreationErrorState>> {
+    fn from_ref(app_state: &AppState) -> Arc<RwLock<CreationErrorState>> {
+        app_state.contact_error_state.clone()
+    }
+}
+impl FromRef<AppState> for Arc<RwLock<ArchiverState>> {
+    fn from_ref(app_state: &AppState) -> Arc<RwLock<ArchiverState>> {
+        app_state.archiver_state.clone()
+    }
 }
 
 // endregion: APP
@@ -81,7 +103,7 @@ pub struct Contacts {
     pub contacts: Vec<Contact>,
 }
 
-#[derive(Debug, Default, Clone, Deserialize)]
+#[derive(Debug, Default, Clone)]
 pub struct CreationErrorState {
     pub first_error: String,
     pub last_error: String,
@@ -302,7 +324,7 @@ impl Contact {
         .last_insert_rowid();
         Ok(id_inserted as u32)
     }
-    pub async fn edit_contact(pool: Pool<Sqlite>, contact: Contact) -> anyhow::Result<(u32, i64)> {
+    pub async fn edit_contact(&self, pool: Pool<Sqlite>) -> anyhow::Result<(u32, i64)> {
         let contact_set = sqlx::query_as!(
             Contact,
             r#"
@@ -310,7 +332,7 @@ impl Contact {
             FROM contacts_table
             WHERE id = ?
             "#,
-            contact.id
+            self.id
         )
         .fetch_one(&pool)
         .await?;
@@ -326,18 +348,18 @@ impl Contact {
                 time_creation = ?6
             WHERE id = ?7                
             "#,
-            contact.first_name,
-            contact.last_name,
-            contact.phone,
-            contact.email,
-            contact.birth_date,
+            self.first_name,
+            self.last_name,
+            self.phone,
+            self.email,
+            self.birth_date,
             contact_set.time_creation,
-            contact.id,
+            self.id,
         )
         .execute(&pool)
         .await?
         .rows_affected();
-        Ok((rows_affected as u32, contact.id))
+        Ok((rows_affected as u32, self.id))
     }
     pub async fn validate_email(
         pool: &Pool<Sqlite>,
@@ -383,7 +405,7 @@ impl Contact {
 
 // region: ARCHIVER
 
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Deserialize, FromRef)]
 pub struct ArchiverState {
     pub archive_status: String,
     pub archive_progress: f64,
@@ -404,23 +426,21 @@ impl ArchiverState {
         self.archive_progress
     }
     pub fn archive_file(&self) -> &str {
-        "/db/contacts.db"
-        //"D:/RustProjects/axum-3-htmx/db/contacts.db"
+        //"/db/contacts.db"
+        "D:/RustProjects/axum-3-htmx/db/contacts.db"
     }
 }
-pub async fn run_thread(state: AppStateType) {
+pub async fn run_thread(archiver_state: ArchiverStateType) {
     for i in 0..10 {
         let random = rand::thread_rng().gen::<f64>();
         let sleep_time = (1000.0 * random) as u64;
         sleep(Duration::from_millis(sleep_time)).await;
-        let mut write = state.write().await;
-        write.archiver_state.archive_progress = ((i as f64) + 1.0) / 10.0;
-        drop(write);
+        archiver_state.write().await.archive_progress = ((i as f64) + 1.0) / 10.0;
         //if state.read().await.archiver_state.archive_status != "Running" {
         //    return;
         //}
     }
-    state.write().await.archiver_state.archive_status = "Complete".to_owned();
+    archiver_state.write().await.archive_status = "Complete".to_owned();
 }
 
 // endregion: ARCHIVER
@@ -533,5 +553,71 @@ impl AuthnBackend for Backend {
 //
 // Note that we've supplied our concrete backend here.
 pub type AuthSession = axum_login::AuthSession<Backend>;
+
+#[derive(Debug, Clone)]
+pub struct UserErrorState {
+    pub username: String,
+    pub password: String,
+}
+
+pub async fn check_user_errors(
+    username: &String,
+    password: &String,
+    pool: &Pool<Sqlite>,
+) -> anyhow::Result<Option<UserErrorState>> {
+    let new_error = UserErrorState {
+        username: if username.is_empty() {
+            "Username Required".to_string()
+        } else {
+            let result = sqlx::query!(
+                r#"
+                    SELECT COUNT(*) as count FROM users_table
+                    WHERE username = ?1
+                    "#,
+                username
+            )
+            .fetch_one(pool)
+            .await?;
+            let email_equal = result.count;
+            match email_equal {
+                0 => "".to_string(),
+                _ => "Usename must be unique".to_string(),
+            }
+        },
+        password: if password.is_empty() {
+            "Password Required".to_string()
+        } else {
+            "".to_string()
+        },
+    };
+
+    if new_error.username.is_empty() && new_error.password.is_empty() {
+        Ok(None)
+    } else {
+        Ok(Some(new_error))
+    }
+}
+
+pub async fn create_user(
+    username: String,
+    password: String,
+    pool: Pool<Sqlite>,
+) -> anyhow::Result<u32> {
+    //let timestamp_str = get_time();
+    let mut conn = pool.acquire().await?;
+    let id_inserted = sqlx::query!(
+        r#"
+        INSERT INTO users_table ( username, password)
+        VALUES (?1, ?2)
+        "#,
+        username,
+        password,
+        //timestamp_str
+    )
+    .execute(&mut *conn)
+    .await?
+    .last_insert_rowid();
+    Ok(id_inserted as u32)
+}
 
 // endregion: USERS

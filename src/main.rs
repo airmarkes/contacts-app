@@ -2,7 +2,7 @@
 pub mod models;
 pub mod routers;
 
-use crate::models::{AppState, ArchiverState, Backend, CreationErrorState};
+use crate::models::*;
 use axum::Router;
 use axum_login::AuthManagerLayerBuilder;
 use axum_messages::MessagesManagerLayer;
@@ -52,11 +52,11 @@ async fn main() -> anyhow::Result<()> {
     let auth_layer = AuthManagerLayerBuilder::new(backend, session_layer).build();
 
     let app_state = AppState {
-        contacts_state: pool,
-        error_state: CreationErrorState::default(),
-        archiver_state: ArchiverState::default(),
+        pool_state: Arc::new(RwLock::new(pool)),
+        contact_error_state: Arc::new(RwLock::new(CreationErrorState::default())),
+        archiver_state: Arc::new(RwLock::new(ArchiverState::default())),
     };
-    let app_state = Arc::new(RwLock::new(app_state));
+    //let app_state = Arc::new(RwLock::new(app_state));
 
     let app = Router::new()
         .merge(index_router())

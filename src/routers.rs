@@ -20,7 +20,7 @@ pub struct RootTemplate<'a> {
     pub archive_t: ArchiverState,
 }
 
-pub fn index_router() -> Router<AppStateType> {
+pub fn index_router() -> Router<AppState> {
     Router::new().route("/", get(self::get::handler_root))
 }
 
@@ -28,12 +28,12 @@ mod get {
     use super::*;
 
     pub async fn handler_root(
-        State(state): State<AppStateType>,
+        State(state): State<ArchiverStateType>,
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_root", get_time());
         let root_tmpl = RootTemplate {
             name: "Guest!",
-            archive_t: state.read().await.archiver_state.clone(),
+            archive_t: state.read().await.clone(),
         };
         Ok(root_tmpl.into_response())
     }
@@ -80,7 +80,7 @@ pub struct DeleteBulkParams {
     pub ids_p: Option<Vec<String>>,
 }
 
-pub fn show_router() -> Router<AppStateType> {
+pub fn show_router() -> Router<AppState> {
     Router::new().route(
         "/contacts/show",
         get(handler_get_showcontacts).delete(handler_delete_bulk),
@@ -88,7 +88,7 @@ pub fn show_router() -> Router<AppStateType> {
 }
 
 pub async fn handler_get_showcontacts(
-    State(state): State<AppStateType>,
+    State(state): State<AppState>,
     Query(params): Query<ShowParams>,
     headers: HeaderMap,
     messages: Messages,
@@ -102,15 +102,16 @@ pub async fn handler_get_showcontacts(
     let page_set = params.page_p;
     let birthday_set = params.birthday_p;
 
-    let archiver = state.read().await.archiver_state.clone();
+    let pool = state.pool_state.read().await.clone();
+    let archiver = state.archiver_state.read().await.clone();
+    let mut writable_state = state.contact_error_state.write().await;
+    *writable_state = CreationErrorState::default();
 
     /* let messages = messages
     .into_iter()
     .map(|message| format!("{}: {}", message.level, message))
     .collect::<Vec<_>>()
     .join(", "); */
-
-    let pool = state.read().await.contacts_state.clone();
 
     let (contacts_set, length, page_set, max_page) =
         Contacts::match_contacts(pool, search_bar, page_set, birthday_set).await?;
@@ -135,8 +136,6 @@ pub async fn handler_get_showcontacts(
         time_t: time_now,
         birthday_t: birthday_set,
     };
-    let mut writable_state = state.write().await;
-    writable_state.error_state = CreationErrorState::default();
 
     let header_hx = headers.get("HX-Trigger");
     match header_hx {
@@ -165,12 +164,12 @@ pub async fn handler_get_showcontacts(
 
 pub async fn handler_delete_bulk(
     messages: Messages,
-    State(state): State<AppStateType>,
+    State(pool_state): State<PoolStateType>,
     ExtraForm(params_form): ExtraForm<DeleteBulkParams>,
 ) -> anyhow::Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_delete_bulk", get_time());
     let ids_opt: Option<Vec<String>> = params_form.ids_p;
-    let pool = state.read().await.contacts_state.clone();
+    let pool = pool_state.read().await.clone();
     let mut rows_affected_sum: u32 = 0;
     match ids_opt {
         Some(ids_set) => {
@@ -220,7 +219,7 @@ pub struct ViewContactParams {
     pub id_p: u32,
 }
 
-pub fn view_router() -> Router<AppStateType> {
+pub fn view_router() -> Router<AppState> {
     Router::new().route(
         "/contacts/view",
         get(handler_get_viewcontact).delete(handler_delete_contact),
@@ -228,13 +227,13 @@ pub fn view_router() -> Router<AppStateType> {
 }
 
 pub async fn handler_get_viewcontact(
-    State(state): State<AppStateType>,
+    State(state): State<AppState>,
     Query(params): Query<ViewContactParams>,
 ) -> Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_get_viewcontact", get_time());
     let id_set = params.id_p;
 
-    let pool = state.read().await.contacts_state.clone();
+    let pool = state.pool_state.read().await.clone();
     let contact_set = sqlx::query_as!(
         Contact,
         r#"
@@ -248,13 +247,13 @@ pub async fn handler_get_viewcontact(
     .await?;
     let view_contact_template = ViewContactTemplate {
         contact_t: contact_set,
-        archive_t: state.read().await.archiver_state.clone(),
+        archive_t: state.archiver_state.read().await.clone(),
     };
     Ok(view_contact_template.into_response())
 }
 
 pub async fn handler_delete_contact(
-    State(state): State<AppStateType>,
+    State(state): State<AppState>,
     Query(params_query): Query<ViewContactParams>,
     headers: HeaderMap,
     messages: Messages,
@@ -264,7 +263,7 @@ pub async fn handler_delete_contact(
     let id_set = params_query.id_p;
     let header_hx_trigger = headers.get("HX-trigger");
 
-    let pool = state.read().await.contacts_state.clone();
+    let pool = state.pool_state.read().await.clone();
     let rows_affected = sqlx::query!(
         r#"
             DELETE FROM contacts_table
@@ -307,7 +306,7 @@ pub struct ContactIDParam {
     pub id_p: u32,
 }
 
-pub fn contactform_new_router() -> Router<AppStateType> {
+pub fn contactform_new_router() -> Router<AppState> {
     Router::new().route(
         "/contacts/new",
         get(handler_get_newcontact).post(handler_post_newcontact),
@@ -315,41 +314,39 @@ pub fn contactform_new_router() -> Router<AppStateType> {
 }
 
 pub async fn handler_get_newcontact(
-    State(state): State<AppStateType>,
+    State(state): State<AppState>,
     Query(contact): Query<Contact>,
 ) -> Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_get_newcontact", get_time());
-    let errors_all = state.read().await.error_state.clone();
+    let errors_all = state.contact_error_state.read().await.clone();
 
     let new_contact_templ = ContactFormTemplate {
         errors_t: errors_all,
         contact,
-        archive_t: state.read().await.archiver_state.clone(),
+        archive_t: state.archiver_state.read().await.clone(),
     };
     Ok(new_contact_templ.into_response())
 }
 
 pub async fn handler_post_newcontact(
-    State(state): State<AppStateType>,
+    State(state): State<AppState>,
     messages: Messages,
     Form(contact): Form<Contact>,
 ) -> Result<Redirect, AppError> {
     println!("->> {} - HANDLER: handler_post_newcontact", get_time());
-    let pool = state.read().await.contacts_state.clone();
+    let pool = state.pool_state.read().await.clone();
     let new_error = contact.check_contact_errors(&pool).await?;
     match new_error {
         None => {
             let id_inserted = contact.create_contact(pool).await?;
-
             messages.info(format!("Contact ID {} Created Successfully!", id_inserted).to_string());
-
-            let mut writable_state = state.write().await;
-            writable_state.error_state = CreationErrorState::default();
+            let mut writable_state = state.contact_error_state.write().await;
+            *writable_state = CreationErrorState::default();
             Ok(Redirect::to("/contacts/show?page_p=1&birthday_p=0"))
         }
         Some(new_error) => {
-            let mut writable_state = state.write().await;
-            writable_state.error_state = new_error;
+            let mut writable_state = state.contact_error_state.write().await;
+            *writable_state = new_error;
             let uri = format!(
                 "/contacts/new?id=0&first_name={}&last_name={}&phone={}&email={}&birth_date={}&time_creation=",
                 contact.first_name, contact.last_name, contact.phone, contact.email, contact.birth_date
@@ -360,7 +357,7 @@ pub async fn handler_post_newcontact(
 }
 
 //  EDIT
-pub fn contactform_edit_router() -> Router<AppStateType> {
+pub fn contactform_edit_router() -> Router<AppState> {
     Router::new().route(
         "/contacts/edit",
         get(handler_get_editcontact).post(handler_post_editcontact),
@@ -368,14 +365,11 @@ pub fn contactform_edit_router() -> Router<AppStateType> {
 }
 
 pub async fn handler_get_editcontact(
-    State(state): State<AppStateType>,
+    State(state): State<AppState>,
     Query(params): Query<ContactIDParam>,
 ) -> Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_get_editcontact", get_time());
-    let errors_all = state.read().await.error_state.clone();
-    let id_set = params.id_p;
-
-    let pool = state.read().await.contacts_state.clone();
+    let pool = state.pool_state.read().await.clone();
     let contact_set = sqlx::query_as!(
         Contact,
         r#"
@@ -383,31 +377,29 @@ pub async fn handler_get_editcontact(
             FROM contacts_table
             WHERE id = ?1
             "#,
-        id_set
+        params.id_p
     )
     .fetch_one(&pool)
     .await?;
     let edit_contact_template = ContactFormTemplate {
-        errors_t: errors_all,
+        errors_t: state.contact_error_state.read().await.clone(),
         contact: contact_set,
-        archive_t: state.read().await.archiver_state.clone(),
+        archive_t: state.archiver_state.read().await.clone(),
     };
     Ok(edit_contact_template.into_response())
 }
 
 pub async fn handler_post_editcontact(
-    State(state): State<AppStateType>,
+    State(state): State<AppState>,
     messages: Messages,
     Form(contact): Form<Contact>,
 ) -> Result<Redirect, AppError> {
     println!("->> {} - HANDLER: handler_post_editcontact", get_time());
-    let pool = state.read().await.contacts_state.clone();
-
+    let pool = state.pool_state.read().await.clone();
     let new_error = contact.check_contact_errors(&pool).await?;
-
     match new_error {
         None => {
-            let (rows_affected, id) = Contact::edit_contact(pool, contact).await?;
+            let (rows_affected, id) = contact.edit_contact(pool).await?;
             match rows_affected {
                 1 => messages.success(format!("Contact with id {} updated sucessfully!", id)),
                 _ => messages.error("Contact update failed!"),
@@ -415,8 +407,8 @@ pub async fn handler_post_editcontact(
             Ok(Redirect::to("/contacts/show?page_p=1&birthday_p=0"))
         }
         Some(new_error) => {
-            let mut writable_state = state.write().await;
-            writable_state.error_state = new_error;
+            let mut writable_state = state.contact_error_state.write().await;
+            *writable_state = new_error;
             let uri = format!("/contacts/edit?id_p={}", contact.id);
             Ok(Redirect::to(uri.as_str()))
         }
@@ -433,7 +425,7 @@ pub struct ValidateEmailParams {
     pub id_p: u32,
 }
 
-pub fn utils_router() -> Router<AppStateType> {
+pub fn utils_router() -> Router<AppState> {
     Router::new()
         .route("/contacts/validate_email", get(handler_get_validate_email))
         .route("/contacts/count", get(handler_get_count))
@@ -441,12 +433,12 @@ pub fn utils_router() -> Router<AppStateType> {
 }
 
 pub async fn handler_get_validate_email(
-    State(state): State<AppStateType>,
+    State(state): State<AppState>,
     Query(params): Query<ValidateEmailParams>,
 ) -> Result<String, AppError> {
     println!("->> {} - HANDLER: handler_get_validate_email", get_time());
 
-    let pool = state.read().await.contacts_state.clone();
+    let pool = state.pool_state.read().await.clone();
 
     let email_validated =
         Contact::validate_email(&pool, params.email.as_str(), params.id_p).await?;
@@ -454,10 +446,10 @@ pub async fn handler_get_validate_email(
 }
 
 pub async fn handler_get_count(
-    State(state): State<AppStateType>, //State(state_contacts): State<ContactState>
+    State(state): State<AppState>, //State(state_contacts): State<ContactState>
 ) -> Result<String, AppError> {
     println!("->> {} - HANDLER: handler_contacts_count", get_time());
-    let pool = state.read().await.contacts_state.clone();
+    let pool = state.pool_state.read().await.clone();
 
     let rec = sqlx::query!(
         r#"
@@ -489,7 +481,7 @@ pub struct ArchiveUiTemplate {
     pub archive_t: ArchiverState,
 }
 
-pub fn archive_router() -> Router<AppStateType> {
+pub fn archive_router() -> Router<AppState> {
     Router::new()
         .route(
             "/contacts/archive",
@@ -502,21 +494,20 @@ pub fn archive_router() -> Router<AppStateType> {
 }
 
 pub async fn handler_get_archive(
-    State(state): State<AppStateType>,
+    State(archiver_state): State<ArchiverStateType>,
 ) -> Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_get_archive", get_time());
-    let archiver = state.read().await.archiver_state.clone();
     let archive_ui_tmpl = ArchiveUiTemplate {
-        archive_t: archiver,
+        archive_t: archiver_state.read().await.clone(),
     };
     Ok(archive_ui_tmpl.into_response())
 }
 
 pub async fn handler_get_archive_file(
-    State(state): State<AppStateType>,
+    State(state): State<ArchiverStateType>,
 ) -> Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_get_archive_file", get_time());
-    let archiver = state.read().await.archiver_state.clone();
+    let archiver = state.read().await.clone();
     let file = tokio::fs::File::open(archiver.archive_file()).await?;
     let stream = ReaderStream::new(file);
     let body = axum::body::Body::from_stream(stream);
@@ -531,21 +522,19 @@ pub async fn handler_get_archive_file(
 }
 
 pub async fn handler_post_archive(
-    State(state): State<AppStateType>, //State(state_archive): State<ArchiverState>
+    State(archiver_state): State<ArchiverStateType>, //State(state_archive): State<ArchiverState>
 ) -> Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_post_archive", get_time());
-    let archiver = state.read().await.archiver_state.clone();
-    if archiver.archive_status == "Waiting" {
-        let mut write = state.write().await;
-        write.archiver_state.archive_status = "Running".to_owned();
-        write.archiver_state.archive_progress = 0.0;
-        drop(write);
-        let clone = state.clone();
+    if archiver_state.read().await.archive_status == "Waiting" {
+        let mut writable = archiver_state.write().await;
+        writable.archive_status = "Running".to_owned();
+        writable.archive_progress = 0.0;
+        let clone = archiver_state.clone();
         let _handle = tokio::spawn(async move {
             run_thread(clone).await;
         });
     };
-    let archiver_then = state.read().await.archiver_state.clone();
+    let archiver_then = archiver_state.read().await.clone();
 
     let archive_ui_tmpl = ArchiveUiTemplate {
         archive_t: archiver_then,
@@ -554,13 +543,13 @@ pub async fn handler_post_archive(
 }
 
 pub async fn handler_delete_archive_file(
-    State(state): State<AppStateType>,
+    State(state): State<ArchiverStateType>,
 ) -> Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_delete_archive_file", get_time());
     let mut write = state.write().await;
-    write.archiver_state.archive_status = "Waiting".to_owned();
+    write.archive_status = "Waiting".to_owned();
     drop(write);
-    let archiver = state.read().await.archiver_state.clone();
+    let archiver = state.read().await.clone();
     let archive_ui_tmpl = ArchiveUiTemplate {
         archive_t: archiver,
     };
@@ -593,7 +582,7 @@ pub struct CredentialsParam {
     pub next: Option<String>,
 }
 
-pub fn userform_login_router() -> Router<AppStateType> {
+pub fn userform_login_router() -> Router<AppState> {
     Router::new()
         .route("/login", get(handler_get_login))
         .route("/logout", get(handler_get_logout))
@@ -603,13 +592,13 @@ pub fn userform_login_router() -> Router<AppStateType> {
 
 pub async fn handler_get_login(
     messages: Messages,
-    State(state): State<AppStateType>,
+    State(archiver_state): State<ArchiverStateType>,
     Query(NextUrlParam { next }): Query<NextUrlParam>,
 ) -> LoginTemplate {
     LoginTemplate {
         messages: messages.into_iter().collect(),
         next,
-        archive_t: state.read().await.archiver_state.clone(),
+        archive_t: archiver_state.read().await.clone(),
     }
 }
 
@@ -624,7 +613,7 @@ pub async fn handler_post_login(
     mut auth_session: AuthSession,
     messages: Messages,
     Form(creds): Form<CredentialsParam>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_login", get_time());
     let user = match auth_session.authenticate(creds.clone()).await {
         Ok(Some(user)) => user,
@@ -636,37 +625,49 @@ pub async fn handler_post_login(
                 login_url = format!("{}?next={}", login_url, next);
             };
 
-            return Redirect::to(&login_url).into_response();
+            return Ok(Redirect::to(&login_url).into_response());
         }
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+        Err(_) => return Ok(StatusCode::INTERNAL_SERVER_ERROR.into_response()),
     };
     println!("->> first");
     if auth_session.login(&user).await.is_err() {
-        return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+        return Ok(StatusCode::INTERNAL_SERVER_ERROR.into_response());
     }
 
     messages.success(format!("Successfully logged in as {}", user.username));
 
     if let Some(ref next) = creds.next {
-        Redirect::to(next)
+        Ok(Redirect::to(next).into_response())
     } else {
-        Redirect::to("/")
+        Ok(Redirect::to("/").into_response())
     }
-    .into_response()
 }
 
 pub async fn handler_post_signup(
     messages: Messages,
-    State(state): State<AppStateType>,
+    State(state): State<AppState>,
     Form(creds): Form<CredentialsParam>,
-) -> impl IntoResponse {
-    let _username = creds.username;
-    let _passwordd = creds.password;
+) -> Result<impl IntoResponse, AppError> {
+    println!("->> {} - HANDLER: handler_login", get_time());
+    let pool = state.pool_state.read().await.clone();
+    let username = creds.username;
+    let password = creds.password;
+    let new_error = check_user_errors(&username, &password, &pool).await?;
+    match new_error {
+        None => {
+            create_user(username, password, pool).await?;
+            messages.info(format!("User Created Successfully!").to_string());
+            Ok(Redirect::to(""))
+        }
+        Some(new_error) => {
+            messages.success("Failed Successfully!");
 
-    let _pool = state.read().await.contacts_state.clone();
+            Ok(Redirect::to(""))
+        }
+    }
 
-    messages.success("Failed Successfully!");
-    Redirect::to("/login").into_response()
+    //messages.success("Failed Successfully!");
+    //Ok(Redirect::to("/login").into_response())
 }
 
 // endregion: LOGIN
