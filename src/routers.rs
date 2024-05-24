@@ -11,13 +11,13 @@ use axum_messages::{Message, Messages};
 use serde::Deserialize;
 use tokio_util::io::ReaderStream;
 
-// region: INDEX
+// region: INDEX_REG
 
 #[derive(Template)]
 #[template(path = "index.html")]
-pub struct RootTemplate<'a> {
-    pub name: &'a str,
+pub struct RootTemplate {
     pub archive_t: ArchiverState,
+    pub username: String,
 }
 
 pub fn index_router() -> Router<AppState> {
@@ -29,19 +29,27 @@ mod get {
 
     pub async fn handler_root(
         State(state): State<ArchiverStateType>,
+        auth_session: AuthSession,
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_root", get_time());
+        let username: String;
+        if let Some(user) = auth_session.user {
+            username = user.username;
+        } else {
+            username = "guest".to_owned();
+        };
         let root_tmpl = RootTemplate {
-            name: "Guest!",
+            username,
             archive_t: state.read().await.clone(),
+            //user: Option<User>,
         };
         Ok(root_tmpl.into_response())
     }
 }
 
-// endregion: INDEX
+// endregion: INDEX_ENDREG
 
-// region: SHOW
+// region: SHOW_REG
 
 #[derive(Template)]
 #[template(path = "show.html")]
@@ -55,6 +63,7 @@ pub struct ShowTemplate<'a> {
     pub archive_t: ArchiverState,
     pub time_t: String,
     pub birthday_t: u32,
+    //pub user: Option<User>,
 }
 
 #[derive(Template)]
@@ -135,6 +144,7 @@ pub async fn handler_get_showcontacts(
         archive_t: archiver,
         time_t: time_now,
         birthday_t: birthday_set,
+        //user: auth_session.user,
     };
 
     let header_hx = headers.get("HX-Trigger");
@@ -398,7 +408,7 @@ pub async fn handler_post_editcontact(
     println!("->> {} - HANDLER: handler_post_editcontact", get_time());
 
     match auth_session.user {
-        Some(user) => println!("user {:?}", user),
+        Some(user) => println!("user {}", user.username),
         None => println!("none"),
     }
 
