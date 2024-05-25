@@ -19,33 +19,26 @@
   </table>
   
 
-  <div class="flex justify-center">
-    <ul class="menu menu-horizontal space-x-3 ">
-      <li>
-        <a class="btn btn-secondary btn-sm rounded-xl font-bold"
-        href="/contacts/edit?id_p={{contact_t.id}}"
-        >
-          <i class="fa-solid fa-pen-to-square fa-lg"></i>
-        </a>
-      </li>
-      <li>
-        <button class="btn btn-secondary btn-sm rounded-xl font-bold"
-        id="delete_btn"
-        hx-delete="/contacts/view?id_p={{contact_t.id}}"
-        hx-target="body"
-        hx-push-url="true"
-        hx-confirm="Are you sure you want to delete this contact?"
-        >
-        <i class="fa-solid fa-trash-can fa-lg"></i>        </button>
-      </li>
-      <li>
-        <a class="btn btn-primary btn-sm rounded-xl font-bold"
-        href="/contacts/show?page_p=1&birthday_p=0"
-        >
-          Back
-        </a>
-      </li>
-    </ul>
+  <div class="flex justify-around pt-3">
+    <a class="btn btn-secondary btn-sm rounded-xl font-bold"
+    href="/contacts/edit?id_p={{contact_t.id}}"
+    >
+      <i class="fa-solid fa-pen-to-square fa-lg px-0.5"></i>
+    </a>
+    <button class="btn btn-secondary btn-sm rounded-xl font-bold"
+    id="delete_btn"
+    hx-delete="/contacts/view?id_p={{contact_t.id}}"
+    hx-target="body"
+    hx-push-url="true"
+    hx-confirm="Are you sure you want to delete this contact?"
+    >
+      <i class="fa-solid fa-trash-can fa-lg px-1"></i>        
+    </button>
+    <a class="btn btn-primary btn-sm rounded-xl font-bold"
+    href="/contacts/show?page_p=1&birthday_p=0"
+    >
+      Back
+    </a>
   </div>
 </div>
 

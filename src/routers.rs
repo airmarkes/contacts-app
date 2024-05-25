@@ -17,7 +17,7 @@ use tokio_util::io::ReaderStream;
 #[template(path = "index.html")]
 pub struct RootTemplate {
     pub archive_t: ArchiverState,
-    pub username: String,
+    pub username: Option<String>,
 }
 
 pub fn index_router() -> Router<AppState> {
@@ -32,11 +32,11 @@ mod get {
         auth_session: AuthSession,
     ) -> Result<impl IntoResponse, AppError> {
         println!("->> {} - HANDLER: handler_root", get_time());
-        let username: String;
+        let username: Option<String>;
         if let Some(user) = auth_session.user {
-            username = user.username;
+            username = Some(user.username);
         } else {
-            username = "guest".to_owned();
+            username = None;
         };
         let root_tmpl = RootTemplate {
             username,
@@ -64,10 +64,13 @@ pub struct ShowTemplate<'a> {
     pub time_t: String,
     pub birthday_t: u32,
     //pub user: Option<User>,
+    pub username: Option<String>,
 }
 
 #[derive(Template)]
+//#[template(path = "show.html", block = "rows")]
 #[template(path = "show_rows.html")]
+
 pub struct RowsTemplate {
     pub contacts_t: Vec<Contact>,
     pub length_t: u32,
@@ -101,10 +104,17 @@ pub async fn handler_get_showcontacts(
     Query(params): Query<ShowParams>,
     headers: HeaderMap,
     messages: Messages,
+    auth_session: AuthSession,
     //auth_session: AuthSession,
 ) -> Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_get_showcontacts", get_time());
     //std::thread::sleep(std::time::Duration::from_millis(900));
+    let username: Option<String>;
+    if let Some(user) = auth_session.user {
+        username = Some(user.username);
+    } else {
+        username = None;
+    };
 
     //if let Some(user) = auth_session.user {
     let search_bar = params.search_p.as_deref().unwrap_or("");
@@ -145,6 +155,7 @@ pub async fn handler_get_showcontacts(
         time_t: time_now,
         birthday_t: birthday_set,
         //user: auth_session.user,
+        username,
     };
 
     let header_hx = headers.get("HX-Trigger");
@@ -222,6 +233,7 @@ pub async fn handler_delete_bulk(
 pub struct ViewContactTemplate {
     pub contact_t: Contact,
     pub archive_t: ArchiverState,
+    pub username: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -239,8 +251,16 @@ pub fn view_router() -> Router<AppState> {
 pub async fn handler_get_viewcontact(
     State(state): State<AppState>,
     Query(params): Query<ViewContactParams>,
+    auth_session: AuthSession,
 ) -> Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_get_viewcontact", get_time());
+    let username: Option<String>;
+    if let Some(user) = auth_session.user {
+        username = Some(user.username);
+    } else {
+        username = None;
+    };
+
     let id_set = params.id_p;
 
     let pool = state.pool_state.read().await.clone();
@@ -258,6 +278,7 @@ pub async fn handler_get_viewcontact(
     let view_contact_template = ViewContactTemplate {
         contact_t: contact_set,
         archive_t: state.archiver_state.read().await.clone(),
+        username,
     };
     Ok(view_contact_template.into_response())
 }
@@ -310,6 +331,7 @@ pub struct ContactFormTemplate {
     pub errors_t: CreationErrorState,
     pub contact: Contact,
     pub archive_t: ArchiverState,
+    username: Option<String>,
 }
 #[derive(Deserialize)]
 pub struct ContactIDParam {
@@ -326,14 +348,23 @@ pub fn contactform_new_router() -> Router<AppState> {
 pub async fn handler_get_newcontact(
     State(state): State<AppState>,
     Query(contact): Query<Contact>,
+    auth_session: AuthSession,
 ) -> Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_get_newcontact", get_time());
+    let username: Option<String>;
+    if let Some(user) = auth_session.user {
+        username = Some(user.username);
+    } else {
+        username = None;
+    };
+
     let errors_all = state.contact_error_state.read().await.clone();
 
     let new_contact_templ = ContactFormTemplate {
         errors_t: errors_all,
         contact,
         archive_t: state.archiver_state.read().await.clone(),
+        username,
     };
     Ok(new_contact_templ.into_response())
 }
@@ -377,8 +408,16 @@ pub fn contactform_edit_router() -> Router<AppState> {
 pub async fn handler_get_editcontact(
     State(state): State<AppState>,
     Query(params): Query<ContactIDParam>,
+    auth_session: AuthSession,
 ) -> Result<impl IntoResponse, AppError> {
     println!("->> {} - HANDLER: handler_get_editcontact", get_time());
+    let username: Option<String>;
+    if let Some(user) = auth_session.user {
+        username = Some(user.username);
+    } else {
+        username = None;
+    };
+
     let pool = state.pool_state.read().await.clone();
     let contact_set = sqlx::query_as!(
         Contact,
@@ -395,6 +434,7 @@ pub async fn handler_get_editcontact(
         errors_t: state.contact_error_state.read().await.clone(),
         contact: contact_set,
         archive_t: state.archiver_state.read().await.clone(),
+        username,
     };
     Ok(edit_contact_template.into_response())
 }
@@ -484,7 +524,7 @@ pub async fn handler_get_count(
 
 pub async fn handler_close_flash() -> Result<String, AppError> {
     println!("->> {} - HANDLER: handler_close_flash", get_time());
-    let span = format!("");
+    let span = String::new();
     Ok(span)
 }
 
@@ -583,6 +623,7 @@ pub struct LoginTemplate {
     messages: Vec<Message>,
     next: Option<String>,
     archive_t: ArchiverState,
+    username: Option<String>,
 }
 // This allows us to extract the "next" field from the query string. We use this
 // to redirect after log in.
@@ -611,17 +652,26 @@ pub async fn handler_get_login(
     messages: Messages,
     State(archiver_state): State<ArchiverStateType>,
     Query(NextUrlParam { next }): Query<NextUrlParam>,
+    auth_session: AuthSession,
 ) -> LoginTemplate {
+    let username: Option<String>;
+    if let Some(user) = auth_session.user {
+        username = Some(user.username);
+    } else {
+        username = None;
+    };
+
     LoginTemplate {
         messages: messages.into_iter().collect(),
         next,
         archive_t: archiver_state.read().await.clone(),
+        username,
     }
 }
 
 pub async fn handler_get_logout(mut auth_session: AuthSession) -> impl IntoResponse {
     match auth_session.logout().await {
-        Ok(_) => Redirect::to("/login").into_response(),
+        Ok(_) => Redirect::to("/").into_response(),
         Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     }
 }
@@ -650,7 +700,7 @@ pub async fn handler_post_login(
         return Ok(StatusCode::INTERNAL_SERVER_ERROR.into_response());
     }
 
-    messages.success(format!("Successfully logged in as {}", user.username));
+    //messages.success(format!("Successfully logged in as {}", user.username));
 
     if let Some(ref next) = creds.next {
         Ok(Redirect::to(next).into_response())
@@ -676,7 +726,7 @@ pub async fn handler_post_signup(
             Ok(Redirect::to("/login"))
         }
         Some(_) => {
-            messages.error("Oops, something wrong!");
+            messages.error("Username or Password not valid!");
             Ok(Redirect::to("/login"))
         }
     }

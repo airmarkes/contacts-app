@@ -566,7 +566,7 @@ pub struct UserErrorState {
 
 pub async fn check_user_errors(
     username: &String,
-    password: &String,
+    password: &str,
     pool: &Pool<Sqlite>,
 ) -> anyhow::Result<Option<UserErrorState>> {
     let new_error = UserErrorState {

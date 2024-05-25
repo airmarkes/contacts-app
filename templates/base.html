@@ -29,7 +29,7 @@
         </label>
       </div>
       <div class="flex-none">
-        <a class="btn btn-ghost text-xl font-bold"
+        <a class="btn btn-ghost text-lg font-bold"
         href="/"
         >
 <!--           <i class="fa-solid fa-gift fa-rotate-by fa-xl text-accent"></i>
@@ -39,15 +39,17 @@
         </a>
       </div>
       <div class="flex-1">
-        <ul class="menu menu-horizontal px-1">
-          <li><a href="/contacts/show?page_p=1&birthday_p=0">
-            <i class="fa-solid fa-address-book px-1 text-secondary"></i></a>
+        <ul class="menu menu-horizontal">
+
+<!--           <li><a href="/contacts/show?page_p=1&birthday_p=0">
+            <i class="fa-solid fa-address-book"></i></a>
           </li>
           <li><a href="/contacts/show?page_p=1&birthday_p=1">
-            <i class="fa-solid fa-list px-1 text-secondary"></i></a>
+            <i class="fa-solid fa-list"></i></a>
           </li>
-          
-          <li><a>Docs</a></li>
+ -->      
+          <li><a href="/contacts/show?page_p=1&birthday_p=0">Home</a></li>
+          <li><a>Plans</a></li>
           <li>
             <details>
               <summary>
@@ -55,7 +57,7 @@
               </summary>
               <ul class="p-2 bg-base-100 rounded-t-none z-10">
                 <li><a>FAQ</a></li>
-                <li><a>Guides</a></li>
+                <li><a>Docs</a></li>
               </ul>
             </details>
           </li>
@@ -76,21 +78,55 @@
           d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
         </label>
       </div>
- -->      <div class="flex-none px-1">
-        <a class="btn btn-square btn-ghost"
-        href="https://github.com/airmarkes/contacts-app"
-        target="_blank">
-          <i class="fa-brands fa-github fa-xl"></i>
-        </a>
-      </div>
-      
-      <div class="flex-none px-1">
-        <a class="btn btn-square btn-ghost"
-        href="/login">
-          <i class="fa-solid fa-arrow-right-to-bracket fa-lg"></i>
-        </a>
+ -->    
+      <div class="flex-none">
+        <ul class="menu menu-horizontal">
+          <li class="px-1">
+            <a
+            href="https://github.com/airmarkes/contacts-app"
+            target="_blank">
+            <span><i class="fa-brands fa-github fa-xl"></i></span>
+            </a>
+          </li>
+          <li>
+          {% match username %}
+          {% when Some with (string) %}
+          <details class="w-24">
+            <summary class="rounded-full border-2 border-success text-success">
+              {{ string|truncate(4) }}
+            </summary>
+            <ul class="bg-base-100 rounded-t-none z-10 w-24 px-0">
+              <li class="w-24"><a class="px-2" href="/logout" >
+                <span><i class="fa-solid fa-arrow-right-from-bracket fa-lg"></i></span>
+                Logout</a></li>
+            </ul>
+          </details>
+          {% when None %}
+          <details class="w-24">
+            <summary class="rounded-full border-2 border-primary">
+              Enter
+            </summary>
+            <ul class="bg-base-100 rounded-t-none z-10 w-24 px-0">
+              <li class="w-24"><a class="px-2" href="/login">
+                <span><i class="fa-solid fa-arrow-right-to-bracket fa-lg"></i></span>
+                  Login
+                </a>
+              </li>
+            </ul>
+          </details>
+          {% endmatch %}
+          </li>
+          <!-- <li>
+            <a class="btn btn-square btn-ghost"
+            href="/login">
+              <i class="fa-solid fa-arrow-right-to-bracket fa-lg"></i>
+            </a>
+          </li> -->
+          
+        </ul>
       </div>
     </header>
+
     <main
     class="mb-auto h-auto bg-base-200" 
     id="content"

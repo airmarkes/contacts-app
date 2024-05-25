@@ -1,4 +1,3 @@
-<!-- .. -->
 {% extends "base.html" %} 
 {% block title %} List of Contacts {% endblock %} 
 {% block content %}
@@ -7,11 +6,9 @@ id="fire_reload"
 hx-get="/contacts/count"
 hx-trigger="fire_reload from:body, load delay:300ms"
 hx-target="#contacts_count"
->
-</div>
+></div>
 
 <div class="mx-auto border-2 border-neutral rounded-md px-6 p-3 mt-3 bg-base-100"> 
-
   <ul class="w-full" id="flash_show">
     {% for message in messages_t %}
     <li>
@@ -41,12 +38,12 @@ hx-target="#contacts_count"
     </div>
 
     {% if birthday_t == 0 %}
-    <div class="flex font-semibold text-accent text-xl">
-      <i class="fa-solid fa-address-book fa-lg text-accent px-2 pt-3"></i>
+    <div class="flex font-semibold text-accent text-2xl ">
+      <i class="fa-solid fa-address-book fa-lg text-accent px-3 pt-3"></i>
       All Contacts
     </div>
     {% else %}
-    <div class="flex font-semibold text-accent text-xl">
+    <div class="flex font-semibold text-accent text-2xl ">
       <i class="fa-solid fa-list fa-lg text-accent px-2 pt-3"></i>
       Upcoming Bdays
     </div>
@@ -64,6 +61,20 @@ hx-target="#contacts_count"
   </div>
 
   <div class="flex justify-evenly py-1">
+    {% if birthday_t == 0 %}
+    <a class="btn btn-secondary text-lg rounded-xl"
+    href="/contacts/show?page_p=1&birthday_p=1"
+    >
+      <i class="fa-solid fa-list"></i>
+    </a>
+    {% else %}
+    <a class="btn btn-secondary text-lg rounded-xl"
+    href="/contacts/show?page_p=1&birthday_p=0"
+    >
+    <i class="fa-solid fa-address-book"></i>
+    </a>
+    {% endif %}
+
     <label class="input input-bordered input-primary flex items-center gap-2 pr-0">
       <i class="fa-solid fa-magnifying-glass fa-lg text-primary"></i>   
       <input class="grow"   
@@ -82,30 +93,23 @@ hx-target="#contacts_count"
       <span class="htmx-indicator loading loading-bars loading-sm text-primary"
       id="spinner">
       </span>
-<!--       <select class="select select-bordered join-item select-primary">
-        <option selected>All</option>
-        <option>Nexy Bdays</option>
-        <option>Prev Bdays</option>
-      </select>
- -->    </label>
-    <div class="flex">
-      <a class="btn btn-secondary text-lg rounded-xl"
-      href="/contacts/new?id=0&first_name=&last_name=&phone=&email=&birth_date=&time_creation="
-      >
-        <i class="fa-solid fa-user-plus fa-lg"></i>
-      </a>
-    </div>
+    </label>
+
+    <a class="btn btn-secondary text-lg rounded-xl"
+    href="/contacts/new?id=0&first_name=&last_name=&phone=&email=&birth_date=&time_creation="
+    >
+      <i class="fa-solid fa-user-plus fa-lg"></i>
+    </a>
   </div>
-  
 
   <div class="overflow-x-auto">
-     <form enctype="application/x-www-form-urlencoded">
+    <form enctype="application/x-www-form-urlencoded">
       <table class="table-lg text-base-content">
         <thead>
           <tr>
             <th>
               <button
-                class="btn btn-secondary btn-xs rounded-xl"
+                class="btn btn-secondary btn-xs rounded-xl px-3"
                 hx-delete="/contacts/show?page_p=1&birthday_p=0"
                 hx-confirm="Are you sure you want to delete these contacts?"
                 hx-target="body"
@@ -113,26 +117,10 @@ hx-target="#contacts_count"
                 <i class="fa-regular fa-trash-can"></i>       
               </button>
             </th>
-            <!--<th >
-              ID
-            </th>-->
-            <th>
-              First Name
-            </th>
-            <th >
-              Last Name
-            </th>
-            <th >
-              Birth Date
-            </th>
-            <!--  <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">Phone</th>
-            <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">Email</th> 
-            <th class="table-cell rounded-md bg-indigo-300 px-2 py-1 text-left">
-              Creation Time
-            </th> -->
-            <th>
-              Actions
-            </th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Birth Date</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody id="tbody">
@@ -142,6 +130,5 @@ hx-target="#contacts_count"
     </form>
   </div>
 </div>
-<div class="h-3">
-</div>
+<div class="h-3"></div>
 {% endblock %}

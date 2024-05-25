@@ -28,6 +28,7 @@ method="post">
 
   <fieldset>
     <legend class="w-full py-3 text-center text-2xl font-bold text-accent">
+      <i class="fa-solid fa-arrow-right-to-bracket px-2"></i>
       Log in with your account!
     </legend>
 
@@ -38,6 +39,8 @@ method="post">
       <input class="input input-bordered  w-full max-w-xs" 
       type="text" placeholder="Type here" name="username" id="username"
       />
+      <div class="label">
+      </div>
     </label>
 
     <label class="form-control w-full max-w-xs">
@@ -47,35 +50,28 @@ method="post">
       <input class="input input-bordered  w-full max-w-xs" 
       type="password" placeholder="Type here" name="password" id="password"
       />
+      <div class="label">
+      </div>
     </label>
   </fieldset>
    
-  <div class="flex justify-center pt-3">
-    <ul class="menu menu-horizontal bg-base-100 space-x-3">
-      <li>
-        <button type="submit" formaction="/login"
-        class="btn btn-secondary btn-sm rounded-xl font-bold"
-        >
-        Log in
-        </button>
-      </li>
-      <li>
-        <input type="submit" value="Sign up" formaction="/signup"
-        class="btn btn-accent btn-sm rounded-xl font-bold"
-        />
-      </li>
-      <li>
-        <a class="btn btn-primary btn-sm rounded-xl font-bold"
-        href="/contacts/show?page_p=1&birthday_p=0"
-        >
-          Back
-        </a>
-      </li>
-      
-      {% if let Some(next) = next %}
-      <input type="hidden" name="next" value="{{next}}" />
-      {% endif %}
-    </ul>
+  <div class="flex justify-around pt-3">
+    <button type="submit" formaction="/login"
+    class="btn btn-secondary btn-sm rounded-xl font-bold"
+    >
+      Log in
+    </button>
+    <input type="submit" value="Sign up" formaction="/signup"
+    class="btn btn-accent btn-sm rounded-xl font-bold"
+    />
+    <a class="btn btn-primary btn-sm rounded-xl font-bold"
+    href="/contacts/show?page_p=1&birthday_p=0"
+    >
+      Back
+    </a>
+    {% if let Some(next) = next %}
+    <input type="hidden" name="next" value="{{next}}" />
+    {% endif %}
   </div>
 </form>
     

@@ -5,13 +5,13 @@
 method="post">
   <fieldset>
     {% if contact.id == 0 %}
-    <legend class="w-full pb-3 text-center text-2xl font-bold text-accent">
+    <legend class="w-full py-3 text-center text-2xl font-bold text-accent">
       <i class="fa-solid fa-user-plus px-2"></i>
       Create a new contact!
     </legend>
     {% else %}
-    <legend class="w-full pb-3 text-center text-2xl font-bold text-accent">
-      <i class="fa-solid fa-pen-to-square px-1"></i>
+    <legend class="w-full py-3 text-center text-2xl font-bold text-accent">
+      <i class="fa-solid fa-pen-to-square px-2"></i>
       Edit contact ID: {{ contact.id }}!
     </legend>
     {% endif %}
@@ -105,7 +105,7 @@ method="post">
     </label>
   </fieldset>
 
-  <div class="flex justify-center space-x-6">
+  <div class="flex justify-around">
     {% if contact.id == 0 %}
     <button class="btn btn-secondary btn-sm rounded-xl font-bold" type="submit" formaction="/contacts/new">
       Save
